@@ -1,0 +1,66 @@
+# Stage 6 - Post-merge Release Readiness
+
+## Metadata
+
+- Week: 
+- Date: 
+- Author: 
+- Reviewer: 
+
+## Git checkpoint
+
+- Stages 4-5 presentation PR merged: [ ]
+- Exercise PR merged, or exercise explicitly omitted from this release: [ ]
+- Default branch updated locally: [ ]
+- `git status --short` reviewed: [ ]
+- Release validation is read-only: [ ]
+- Release-fix branch / PR if source changes were required:
+
+## Inspiration check
+
+- Which external pattern ended up most useful:
+- Which pattern looked promising but was dropped:
+- Did any imported idea feel too advanced, too technical, or too far from model-first teaching:
+
+## Review outcomes
+
+### Written materials review
+- Key findings:
+- Revisions applied:
+
+### Presentation review
+- Key findings:
+- Revisions applied:
+
+### Exercise review
+- Independent reviewer:
+- Key findings:
+- Revisions applied:
+- Human approval:
+
+## Final validation checklist
+
+- Learning outcomes still aligned: [ ]
+- Written and slide narratives are aligned: [ ]
+- Exercise core tasks remain aligned with the approved lesson outcomes and sequence: [ ]
+- Interaction fallback wording present: [ ]
+- Rendered outputs updated: [ ]
+- Release artefacts verified: [ ]
+- `website-release.yml` validates and lists exactly the intended public files: [ ]
+- Every listed source, exercise, data file, and extra passed privacy, assessment-security, provenance, and reuse review: [ ]
+- Public README distinguishes the HUB stable release from `main` and `preview`: [ ]
+- Repository visibility matches the HUB repository link: [ ]
+- Approved licensing status checked; missing license recorded as a human decision: [ ]
+- Lesson Pages routes and expected HUB refresh path recorded: [ ]
+- Borrowed source patterns were adapted rather than copied mechanically: [ ]
+
+## Release summary
+
+- Version/tag target:
+- Main lesson changes:
+- Known limitations:
+
+## Decision
+
+- [ ] Ready for release
+- Notes:
