@@ -1,48 +1,40 @@
-<!--
-Po vytvoření nového lekčního repozitáře:
-1. Nahraďte všechny výskyty LXX skutečným číslem lekce.
-2. Doplňte název, podnázev, veřejný přehled lekce a ověřené výsledky učení.
-3. Zkontrolujte všechny odkazy a názvy souborů podle website-release.yml.
-4. Odstraňte tento komentář a všechny zbývající texty DOPLŇTE.
-5. Běžné odstavce v Markdownu ručně nezalamujte na pevnou šířku.
--->
+# L09 — Porovnání kandidátních modelů
 
-# LXX — DOPLŇTE název lekce
+**R², adjustované R² a AIC při volbě modelu**
 
-**DOPLŇTE stručný podnázev lekce**
-
-Tento repozitář obsahuje DOPLŇTE pořadí lekce kurzu [Biostatistika a plánování ekologických pokusů (MB120P163)](https://cuni-natur-biostatistics.github.io/) vyučovaného na Přírodovědecké fakultě Univerzity Karlovy.
+Tento repozitář obsahuje devátou lekci kurzu [Biostatistika a plánování ekologických pokusů (MB120P163)](https://cuni-natur-biostatistics.github.io/) vyučovaného na Přírodovědecké fakultě Univerzity Karlovy.
 
 Úplný přehled kurzu, rozvrh, pravidla hodnocení a materiály ostatních lekcí najdete na [veřejném HUBu kurzu](https://cuni-natur-biostatistics.github.io/).
 
 ## O této lekci
 
-DOPLŇTE hlavní biologickou nebo ekologickou otázku, kterou lekce řeší, a jednou větou vysvětlete její místo v návaznosti kurzu.
+Jak složitý model potřebujeme k popisu vztahu mezi průměrem kmene a výškou stromu u tří druhů jehličnanů? Lekce navazuje na interpretaci modelů s více prediktory a interakcemi a přesouvá pozornost od jednoho modelu k obhajitelnému porovnání několika předem formulovaných kandidátů.
 
-DOPLŇTE dva až tři krátké odstavce srozumitelné i člověku, který tento repozitář našel samostatně na internetu. Představte hlavní dataset nebo datový příběh, statistické pojmy a způsob uvažování, kterými lekce prochází. Nepopisujte historii vývoje repozitáře, interní větve, schvalovací stav ani nahrazené datasety.
+Výuková data obsahují měření 63 stromů tří druhů jehličnanů. Kandidátní modely postupně vyjadřují tři biologické představy: společný vztah mezi průměrem kmene a výškou, rozdílnou typickou výšku jednotlivých druhů a druhově specifické sklony tohoto vztahu.
 
-DOPLŇTE závěrečnou větu vysvětlující, proč je lekce důležitá pro další části kurzu nebo pro práci s biologickými daty.
+Studenti porovnají R², adjustované R² a AIC, ale konečné rozhodnutí neopřou o jediné číslo. Zohlední také biologickou otázku, složitost, diagnostiku a interpretovatelnost modelu.
+
+Schopnost obhájit malou sadu kandidátních modelů je důležitá pro transparentní analýzu biologických dat a připravuje půdu pro pozdější práci s nelinearitou a složitější strukturou dat.
 
 ## Výsledky učení
 
 Po prostudování této lekce dokážete:
 
-- DOPLŇTE pozorovatelnou studentskou činnost;
-- DOPLŇTE pozorovatelnou studentskou činnost;
-- DOPLŇTE pozorovatelnou studentskou činnost;
-- DOPLŇTE pozorovatelnou studentskou činnost;
-- DOPLŇTE pozorovatelnou studentskou činnost.
+- vysvětlit, proč nejvyšší R² automaticky neznamená nejlepší model;
+- rozlišit účel R², adjustovaného R² a AIC;
+- sestavit malou sadu biologicky zdůvodněných kandidátních modelů;
+- obhájit volbu modelu s ohledem na otázku, složitost, diagnostiku a interpretovatelnost.
 
 ## Materiály pro studenty
 
-Následující odkazy vedou vždy na nejnovější schválené vydání LXX. Rozpracovaná verze ve větvi `main` může být novější, ale není určena jako závazná studijní verze.
+Následující odkazy vedou vždy na nejnovější schválené vydání L09. Rozpracovaná verze ve větvi `main` může být novější, ale není určena jako závazná studijní verze.
 
 | Materiál | Online verze | PDF |
 | --- | --- | --- |
-| Skripta | [Číst online](https://cuni-natur-biostatistics.github.io/LXX/current/learning/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/LXX/current/learning/skripta.pdf) |
-| Prezentace | [Otevřít slidy](https://cuni-natur-biostatistics.github.io/LXX/current/presentation/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/LXX/current/presentation/presentation.pdf) |
+| Skripta | [Číst online](https://cuni-natur-biostatistics.github.io/L09/current/learning/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/L09/current/learning/skripta.pdf) |
+| Prezentace | [Otevřít slidy](https://cuni-natur-biostatistics.github.io/L09/current/presentation/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/L09/current/presentation/presentation.pdf) |
 
-Pro navazující praktické cvičení je připraven [R skript ke stažení](https://cuni-natur-biostatistics.github.io/LXX/current/code/cviceni.R). Skript obsahuje úlohy a kód, se kterými budete pracovat během praktika.
+Pro navazující praktické cvičení je připraven [R skript ke stažení](https://cuni-natur-biostatistics.github.io/L09/current/code/cviceni.R). Skript obsahuje úlohy a kód, se kterými budete pracovat během praktika.
 
 - [HUB kurzu](https://cuni-natur-biostatistics.github.io/) je hlavní vstup ke všem veřejným studijním materiálům.
 - [Moodle kurzu](https://dl2.cuni.cz/course/view.php?id=106) slouží zapsaným studentům pro oznámení, testy, zadání, odevzdávání a individuální výsledky.
@@ -62,7 +54,7 @@ Pro navazující praktické cvičení je připraven [R skript ke stažení](http
 
 ### Reprodukovatelné prostředí
 
-Repozitář používá `renv`. Po klonování otevřete `LXX.Rproj` a v čerstvé R relaci spusťte:
+Repozitář používá `renv`. Po klonování otevřete `L09.Rproj` a v čerstvé R relaci spusťte:
 
 ```r
 renv::restore()
@@ -79,7 +71,7 @@ Samostatně lze použít `R/render_skripta.R` nebo `R/render_presentation.R`. P�
 
 ### Publikování
 
-`website-release.yml` je explicitní seznam souborů povolených ve veřejném balíčku. Větev `main` vytváří veřejný náhled, zatímco stabilní tag `LXX-vMAJOR.MINOR.PATCH-YYYYMMDD` vytváří neměnné vydání a aktualizuje cestu `/LXX/current/`. Před prvním vydáním nahraďte v manifestu i v tomto README všechny zástupné údaje skutečnými hodnotami.
+`website-release.yml` je explicitní seznam souborů povolených ve veřejném balíčku. Větev `main` vytváří veřejný náhled, zatímco stabilní tag `L09-vMAJOR.MINOR.PATCH-YYYYMMDD` vytváří neměnné vydání a aktualizuje cestu `/L09/current/`. Před prvním vydáním nahraďte v manifestu i v tomto README všechny zástupné údaje skutečnými hodnotami.
 
 Podrobný publikační postup je v [`WEBSITE_RELEASES.md`](WEBSITE_RELEASES.md). Postup tvorby a kontroly lekce je v [`Workflow/README.md`](Workflow/README.md).
 
