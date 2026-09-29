@@ -1,9 +1,9 @@
 schema_version: 1
 course: MB120P163
-lesson: L00
+lesson: L09
 academic_year: "2026-27"
-title: "Doplňte název lekce"
-subtitle: "Doplňte podnázev lekce"
+title: "Porovnání kandidátních modelů"
+subtitle: "R², adjustované R² a AIC při volbě modelu"
 resources:
   learning:
     html: Learning_materials/skripta.html
@@ -16,7 +16,11 @@ resources:
   exercises:
     - label: "R skript ke cvičení"
       path: Exercises/cviceni.R
-  data: []
+  data:
+    - label: "Allometrie stromů"
+      path: data/allometrie_stromu.csv
   extras:
     - label: "Licence materiálů a kódu"
       path: LICENSE.md
+    - label: "Původ dat o allometrii stromů"
+      path: data/README.md
