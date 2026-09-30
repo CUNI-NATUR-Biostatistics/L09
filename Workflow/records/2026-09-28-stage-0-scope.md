@@ -6,7 +6,8 @@
 - Date: 2026-09-28
 - Author: OpenAI Codex, working with Ondřej Mottl
 - Reviewer: Ondřej Mottl
-- Status: in review; awaiting explicit human approval
+- Status: approved and locked
+- Human approval: Ondřej Mottl, 2026-09-29
 
 ## Git checkpoint
 
@@ -15,7 +16,7 @@
 - Base branch and commit: `main` at `dd5bd94`
 - `git status --short` reviewed: [x]
 - Previous-stage PR merged: N/A
-- Planned PR: Stages 0-1 planning, after scope and dataset approval
+- Planning PR: #1, merged into `main` at `1723cb5`
 
 ## Topic sentence
 
@@ -83,7 +84,7 @@ Canonical source: `_internal/osnova_lekci.md`, section **L09 – Porovnání kan
 
 ## Decision
 
-- [ ] Human reviewer approved this scope
-- [ ] Scope locked for implementation
+- [x] Human reviewer approved this scope
+- [x] Scope locked for implementation
 - [x] Continue Stage 1 research on this same planning branch
-- Notes: The canonical outcomes are internally coherent. On 2026-09-28 the human reviewer explicitly required a genuinely new dataset rather than the L08 crabs or any other L01-L08 dataset. Human review should confirm the proposed depth boundary; Stage 1 now evaluates only new data stories.
+- Notes: The canonical outcomes are internally coherent. On 2026-09-28 the human reviewer explicitly required a genuinely new dataset rather than the L08 crabs or any other L01-L08 dataset. On 2026-09-29 Ondřej Mottl explicitly approved the Stage 0 scope after planning PR #1 merged.
