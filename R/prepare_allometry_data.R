@@ -12,61 +12,39 @@
 
 
 #----------------------------------------------------------#
-# Download the pinned source package -----
+# Extract the source data from the package -----
 #----------------------------------------------------------#
 
-url_lgrdata <-
-  paste0(
-    "https://cran.r-project.org/src/contrib/",
-    "lgrdata_0.1.1.tar.gz"
+if (
+  !requireNamespace(
+    package = "lgrdata",
+    quietly = TRUE
   )
+) {
+  cli::cli_abort(
+    "Package {.pkg lgrdata} is required to prepare the teaching data."
+  )
+}
 
-file_archive <-
-  tempfile(fileext = ".tar.gz")
-
-dir_archive <-
-  tempfile(pattern = "lgrdata-")
-
-dir.create(
-  path = dir_archive,
-  recursive = TRUE
-)
-
-download.file(
-  url = url_lgrdata,
-  destfile = file_archive,
-  mode = "wb",
-  quiet = FALSE
-)
-
-untar(
-  tarfile = file_archive,
-  exdir = dir_archive
-)
+if (
+  as.character(utils::packageVersion("lgrdata")) != "0.1.1"
+) {
+  cli::cli_abort(
+    "Package {.pkg lgrdata} version 0.1.1 is required to reproduce the teaching data."
+  )
+}
 
 
 #----------------------------------------------------------#
 # Prepare the teaching table -----
 #----------------------------------------------------------#
 
-environment_data <-
-  new.env(parent = emptyenv())
-
-load(
-  file = file.path(
-    dir_archive,
-    "lgrdata",
-    "data",
-    "allometry.rda"
-  ),
-  envir = environment_data
+data(
+  list = "allometry",
+  package = "lgrdata"
 )
 
-data_allometry_source <-
-  get(
-    x = "allometry",
-    envir = environment_data
-  )
+data_allometry_source <- allometry
 
 data_allometry_teaching <-
   data_allometry_source |>
