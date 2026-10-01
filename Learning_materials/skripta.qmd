@@ -1,5 +1,5 @@
 ---
-title: "TODO: Název přednášky"
+title: "Jak poznáme, že je model dobrý?"
 subtitle: "Podkladové čtenářské materiály k přednášce"
 lang: cs
 filters:
@@ -27,7 +27,7 @@ format:
       - "skripta_theme.typ"
       - "skripta-logo.typ"
     date: last-modified
-date: 2026/02/26
+date: 2026/09/30
 date-format: long
 date-modified: last-modified
 ---
@@ -40,47 +40,77 @@ if (!require("here")) install.packages("here")
 here::i_am("Learning_materials/skripta.qmd")
 
 if (!require("tidyverse")) install.packages("tidyverse")
-if (!require("ggbeeswarm")) install.packages("ggbeeswarm")
-if (!require("palmerpenguins")) install.packages("palmerpenguins")
 if (!require("glossary")) install.packages("glossary")
 
 library(tidyverse)
-library(ggbeeswarm)
-library(palmerpenguins)
 library(glossary)
 
-# Glossary: point to the canonical slovnik pojmy.yaml hosted on GitHub.
+# Síťové doplňky nesmějí při renderování blokovat lokální výstup.
+options(timeout = 15)
+
+# Glossary: prefer the canonical local slovnik copy in the course workspace.
 # Terms are looked up by slug ID (e.g. "histogram", "median", "boxplot").
 # Usage in text: `r render_glossary_term("slug", display = "Czech term")`
 # The glossary_style() call applies brand colours to the hover tooltip (HTML only).
-local_pojmy <- tempfile(fileext = ".yaml")
-tryCatch(
-  {
-    download.file(
-      url = "https://raw.githubusercontent.com/CUNI-NATUR-Biostatistics/slovnik/main/pojmy.yaml",
-      destfile = local_pojmy,
-      quiet = TRUE
-    )
-    glossary::glossary_path(local_pojmy)
-  },
-  error = function(e) {
-    message("Glossary YAML unavailable: ", conditionMessage(e))
-  }
-)
-tryCatch(
-  {
-    source(
-      paste0(
-        "https://raw.githubusercontent.com/",
-        "CUNI-NATUR-Biostatistics/slovnik/main/",
-        "R/Functions/render_glossary_term.R"
+local_pojmy <-
+  here::here(
+    "..",
+    "slovnik",
+    "pojmy.yaml"
+  )
+
+if (!file.exists(local_pojmy)) {
+  local_pojmy <- tempfile(fileext = ".yaml")
+
+  tryCatch(
+    {
+      download.file(
+        url = paste0(
+          "https://raw.githubusercontent.com/",
+          "CUNI-NATUR-Biostatistics/slovnik/main/pojmy.yaml"
+        ),
+        destfile = local_pojmy,
+        quiet = TRUE,
+        mode = "wb"
       )
-    )
-  },
-  error = function(e) {
-    source(here::here("R/Functions/render_glossary_term.R"))
-  }
-)
+    },
+    error = function(e) {
+      message("Glossary YAML unavailable: ", conditionMessage(e))
+    }
+  )
+}
+
+if (file.exists(local_pojmy)) {
+  glossary::glossary_path(local_pojmy)
+}
+
+local_glossary_helper <-
+  here::here(
+    "..",
+    "slovnik",
+    "R",
+    "Functions",
+    "render_glossary_term.R"
+  )
+
+if (file.exists(local_glossary_helper)) {
+  source(local_glossary_helper)
+} else {
+  tryCatch(
+    {
+      source(
+        paste0(
+          "https://raw.githubusercontent.com/",
+          "CUNI-NATUR-Biostatistics/slovnik/main/",
+          "R/Functions/render_glossary_term.R"
+        )
+      )
+    },
+    error = function(e) {
+      source(here::here("R/Functions/render_glossary_term.R"))
+    }
+  )
+}
 ```
 
 ```{r}
@@ -119,59 +149,1605 @@ if (knitr::is_html_output()) {
 }
 ```
 
-## Úvod
+::: {.box-question title="Hlavní otázka"}
+Jaké důkazy potřebujeme, abychom mohli obhájit, že model je pro naši biologickou otázku dobrý?
+:::
 
-TODO: Stručný úvod do tématu přednášky. Vysvětlete biologický kontext a motivaci.
+## Co už s daty umíme udělat?
 
-## TODO: Hlavní část
+Při analýze dat už umíme propojit několik kroků: data prohlédnout, zobrazit, položit biologickou otázku, odhadnout model, interpretovat jeho výstup a zkontrolovat jeho předpoklady.
 
-TODO: Obsah hlavní části skripta. Používejte podnadpisy (###) pro strukturování textu.
+::: {.box-question title="Sestavte pracovní postup"}
+V jakém pořadí byste použili kroky **prohlédnout data**, **zobrazit vztah**, **formulovat model**, **interpretovat výstup** a **zkontrolovat `r render_glossary_term("residuum", display = "residua")`**? Než budete pokračovat, sestavte si vlastní pořadí.
+:::
 
-### TODO: Podkapitola
+Jedna obhajitelná cesta je položit biologickou otázku, prohlédnout a zobrazit data, formulovat model, interpretovat jeho výstup a zkontrolovat residua. Jednotlivé kroky se mohou opakovat: `r render_glossary_term("diagnostika-modelu", display = "diagnostika")` nás například může vrátit k biologické otázce nebo k formulaci modelu. V této lekci známý postup použijeme na nový soubor dat a rozšíříme jej o `r render_glossary_term("porovnani-modelu", display = "porovnání několika modelů")`.
 
-TODO: Text podkapitoly s biologickými příklady a R kódem.
+## Co se v této lekci naučíte
+
+Po absolvování lekce budete umět:
+
+- vypočítat a vysvětlit `r render_glossary_term("r2", display = "koeficient determinace R²")` (*coefficient of determination*) z celkového součtu čtverců a `r render_glossary_term("soucet-ctvercu-residui", display = "součtu čtverců residuí")`;
+- vypočítat a interpretovat adjustované R² (*adjusted R-squared*);
+- použít `r render_glossary_term("aic", display = "Akaikeho informační kritérium")` (*Akaike information criterion*, AIC) k relativnímu `r render_glossary_term("porovnani-modelu", display = "porovnání předem zdůvodněných modelů")`;
+- vysvětlit, proč nejvyšší R² automaticky neznamená nejlepší model;
+- sestavit malou sadu biologicky zdůvodněných kandidátních modelů;
+- obhájit volbu modelu pomocí biologické otázky, složitosti, `r render_glossary_term("diagnostika-modelu", display = "diagnostiky")` a interpretovatelnosti.
+
+## Jeden řádek tabulky představuje jeden strom
+
+Budeme pracovat s měřením jehličnanů. Každý řádek dat představuje jeden strom. Pro tuto lekci využijeme druh stromu, průměr kmene měřený ve výšce 1,3 m a výšku stromu.
 
 ```{r}
-#| label: demo
+#| label: nacist-data-stromu
 #| echo: true
-# TODO: ukázka kódu v R
+#| eval: true
+
+# Načteme připravenou výukovou tabulku
+data_stromy <-
+  read.csv(
+    file = here::here("data", "allometrie_stromu.csv"),
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+
+# Druh stromu převedeme na kategoriální proměnnou
+data_stromy$druh_stromu <-
+  factor(x = data_stromy$druh_stromu)
 ```
 
-## Ukázka sémantických boxů
+Tabulka obsahuje `r nrow(data_stromy)` stromů a `r nlevels(data_stromy$druh_stromu)` druhy. Nejprve zkontrolujeme několik řádků, strukturu `r render_glossary_term("promenna", display = "proměnných")`, chybějící hodnoty a zastoupení druhů.
 
-Při přípravě lekce nahraďte následující ukázky konkrétním obsahem, nebo nepoužité typy odstraňte.
+```{r}
+#| label: prohlednout-data-stromu
+#| echo: true
+#| eval: true
 
-::: {.box-question title="Než zobrazíte výsledek"}
-TODO: Krátká otázka, předpověď nebo interpretační úkol pro studenty.
-:::
+# Prohlédneme první řádky proměnných použitých v modelu
+head(
+  x = data_stromy[
+    ,
+    c(
+      "druh_stromu",
+      "prumer_kmene_cm",
+      "vyska_stromu_m"
+    )
+  ],
+  n = 6
+)
 
-::: {.box-result title="Co ukázala analýza"}
-TODO: Hlavní výsledek nebo závěr v biologicky smysluplných jednotkách.
-:::
+# Ověříme datové typy a počet chybějících hodnot
+str(object = data_stromy)
+colSums(x = is.na(data_stromy))
+
+# Zkontrolujeme počet stromů jednotlivých druhů
+table(data_stromy$druh_stromu, useNA = "ifany")
+
+# Zkontrolujeme rozsahy průměru a výšky
+range(
+  x = data_stromy$prumer_kmene_cm,
+  na.rm = TRUE
+)
+
+range(
+  x = data_stromy$vyska_stromu_m,
+  na.rm = TRUE
+)
+
+# Porovnáme rozsahy průměru kmene mezi druhy
+tapply(
+  X = data_stromy$prumer_kmene_cm,
+  INDEX = data_stromy$druh_stromu,
+  FUN = range,
+  na.rm = TRUE
+)
+```
+
+Průměry kmenů sahají od `r formatC(min(data_stromy$prumer_kmene_cm), format = "f", digits = 1)` do `r formatC(max(data_stromy$prumer_kmene_cm), format = "f", digits = 1)` cm a výšky od `r formatC(min(data_stromy$vyska_stromu_m), format = "f", digits = 1)` do `r formatC(max(data_stromy$vyska_stromu_m), format = "f", digits = 1)` m. Rozsahy průměru kmene jednotlivých druhů se překrývají, takže druhy můžeme porovnávat alespoň v části společného rozsahu. Hodnoty jsou pro měřené stromy věrohodné; nevidíme záporné hodnoty ani zjevnou chybu jednotek.
 
 ::: {.box-data title="Doplňující: původ dat" collapse="true"}
-TODO: Původ dat, způsob měření nebo volitelný technický detail.
+Data pocházejí z objektu `allometry` v balíčku [`lgrdata`](https://cran.r-project.org/package=lgrdata), verze 0.1.1. Měření jsou připisována Johnu Marshallovi z University of Idaho a byla zveřejněna pod licencí CC0. Pokud je tato verze balíčku `lgrdata` nainstalovaná, původní tabulku lze načíst přímo z něj; není třeba stahovat ani rozbalovat archiv. Následující kód ověří verzi balíčku, načte původní tabulku, přejmenuje proměnné a uloží soubor použitý v této lekci.
+
+```{r}
+#| label: reprodukovat-data-stromu
+#| echo: true
+#| eval: false
+
+# Ověříme verzi zdrojového balíčku
+stopifnot(
+  as.character(
+    x = packageVersion(pkg = "lgrdata")
+  ) == "0.1.1"
+)
+
+# Načteme původní objekt z balíčku
+data(
+  list = "allometry",
+  package = "lgrdata"
+)
+
+data_allometry_source <- allometry
+
+# Přeložíme zkratky druhů a vybereme výukové proměnné
+vec_nazvy_druhu <-
+  c(
+    "PIMO" = "Pinus monticola",
+    "PIPO" = "Pinus ponderosa",
+    "PSME" = "Pseudotsuga menziesii"
+  )
+
+data_allometry_teaching <-
+  data.frame(
+    druh_stromu = unname(
+      obj = vec_nazvy_druhu[
+        as.character(x = data_allometry_source$species)
+      ]
+    ),
+    prumer_kmene_cm = data_allometry_source$diameter,
+    vyska_stromu_m = data_allometry_source$height,
+    plocha_listu_m2 = data_allometry_source$leafarea,
+    hmotnost_vetvi_kg = data_allometry_source$branchmass
+  )
+
+# Ověříme počet řádků a chybějící hodnoty
+stopifnot(
+  nrow(data_allometry_teaching) ==
+    nrow(data_allometry_source),
+  !anyNA(data_allometry_teaching)
+)
+
+# Uložíme stejnou tabulku, jakou načítá tato lekce
+write.csv(
+  x = data_allometry_teaching,
+  file = here::here("data", "allometrie_stromu.csv"),
+  row.names = FALSE,
+  fileEncoding = "UTF-8"
+)
+```
 :::
 
-::: {.box-extra title="Doplňující: dlouhý technický postup" collapse="true"}
-TODO: Delší volitelný technický nebo reprodukční postup. V HTML zůstává sbalený; v PDF se obsah přirozeně rozloží přes více stran.
+## Jak se výška mění s průměrem kmene?
+
+Vztah dvou `r render_glossary_term("numericka-promenna", display = "numerických proměnných")` zobrazíme pomocí `r render_glossary_term("bodovy-graf", display = "bodového grafu (anglicky scatter plot)")`. Barva rozlišuje druh stromu, ale každý bod stále představuje jeden konkrétní strom.
+
+```{r}
+#| label: zobrazit-vztah-vysky-a-prumeru
+#| echo: true
+#| eval: true
+#| fig-cap: "Výška stromu v závislosti na průměru kmene. Barva rozlišuje druhy stromů."
+
+# Barvy druhů budeme používat stejně ve všech grafech
+vec_barvy_druhu <-
+  c(
+    "Pinus monticola" = "#0072B2",
+    "Pinus ponderosa" = "#D55E00",
+    "Pseudotsuga menziesii" = "#5D2890"
+  )
+
+# Zobrazíme vztah průměru kmene a výšky stromu
+plot(
+  x = data_stromy$prumer_kmene_cm,
+  y = data_stromy$vyska_stromu_m,
+  col = vec_barvy_druhu[data_stromy$druh_stromu],
+  pch = 19,
+  xlab = "Průměr kmene ve výšce 1,3 m (cm)",
+  ylab = "Výška stromu (m)"
+)
+
+legend(
+  x = "topleft",
+  legend = names(vec_barvy_druhu),
+  col = vec_barvy_druhu,
+  pch = 19,
+  bty = "n"
+)
+```
+
+::: {.box-question title="Co vidíte v datech?"}
+Popište nejsilnější společný vzorec a jednu vlastnost grafu, kvůli které by jediná přímka nemusela stačit.
 :::
 
-::: {.box-rule title="Pravidlo pro interpretaci"}
-TODO: Definice, rozhodovací pravidlo nebo dlouhodobě použitelná pomůcka.
+Výška se s rostoucím průměrem kmene většinou zvětšuje. Barvy druhů však v některých částech grafu leží v odlišných výškových pásmech, takže jedna společná přímka může přehlížet rozdíly mezi druhy.
+
+## Jak vztah popíšeme jedním `r render_glossary_term("linearni-model", display = "lineárním modelem")`?
+
+Jako první pokus použijeme lineární model, který výšku všech stromů popíše jednou společnou přímkou. `r render_glossary_term("odezva", display = "Odezvou")` je výška stromu a `r render_glossary_term("prediktor", display = "prediktorem")` je průměr kmene.
+
+```{r}
+#| label: odhadnout-spolecny-model
+#| echo: true
+#| eval: true
+
+# Odhadneme jednu společnou přímku pro všechny stromy
+mod_spolecny <-
+  lm(
+    formula = vyska_stromu_m ~ prumer_kmene_cm,
+    data = data_stromy
+  )
+
+# Přidáme odhadnutou přímku do grafu
+plot(
+  x = data_stromy$prumer_kmene_cm,
+  y = data_stromy$vyska_stromu_m,
+  col = vec_barvy_druhu[data_stromy$druh_stromu],
+  pch = 19,
+  xlab = "Průměr kmene ve výšce 1,3 m (cm)",
+  ylab = "Výška stromu (m)"
+)
+
+abline(
+  reg = mod_spolecny,
+  col = "#2E2E2E",
+  lwd = 3
+)
+```
+
+Tento model záměrně ignoruje druh stromu a popisuje všechny stromy jedinou přímkou.
+
+## Co už umíme přečíst ze `summary()`?
+
+Výstup `summary()` obsahuje části, se kterými už umíme pracovat, i dva dosud nevysvětlené řádky. Prohlédněte si celý výpis a zkuste je rozlišit.
+
+```{r}
+#| label: zobrazit-souhrn-spolecneho-modelu
+#| echo: true
+#| eval: true
+
+# Zobrazíme úplný souhrn odhadnutého modelu
+summary(object = mod_spolecny)
+```
+
+::: {.box-question title="Známé a nové části výstupu"}
+Které části výstupu už dokážete interpretovat? Které dva řádky zatím představují nové otázky?
 :::
 
-::: {.box-warning title="Pozor na častou chybu"}
-TODO: Mylná interpretace nebo metodologické varování.
+Už umíme číst volání modelu, souhrn `r render_glossary_term("residuum", display = "residuí")` a tabulku `r render_glossary_term("parametry-modelu", display = "koeficientů")` s jejich `r render_glossary_term("nejistota", display = "nejistotou")`. Novými otázkami zůstává význam řádků **Multiple R-squared** a **Adjusted R-squared**.
+
+## Co model přehlíží?
+
+Z předchozích lekcí už známe `r render_glossary_term("residuum", display = "residua")`: rozdíly mezi pozorovanými a `r render_glossary_term("odhadnuta-hodnota", display = "modelem odhadnutými hodnotami")`. Vhodný model by v nich neměl zanechávat snadno rozpoznatelný systematický vzorec. Zde se proto neptáme, co residuum znamená, ale zda společná přímka přehlíží rozdíl mezi druhy.
+
+```{r}
+#| label: zobrazit-residua-podle-druhu
+#| echo: true
+#| eval: true
+#| fig-cap: "Residua společného modelu podle odhadnuté výšky. Barva znovu rozlišuje druh stromu."
+
+# Zobrazíme residua a zachováme barvy druhů
+plot(
+  x = fitted(object = mod_spolecny),
+  y = residuals(object = mod_spolecny),
+  col = vec_barvy_druhu[data_stromy$druh_stromu],
+  pch = 19,
+  xlab = "Odhadnutá výška stromu (m)",
+  ylab = "Residuum (m)"
+)
+
+abline(
+  h = 0,
+  col = "#2E2E2E",
+  lty = 2
+)
+```
+
+```{r}
+#| label: zkontrolovat-normalitu-spolecneho-modelu
+#| echo: true
+#| eval: true
+#| fig-cap: "Q–Q graf residuí společného modelu."
+
+# Porovnáme residua s očekáváním normálního rozdělení
+qqnorm(
+  y = residuals(object = mod_spolecny),
+  pch = 19
+)
+
+qqline(
+  y = residuals(object = mod_spolecny),
+  col = "#D55E00",
+  lwd = 2
+)
+```
+
+::: {.box-question title="Detektivní práce s residui"}
+Zůstává v residuích společného modelu rozdíl mezi druhy? Co by takový vzorec znamenal pro jednu společnou přímku?
 :::
 
-## Shrnutí
+## Je jeden model jedinou rozumnou možností?
 
-TODO: Klíčové body k zapamatování.
+Společná přímka odpovídá jedné biologické představě: stejně silné stromy mají podle modelu stejnou `r render_glossary_term("odhadnuta-hodnota", display = "odhadnutou výšku")` bez ohledu na druh. Pozorovaný graf a `r render_glossary_term("residuum", display = "residua")` ale připouštějí také rovnoběžné přímky jednotlivých druhů nebo přímky s rozdílnými `r render_glossary_term("sklon", display = "sklony")`.
 
-- TODO: bod 1
-- TODO: bod 2
-- TODO: bod 3
+## Tři modely vyjadřují tři biologické představy
+
+Každý kandidátní model vyjadřuje jinou představu o vztahu průměru kmene, druhu stromu a jeho výšky.
+
+| Kandidát | Vzorec v R | Biologická představa |
+|---|---|---|
+| Společná přímka | `vyska_stromu_m ~ prumer_kmene_cm` | Všechny druhy sdílejí stejný `r render_glossary_term("intercept", display = "intercept")` i `r render_glossary_term("sklon", display = "sklon")`. |
+| Posun mezi druhy | `vyska_stromu_m ~ prumer_kmene_cm + druh_stromu` | Druhy mohou mít odlišnou výšku při stejném průměru, ale sdílejí sklon. |
+| Různé sklony | `vyska_stromu_m ~ prumer_kmene_cm * druh_stromu` | Vztah mezi průměrem a výškou se může mezi druhy lišit. |
+
+```{r}
+#| label: odhadnout-kandidatni-modely
+#| echo: true
+#| eval: true
+
+# Model 1: jedna společná přímka
+mod_spolecny <-
+  lm(
+    formula = vyska_stromu_m ~ prumer_kmene_cm,
+    data = data_stromy
+  )
+
+# Model 2: rovnoběžné přímky druhů
+mod_aditivni <-
+  lm(
+    formula = vyska_stromu_m ~
+      prumer_kmene_cm +
+      druh_stromu,
+    data = data_stromy
+  )
+
+# Model 3: druhově specifické sklony
+mod_interakce <-
+  lm(
+    formula = vyska_stromu_m ~
+      prumer_kmene_cm *
+      druh_stromu,
+    data = data_stromy
+  )
+```
+
+## Který model prochází nejblíže pozorovaným stromům?
+
+```{r}
+#| label: pripravit-predikce-kandidatu
+#| echo: false
+#| output: false
+#| message: false
+#| warning: false
+#| error: false
+
+data_mrizka <-
+  expand.grid(
+    prumer_kmene_cm = seq(
+      from = min(data_stromy$prumer_kmene_cm),
+      to = max(data_stromy$prumer_kmene_cm),
+      length.out = 120
+    ),
+    druh_stromu = levels(data_stromy$druh_stromu)
+  )
+
+data_predikce_spolecny <-
+  data_mrizka |>
+  dplyr::mutate(
+    vyska_stromu_m = predict(
+      object = mod_spolecny,
+      newdata = data_mrizka
+    ),
+    model = "Společná přímka"
+  )
+
+data_predikce_aditivni <-
+  data_mrizka |>
+  dplyr::mutate(
+    vyska_stromu_m = predict(
+      object = mod_aditivni,
+      newdata = data_mrizka
+    ),
+    model = "Posun mezi druhy"
+  )
+
+data_predikce_interakce <-
+  data_mrizka |>
+  dplyr::mutate(
+    vyska_stromu_m = predict(
+      object = mod_interakce,
+      newdata = data_mrizka
+    ),
+    model = "Různé sklony"
+  )
+
+data_predikce <-
+  dplyr::bind_rows(
+    data_predikce_spolecny,
+    data_predikce_aditivni,
+    data_predikce_interakce
+  ) |>
+  dplyr::mutate(
+    model = factor(
+      model,
+      levels = c(
+        "Společná přímka",
+        "Posun mezi druhy",
+        "Různé sklony"
+      )
+    )
+  )
+
+data_predikce_spolecny_graf <-
+  data_predikce |>
+  dplyr::filter(
+    model == "Společná přímka",
+    druh_stromu == levels(data_stromy$druh_stromu)[1]
+  )
+```
+
+```{r}
+#| label: zobrazit-kandidatni-modely
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Stejná pozorování a tři kandidátní modely. Panely se liší pouze strukturou odhadnutých přímek."
+
+ggplot2::ggplot(
+  data = data_stromy,
+  mapping = ggplot2::aes(
+    x = prumer_kmene_cm,
+    y = vyska_stromu_m,
+    color = druh_stromu
+  )
+) +
+  ggplot2::geom_point(size = 2.3, alpha = 0.75) +
+  ggplot2::geom_line(
+    data = data_predikce_spolecny_graf,
+    mapping = ggplot2::aes(
+      x = prumer_kmene_cm,
+      y = vyska_stromu_m
+    ),
+    inherit.aes = FALSE,
+    color = "#2E2E2E",
+    linewidth = 1.1
+  ) +
+  ggplot2::geom_line(
+    data = data_predikce |>
+      dplyr::filter(model != "Společná přímka"),
+    mapping = ggplot2::aes(
+      x = prumer_kmene_cm,
+      y = vyska_stromu_m,
+      color = druh_stromu,
+      group = druh_stromu
+    ),
+    inherit.aes = FALSE,
+    linewidth = 1.1
+  ) +
+  ggplot2::facet_wrap(
+    facets = ggplot2::vars(model),
+    nrow = 1
+  ) +
+  ggplot2::scale_color_manual(values = vec_barvy_druhu) +
+  ggplot2::guides(
+    color = ggplot2::guide_legend(
+      nrow = 2,
+      byrow = TRUE
+    )
+  ) +
+  ggplot2::labs(
+    x = "Průměr kmene ve výšce 1,3 m (cm)",
+    y = "Výška stromu (m)",
+    color = "Druh stromu"
+  ) +
+  ggplot2::theme_bw(base_size = 12) +
+  ggplot2::theme(legend.position = "bottom")
+```
+
+::: {.box-question title="Porovnejte vzdálenosti bodů od přímek"}
+Ve kterém panelu zůstávají mezi pozorovanými body a odhadnutými přímkami nejkratší svislé vzdálenosti?
+:::
+
+Podle obrázku procházejí pozorovaným bodům nejblíže přímky v panelu **Různé sklony**. Rozdíly mezi body a přímkami však chceme vyjádřit číslem, ne pouze odhadovat okem.
+
+## Jak poznáme, který model je lepší?
+
+Při `r render_glossary_term("porovnani-modelu", display = "porovnání modelů")` potřebujeme rozlišit několik druhů důkazů:
+
+- jak těsně model odpovídá pozorovaným datům;
+- kolik `r render_glossary_term("parametry-modelu", display = "parametrů")` potřebuje;
+- zda v `r render_glossary_term("residuum", display = "residuích")` nezůstává systematický vzorec;
+- zda odpovídá biologické otázce;
+- zda jeho výsledek dokážeme smysluplně interpretovat.
+
+Žádné jediné číslo neodpoví na všechny tyto otázky.
+
+## Co už víme o `r render_glossary_term("residuum", display = "residuích")` a jejich čtvercích?
+
+Když jsme poprvé hledali přímku, porovnávali jsme kandidáty pomocí `r render_glossary_term("soucet-ctvercu-residui", display = "součtu čtverců residuí")`. V další lekci jsme stejnou veličinu označili anglickou zkratkou **RSS** (*residual sum of squares*) a použili ji při výpočtu `r render_glossary_term("rezidualni-smerodatna-odchylka", display = "reziduální směrodatné odchylky")`. Při porovnání jednoho společného `r render_glossary_term("prumer", display = "průměru")` s několika skupinovými průměry jsme také viděli, že složitější model může RSS zmenšit.
+
+RSS proto není nový pojem. V této lekci jej spojíme s druhým součtem čtverců, který popisuje rozdíly mezi pozorovanými výškami ještě před použitím `r render_glossary_term("prediktor", display = "prediktorů")`.
+
+::: {.box-question title="Vzpomeňte si na význam RSS"}
+Co se stane se součtem čtverců residuí, když odhadnutá přímka prochází blíže pozorovaným bodům?
+:::
+
+Čím jsou residua kratší, tím menší jsou jejich čtverce i jejich součet. **Menší RSS proto znamená těsnější shodu modelu s pozorovanými daty.**
+
+## Je přímka lepší než předpověď `r render_glossary_term("prumer", display = "průměrem")`?
+
+Než posoudíme odhadnutou přímku, potřebujeme jednoduchý výchozí způsob odhadu. Pokud bychom o jednotlivých stromech nevěděli nic dalšího, mohli bychom každému přiřadit průměrnou výšku. Tento průměrový model nám umožní popsat, jak moc se pozorované výšky liší ještě před použitím průměru kmene.
+
+Následující výpočet používá šest skutečných stromů z datové tabulky. Malý výběr umožňuje vidět každý krok výpočtu. Hodnoty kandidátních modelů v dalších tabulkách vycházejí ze všech `r nrow(data_stromy)` stromů.
+
+```{r}
+#| label: pripravit-priklad-r2
+#| echo: false
+#| output: false
+
+vec_radky_priklad_r2 <- c(1, 11, 22, 32, 43, 58)
+
+data_priklad_r2 <-
+  data_stromy[
+    vec_radky_priklad_r2,
+    c(
+      "druh_stromu",
+      "prumer_kmene_cm",
+      "vyska_stromu_m"
+    )
+  ]
+
+data_priklad_r2$strom <- LETTERS[seq_len(nrow(data_priklad_r2))]
+prumerna_vyska_priklad <- mean(data_priklad_r2$vyska_stromu_m)
+
+mod_priklad_r2 <-
+  lm(
+    formula = vyska_stromu_m ~ prumer_kmene_cm,
+    data = data_priklad_r2
+  )
+
+data_priklad_r2$odchylka_od_prumeru <-
+  data_priklad_r2$vyska_stromu_m -
+  prumerna_vyska_priklad
+
+data_priklad_r2$ctverec_odchylky <-
+  data_priklad_r2$odchylka_od_prumeru^2
+
+data_priklad_r2$odhadnuta_vyska <-
+  fitted(object = mod_priklad_r2)
+
+data_priklad_r2$residuum <-
+  residuals(object = mod_priklad_r2)
+
+data_priklad_r2$absolutni_residuum <-
+  abs(data_priklad_r2$residuum)
+
+data_priklad_r2$ctverec_residua <-
+  data_priklad_r2$residuum^2
+
+ss_total_priklad <-
+  sum(data_priklad_r2$ctverec_odchylky)
+
+ss_res_priklad <-
+  sum(data_priklad_r2$ctverec_residua)
+
+strom_max_total <-
+  data_priklad_r2$strom[
+    which.max(data_priklad_r2$ctverec_odchylky)
+  ]
+
+index_max_residuum <-
+  which.max(data_priklad_r2$residuum)
+
+index_max_absolutni_residuum <-
+  which.max(data_priklad_r2$absolutni_residuum)
+
+strom_max_residuum <-
+  data_priklad_r2$strom[index_max_residuum]
+
+strom_max_absolutni_residuum <-
+  data_priklad_r2$strom[index_max_absolutni_residuum]
+
+text_ss_total_priklad <-
+  paste0(
+    "(",
+    formatC(
+      data_priklad_r2$odchylka_od_prumeru,
+      format = "f",
+      digits = 2
+    ),
+    ")^2",
+    collapse = " + "
+  )
+
+text_ss_res_priklad <-
+  paste0(
+    "(",
+    formatC(
+      data_priklad_r2$residuum,
+      format = "f",
+      digits = 2
+    ),
+    ")^2",
+    collapse = " + "
+  )
+```
+
+```{r}
+#| label: zobrazit-vyber-pro-r2
+#| echo: false
+#| results: asis
+
+knitr::kable(
+  x = data_priklad_r2[
+    ,
+    c(
+      "strom",
+      "prumer_kmene_cm",
+      "vyska_stromu_m"
+    )
+  ],
+  digits = 2,
+  col.names = c(
+    "Strom",
+    "Průměr kmene (cm)",
+    "Výška (m)"
+  ),
+  caption = "Šest stromů použitých k porovnání průměrového modelu a odhadnuté přímky."
+)
+```
+
+## Jak velké jsou rozdíly výšek před použitím `r render_glossary_term("prediktor", display = "prediktorů")`?
+
+`r render_glossary_term("prumer", display = "Průměrná výška")` šesti stromů je `r formatC(prumerna_vyska_priklad, format = "f", digits = 2)` m. Svislé úsečky ukazují odchylku každého `r render_glossary_term("pozorovani", display = "pozorování")` od tohoto průměru.
+
+```{r}
+#| label: zobrazit-celkovou-variabilitu
+#| echo: false
+#| fig-cap: "Odchylky šesti pozorovaných výšek od jejich průměru. Délky úseček jsou před umocněním kladné nebo záporné odchylky."
+
+plot(
+  x = seq_len(nrow(data_priklad_r2)),
+  y = data_priklad_r2$vyska_stromu_m,
+  pch = 19,
+  xaxt = "n",
+  xlab = "Strom",
+  ylab = "Výška stromu (m)",
+  ylim = range(
+    data_priklad_r2$vyska_stromu_m,
+    prumerna_vyska_priklad
+  )
+)
+
+axis(
+  side = 1,
+  at = seq_len(nrow(data_priklad_r2)),
+  labels = data_priklad_r2$strom
+)
+
+abline(
+  h = prumerna_vyska_priklad,
+  col = "#5D2890",
+  lwd = 2
+)
+
+segments(
+  x0 = seq_len(nrow(data_priklad_r2)),
+  y0 = prumerna_vyska_priklad,
+  x1 = seq_len(nrow(data_priklad_r2)),
+  y1 = data_priklad_r2$vyska_stromu_m,
+  col = "#D55E00",
+  lwd = 3
+)
+```
+
+Kladné a záporné odchylky by se při prostém součtu vyrušily. Proto je umocníme na druhou a sečteme. Vznikne **celkový součet čtverců** (*total sum of squares*), tedy číselné vyjádření celkové `r render_glossary_term("variabilita", display = "variability")` pozorovaných výšek kolem jejich průměru.
+
+<!-- TODO: add slug celkovy-soucet-ctvercu to pojmy.yaml -->
+
+```{r}
+#| label: tabulka-celkove-variability
+#| echo: false
+#| results: asis
+
+knitr::kable(
+  x = data_priklad_r2[
+    ,
+    c(
+      "strom",
+      "vyska_stromu_m",
+      "odchylka_od_prumeru",
+      "ctverec_odchylky"
+    )
+  ],
+  digits = 2,
+  col.names = c(
+    "Strom",
+    "Výška",
+    "Odchylka od průměru",
+    "Čtverec odchylky"
+  ),
+  caption = "Od pozorovaných výšek k celkovému součtu čtverců."
+)
+```
+
+Výpočet nejprve zapíšeme pomocí názvů veličin:
+
+$$
+\text{celkový součet čtverců} =
+\text{čtverec odchylky stromu A} + \cdots +
+\text{čtverec odchylky stromu F}.
+$$
+
+Hodnoty v následujícím výpočtu jsou druhé mocniny odchylek z posledních dvou sloupců tabulky:
+
+$$
+\begin{align}
+\text{celkový součet čtverců}
+&= `r text_ss_total_priklad` \\
+&= `r formatC(ss_total_priklad, format = "f", digits = 2)`.
+\end{align}
+$$
+
+Obecně označíme pozorovanou hodnotu $y_i$, průměr všech pozorovaných hodnot $\bar{y}$ a počet pozorování $n$:
+
+$$
+SS_{\mathrm{total}} =
+\sum_{i=1}^{n}
+\left(y_i - \bar{y}\right)^2.
+$$
+
+Symbol $SS_{\mathrm{total}}$ označuje celkový součet čtverců. Každý člen $y_i - \bar{y}$ je odchylka jedné pozorované výšky od průměrné výšky. Hodnota `r formatC(ss_total_priklad, format = "f", digits = 2)` m² popisuje celkovou čtvercovou odchylku šesti výšek od jejich průměru.
+
+::: {.box-question title="Který strom přispívá nejvíce?"}
+Najděte v grafu a tabulce strom s největším příspěvkem k celkové variabilitě. Proč o velikosti příspěvku rozhoduje délka úsečky **i její umocnění na druhou**?
+:::
+
+Největší příspěvek má strom `r strom_max_total`, protože má největší absolutní odchylku od průměru. Umocnění zachová příspěvky kladných i záporných odchylek a větší odchylky zvýrazní.
+
+## Kolik rozdílů zůstalo po odhadnutí přímky?
+
+`r render_glossary_term("prumer", display = "Průměr")` nyní nahradíme odhadnutou přímkou. Každá úsečka vede od `r render_glossary_term("odhadnuta-hodnota", display = "modelem odhadnuté výšky")` k pozorované výšce stejného stromu. Její orientovaná délka je známé `r render_glossary_term("residuum", display = "residuum")`:
+
+$$
+\text{residuum} =
+\text{pozorovaná výška} -
+\text{odhadnutá výška}.
+$$
+
+```{r}
+#| label: zobrazit-residualni-variabilitu
+#| echo: false
+#| fig-cap: "Residua stejné šestice stromů. Každá oranžová úsečka spojuje odhadnutou a pozorovanou výšku."
+
+plot(
+  x = data_priklad_r2$prumer_kmene_cm,
+  y = data_priklad_r2$vyska_stromu_m,
+  pch = 19,
+  xlab = "Průměr kmene (cm)",
+  ylab = "Výška stromu (m)"
+)
+
+abline(
+  reg = mod_priklad_r2,
+  col = "#5D2890",
+  lwd = 2
+)
+
+segments(
+  x0 = data_priklad_r2$prumer_kmene_cm,
+  y0 = data_priklad_r2$odhadnuta_vyska,
+  x1 = data_priklad_r2$prumer_kmene_cm,
+  y1 = data_priklad_r2$vyska_stromu_m,
+  col = "#D55E00",
+  lwd = 3
+)
+
+text(
+  x = data_priklad_r2$prumer_kmene_cm,
+  y = data_priklad_r2$vyska_stromu_m,
+  labels = data_priklad_r2$strom,
+  pos = 3
+)
+```
+
+Residuum nese znaménko: bod nad přímkou má kladné residuum, bod pod přímkou záporné. Absolutní hodnota residua udává délku svislé úsečky mezi bodem a přímkou. Čtverec residua znaménko odstraní a určuje příspěvek daného stromu k součtu čtverců residuí.
+
+<!-- TODO: add slug absolutni-hodnota to pojmy.yaml -->
+
+Čtverce residuí sečteme. Dostaneme již známý `r render_glossary_term("soucet-ctvercu-residui", display = "součet čtverců residuí")` (*residual sum of squares*, RSS): kolik čtvercové odchylky zůstalo po odhadnutí modelu.
+
+```{r}
+#| label: tabulka-residualni-variability
+#| echo: false
+#| results: asis
+
+knitr::kable(
+  x = data_priklad_r2[
+    ,
+    c(
+      "strom",
+      "vyska_stromu_m",
+      "odhadnuta_vyska",
+      "residuum",
+      "absolutni_residuum",
+      "ctverec_residua"
+    )
+  ],
+  digits = 2,
+  col.names = c(
+    "Strom",
+    "Pozorovaná výška",
+    "Odhadnutá výška",
+    "Residuum",
+    "Absolutní hodnota residua",
+    "Čtverec residua"
+  ),
+  caption = "Od residuí k součtu čtverců residuí (RSS)."
+)
+```
+
+Výpočet používá čtverce residuí z tabulky:
+
+$$
+\text{součet čtverců residuí} =
+\text{čtverec residua stromu A} + \cdots +
+\text{čtverec residua stromu F}.
+$$
+
+$$
+\begin{align}
+\text{součet čtverců residuí}
+&= `r text_ss_res_priklad` \\
+&= `r formatC(ss_res_priklad, format = "f", digits = 2)`.
+\end{align}
+$$
+
+Index $i$ označuje pořadí `r render_glossary_term("pozorovani", display = "pozorování")`. Residuum $i$-tého pozorování označíme jako $e_i$:
+
+$$
+SS_{\mathrm{res}} =
+\sum_{i=1}^{n} e_i^2.
+$$
+
+Symbol $SS_{\mathrm{res}}$ označuje RSS. Jeho hodnota `r formatC(ss_res_priklad, format = "f", digits = 2)` m² je menší než celkový součet čtverců, protože přímka sleduje část rozdílů mezi výškami lépe než samotný průměr. **Celkový součet čtverců a RSS jsou dvě stavební veličiny, které použijeme společně v následujícím výpočtu.**
+
+::: {.box-question title="Residuum, jeho velikost a čtverec"}
+Který strom má číselně nejvyšší residuum? Který strom má residuum s největší absolutní hodnotou, a proto také největší čtverec residua? Jsou to stejné stromy?
+:::
+
+Číselně nejvyšší residuum má strom `r strom_max_residuum`: `r formatC(data_priklad_r2$residuum[index_max_residuum], format = "f", digits = 2)` m. Největší absolutní hodnotu residua má strom `r strom_max_absolutni_residuum`: jeho residuum je `r formatC(data_priklad_r2$residuum[index_max_absolutni_residuum], format = "f", digits = 2)` m, jeho absolutní hodnota je `r formatC(data_priklad_r2$absolutni_residuum[index_max_absolutni_residuum], format = "f", digits = 2)` m a čtverec residua je `r formatC(data_priklad_r2$ctverec_residua[index_max_absolutni_residuum], format = "f", digits = 2)` m². `r if (index_max_residuum == index_max_absolutni_residuum) "Jde o stejný strom." else "Nejde o stejné stromy."` Nejde o chybu: umocnění odstraní znaménko, takže příspěvek k RSS určuje velikost residua bez ohledu na to, zda je kladné, nebo záporné.
+
+## Jakou část `r render_glossary_term("variabilita", display = "variability")` zachytil model?
+
+Máme dvě veličiny: celkový součet čtverců před použitím `r render_glossary_term("prediktor", display = "prediktoru")` a `r render_glossary_term("soucet-ctvercu-residui", display = "součet čtverců residuí (RSS)")` po odhadnutí přímky. Jejich poměr říká, jaká část původních rozdílů zůstala nevysvětlena. Jeho doplněk do jedné proto vyjadřuje **zachycený podíl variability**.
+
+```{r}
+#| label: vypocitat-r2-prikladu
+#| echo: false
+#| output: false
+
+r2_priklad <-
+  1 -
+  ss_res_priklad /
+  ss_total_priklad
+```
+
+Nejprve vztah vyjádříme pouze pomocí veličin, které už známe:
+
+$$
+\text{zachycený podíl variability} =
+1 -
+\frac{\text{součet čtverců residuí}}
+{\text{celkový součet čtverců}}.
+$$
+
+Do vztahu dosadíme všech šest residuí a všech šest odchylek od průměru:
+
+$$
+\text{zachycený podíl variability} =
+1 -
+\frac{`r text_ss_res_priklad`}
+{`r text_ss_total_priklad`}.
+$$
+
+Po sečtení čtverců dostaneme:
+
+$$
+\text{zachycený podíl variability} =
+1 -
+\frac{`r formatC(ss_res_priklad, format = "f", digits = 2)`}
+{`r formatC(ss_total_priklad, format = "f", digits = 2)`}
+=
+`r formatC(r2_priklad, format = "f", digits = 3)`.
+$$
+
+Tento podíl nazýváme `r render_glossary_term("r2", display = "koeficient determinace R²")` (**coefficient of determination, R-squared**). Obecně jej zapíšeme:
+
+$$
+R^2 =
+1 -
+\frac{SS_{\mathrm{res}}}
+{SS_{\mathrm{total}}}.
+$$
+
+Zkratka $SS$ znamená „součet čtverců“. $SS_{\mathrm{res}}$ je součet čtverců residuí od odhadnutého modelu. $SS_{\mathrm{total}}$ je součet čtverců odchylek pozorované `r render_glossary_term("odezva", display = "odezvy")` od jejího `r render_glossary_term("prumer", display = "průměru")`.
+
+```{r}
+#| label: pripravit-cviceni-r2
+#| echo: false
+#| output: false
+
+ss_total_cviceni <- 500
+ss_res_cviceni <- 125
+
+r2_cviceni <-
+  1 -
+  ss_res_cviceni /
+  ss_total_cviceni
+```
+
+::: {.box-question title="Vypočítejte a interpretujte"}
+Kdyby $SS_{\mathrm{total}} = `r formatC(ss_total_cviceni, format = "f", digits = 0)`$ a $SS_{\mathrm{res}} = `r formatC(ss_res_cviceni, format = "f", digits = 0)`$, jaké by bylo R²? Napište také jednu větu, která výsledek interpretuje pro konkrétní odezvu.
+:::
+
+R² by bylo $1 - `r formatC(ss_res_cviceni, format = "f", digits = 0)`/`r formatC(ss_total_cviceni, format = "f", digits = 0)` = `r formatC(r2_cviceni, format = "f", digits = 2)`$. Model by tedy v datech zachytil `r formatC(100 * r2_cviceni, format = "f", digits = 0)` % variability konkrétní odezvy kolem jejího průměru.
+
+## Dostaneme stejné `r render_glossary_term("r2", display = "R²")` také ze `summary()`?
+
+V malém příkladu jsme mohli rozepsat každý čtverec. Pro všech `r nrow(data_stromy)` stromů použijeme stejný výpočet, ale dosadíme už jen oba součty čtverců.
+
+```{r}
+#| label: overit-r2-pro-vsechny-stromy
+#| echo: false
+#| output: false
+
+prumerna_vyska_vsechny <-
+  mean(data_stromy$vyska_stromu_m)
+
+ss_total_vsechny <-
+  sum(
+    (
+      data_stromy$vyska_stromu_m -
+      prumerna_vyska_vsechny
+    )^2
+  )
+
+ss_res_spolecny <-
+  deviance(object = mod_spolecny)
+
+r2_spolecny_vypocet <-
+  1 -
+  ss_res_spolecny /
+  ss_total_vsechny
+
+r2_spolecny_summary <-
+  summary(object = mod_spolecny)$r.squared
+
+stopifnot(
+  isTRUE(
+    all.equal(
+      target = r2_spolecny_vypocet,
+      current = r2_spolecny_summary
+    )
+  )
+)
+```
+
+$$
+R^2 =
+1 -
+\frac{`r formatC(ss_res_spolecny, format = "f", digits = 2)`}
+{`r formatC(ss_total_vsechny, format = "f", digits = 2)`}
+=
+`r formatC(r2_spolecny_vypocet, format = "f", digits = 3)`.
+$$
+
+Stejnou hodnotu vrátí také `summary(mod_spolecny)$r.squared`: `r formatC(r2_spolecny_summary, format = "f", digits = 3)`. Výpis tedy nepřináší jinou definici; pouze za nás provede tentýž výpočet.
+
+## Co nám `r render_glossary_term("r2", display = "R²")` říká — a co ne?
+
+Pro všech `r nrow(data_stromy)` stromů je R² společné přímky `r formatC(r2_spolecny_vypocet, format = "f", digits = 3)`. Model tedy ve **stejných datech, na kterých byl odhadnut**, zachycuje přibližně `r formatC(100 * r2_spolecny_vypocet, format = "f", digits = 1)` % pozorované `r render_glossary_term("variabilita", display = "variability")` výšky kolem jejího průměru.
+
+R² však neříká:
+
+- že model správně předpověděl `r formatC(100 * r2_spolecny_vypocet, format = "f", digits = 1)` % jednotlivých stromů;
+- že model splňuje předpoklady;
+- že vztah je příčinný;
+- že model bude stejně dobrý pro nové stromy.
+
+::: {.box-question title="Která interpretace je obhajitelná?"}
+Vyberte a zdůvodněte jednu možnost:
+
+- **A:** R² vyjadřuje podíl správně předpovězených stromů.
+- **B:** R² vyjadřuje podíl zachycené variability `r render_glossary_term("odezva", display = "odezvy")` v těchto datech.
+- **C:** R² vyjadřuje pravděpodobnost, že je model pravdivý.
+:::
+
+Obhajitelná je možnost **B**: R² vyjadřuje podíl zachycené variability odezvy v datech použitých k odhadu modelu.
+
+## Proč `r render_glossary_term("r2", display = "R²")` po přidání členu neklesne?
+
+Nyní se vrátíme ke všem `r nrow(data_stromy)` stromům. Naše tři kandidátní modely jsou vnořené: složitější model vždy obsahuje všechny možnosti jednoduššího modelu a přidává další `r render_glossary_term("parametry-modelu", display = "koeficienty")`. Při odhadu metodou nejmenších čtverců tedy může složitější model zopakovat jednodušší řešení, nebo `r render_glossary_term("soucet-ctvercu-residui", display = "součet čtverců residuí (RSS)")` ještě zmenšit.
+
+```{r}
+#| label: pripravit-porovnani-modelu
+#| echo: false
+#| output: false
+
+list_modely <-
+  list(
+    mod_spolecny,
+    mod_aditivni,
+    mod_interakce
+  )
+
+vec_nazvy_modelu <-
+  c(
+    "Společná přímka",
+    "Posun mezi druhy",
+    "Různé sklony"
+  )
+
+data_porovnani_modelu <-
+  data.frame(
+    model = vec_nazvy_modelu,
+    n = purrr::map_int(
+      .x = list_modely,
+      .f = nobs
+    ),
+    pocet_koeficientu = purrr::map_int(
+      .x = list_modely,
+      .f = function(model) {
+        length(coef(object = model))
+      }
+    ),
+    ss_total = rep(
+      x = ss_total_vsechny,
+      times = length(list_modely)
+    ),
+    ss_res = purrr::map_dbl(
+      .x = list_modely,
+      .f = deviance
+    ),
+    r2 = purrr::map_dbl(
+      .x = list_modely,
+      .f = function(model) {
+        summary(object = model)$r.squared
+      }
+    )
+  )
+```
+
+```{r}
+#| label: zobrazit-r2-kandidatu
+#| echo: false
+#| results: asis
+
+knitr::kable(
+  x = data_porovnani_modelu[
+    ,
+    c(
+      "model",
+      "pocet_koeficientu",
+      "ss_res",
+      "r2"
+    )
+  ],
+  digits = c(0, 0, 1, 3),
+  col.names = c(
+    "Kandidátní model",
+    "Počet koeficientů",
+    "Součet čtverců residuí (RSS)",
+    "R²"
+  ),
+  caption = "Při přidávání koeficientů součet čtverců residuí (RSS) klesá a R² roste."
+)
+```
+
+::: {.box-warning title="Vyšší R² není automatické vítězství"}
+Nejpružnější kandidát získává nejvyšší R² už proto, že má více možností přiblížit se stejným pozorováním. Samotné R² neumí rozhodnout, zda malé zlepšení shody stojí za další koeficienty.
+:::
+
+::: {.box-question title="Co udělá zbytečný člen?"}
+Představte si, že do modelu přidáme `r render_glossary_term("prediktor", display = "prediktor")`, který téměř nic nepřinese. Může R² klesnout? Dokazuje jeho případné zvýšení, že je nový model užitečnější?
+:::
+
+R² nemůže klesnout, protože rozšířený model může vždy zopakovat odhady jednoduššího modelu. Případné zvýšení však samo nedokazuje, že jsou nové koeficienty užitečné.
+
+{{< pagebreak >}}
+
+## Které `r render_glossary_term("parametry-modelu", display = "koeficienty")` jednotlivé modely odhadují?
+
+Počet koeficientů není abstraktní číslo. Každý z nich odpovídá konkrétní části modelu: `r render_glossary_term("intercept", display = "interceptu")`, `r render_glossary_term("sklon", display = "sklonu")` nebo rozdílu mezi druhy.
+
+::: {.box-question title="Přiřaďte koeficienty k modelům"}
+Než se podíváte na následující seznam, rozhodněte, který model potřebuje pouze intercept a jeden sklon, který přidává rozdíly druhů a který navíc přidává rozdíly ve sklonech.
+:::
+
+```{r}
+#| label: zobrazit-koeficienty-kandidatu
+#| echo: false
+#| results: asis
+
+vec_radky_koeficientu <-
+  purrr::map2_chr(
+    .x = vec_nazvy_modelu,
+    .y = list_modely,
+    .f = function(nazev_modelu, model) {
+      nazvy_koeficientu <-
+        names(coef(object = model))
+
+      paste0(
+        "- **",
+        nazev_modelu,
+        " — ",
+        length(nazvy_koeficientu),
+        " koeficienty:** ",
+        paste0(
+          "`",
+          nazvy_koeficientu,
+          "`",
+          collapse = ", "
+        ),
+        "."
+      )
+    }
+  )
+
+cat(
+  paste(
+    vec_radky_koeficientu,
+    collapse = "\n"
+  )
+)
+```
+
+Společná přímka má intercept a jeden sklon. Aditivní model přidává dva rozdíly druhů vůči referenčnímu druhu. `r render_glossary_term("interakce-predikatoru", display = "Interakční model")` navíc přidává dva rozdíly ve sklonech. Právě tyto konkrétní možnosti navíc mohou zlepšit shodu s daty.
+
+## Stačí zlepšení `r render_glossary_term("r2", display = "R²")` na další `r render_glossary_term("parametry-modelu", display = "koeficienty")`?
+
+<!-- TODO: add slug adjustovane-r2 to pojmy.yaml -->
+
+```{r}
+#| label: pripravit-adjustovane-r2
+#| echo: false
+#| output: false
+
+data_porovnani_modelu$adjustovane_r2 <-
+  purrr::map_dbl(
+    .x = list_modely,
+    .f = function(model) {
+      summary(object = model)$adj.r.squared
+    }
+  )
+
+r2_aditivni <-
+  summary(object = mod_aditivni)$r.squared
+
+podil_nezachyceny_aditivni <-
+  1 - r2_aditivni
+
+faktor_upravy_aditivni <-
+  (nobs(object = mod_aditivni) - 1) /
+  (
+    nobs(object = mod_aditivni) -
+    length(coef(object = mod_aditivni))
+  )
+```
+
+**Adjustované R² (adjusted R-squared)** se ptá, zda je nárůst obyčejného R² dostatečně velký vzhledem ke dvěma dalším údajům:
+
+- $n$ je počet `r render_glossary_term("pozorovani", display = "pozorování")` použitých k odhadu modelu;
+- $k$ je počet odhadovaných regresních koeficientů **včetně `r render_glossary_term("intercept", display = "interceptu")`**.
+
+V našich datech mají všechny modely stejné $n = `r nrow(data_stromy)`$, ale postupně odhadují `r paste(data_porovnani_modelu$pocet_koeficientu, collapse = ", ")` koeficientů. Pro aditivní model známe:
+
+- obyčejné R² = `r formatC(summary(mod_aditivni)$r.squared, format = "f", digits = 3)`;
+- počet pozorování $n = `r nobs(mod_aditivni)`$;
+- počet regresních koeficientů $k = `r length(coef(mod_aditivni))`$.
+
+Úprava vychází z podílu `r render_glossary_term("variabilita", display = "variability")`, který obyčejné R² nezachytilo.
+
+Dosadíme je přímo do výpočtu:
+
+$$
+\text{adjustované R²} =
+1 -
+\left(
+\text{podíl variability nezachycený modelem}
+\times
+\text{úprava za počet pozorování a koeficientů}
+\right).
+$$
+
+Všechny vstupní hodnoty nyní zapíšeme do stejného vztahu:
+
+$$
+R^2_{\mathrm{adj}} =
+1 -
+\left(1 - `r formatC(summary(mod_aditivni)$r.squared, format = "f", digits = 3)`\right)
+\times
+\frac{`r nobs(mod_aditivni)` - 1}
+{`r nobs(mod_aditivni)` - `r length(coef(mod_aditivni))`}
+=
+`r formatC(summary(mod_aditivni)$adj.r.squared, format = "f", digits = 3)`.
+$$
+
+Po výpočtu obou částí v závorce dostaneme:
+
+$$
+R^2_{\mathrm{adj}} =
+1 -
+\left(
+`r formatC(podil_nezachyceny_aditivni, format = "f", digits = 3)`
+\times
+`r formatC(faktor_upravy_aditivni, format = "f", digits = 3)`
+\right)
+=
+`r formatC(summary(mod_aditivni)$adj.r.squared, format = "f", digits = 3)`.
+$$
+
+Obecná podoba stejného výpočtu je:
+
+$$
+R^2_{\mathrm{adj}} =
+1 -
+\left(1 - R^2\right)
+\times
+\frac{n - 1}{n - k}.
+$$
+
+Faktor $\frac{n - 1}{n - k}$ je při přidání koeficientů větší. Pokud nové koeficienty nesníží residuální variabilitu dostatečně, adjustované R² se zmenší.
+
+::: {.box-question title="Označte význam každé části"}
+Ve výpočtu výše najděte část popisující shodu modelu, velikost datového souboru a počet odhadovaných koeficientů. Která část se změní, když přidáme `r render_glossary_term("interakce-predikatoru", display = "interakci")`?
+:::
+
+Shodu vyjadřuje $1-R^2$, velikost datového souboru představuje $n$ a počet koeficientů představuje $k$. Po přidání interakce se změní R² i $k$; počet pozorování $n$ zůstane stejný.
+
+## Kdy může adjustované R² klesnout?
+
+Porovnáme `r render_glossary_term("r2", display = "obyčejné R²")` po přidání `r render_glossary_term("interakce-predikatoru", display = "interakce")`. Ta přidává další `r render_glossary_term("sklon", display = "sklony")` a má smysl jen tehdy, pokud dostatečně změní `r render_glossary_term("residuum", display = "residua")` vzhledem k počtu nových `r render_glossary_term("parametry-modelu", display = "koeficientů")`.
+
+```{r}
+#| label: zobrazit-adjustovane-r2-kandidatu
+#| echo: false
+#| results: asis
+
+knitr::kable(
+  x = data_porovnani_modelu[
+    ,
+    c(
+      "model",
+      "pocet_koeficientu",
+      "r2",
+      "adjustovane_r2"
+    )
+  ],
+  digits = c(0, 0, 3, 3),
+  col.names = c(
+    "Kandidátní model",
+    "Počet koeficientů",
+    "R²",
+    "Adjustované R²"
+  ),
+  caption = "Obyčejné R² vždy roste, ale adjustované R² může po přidání málo užitečných koeficientů klesnout."
+)
+```
+
+Přechod z aditivního modelu k interakčnímu přidá dva sklony. Obyčejné R² se zvýší z `r formatC(summary(mod_aditivni)$r.squared, format = "f", digits = 3)` na `r formatC(summary(mod_interakce)$r.squared, format = "f", digits = 3)`, ale adjustované R² klesne z `r formatC(summary(mod_aditivni)$adj.r.squared, format = "f", digits = 3)` na `r formatC(summary(mod_interakce)$adj.r.squared, format = "f", digits = 3)`. Zisk ve shodě je pro tuto úpravu příliš malý.
+
+::: {.box-question title="Předpověď před výsledkem"}
+Kdyby nový koeficient téměř nezměnil residua, co se stane s obyčejným a adjustovaným R²? Vysvětlete obě odpovědi pomocí jejich výpočtu.
+:::
+
+Obyčejné R² se nezmenší, protože RSS se po přidání koeficientu nemůže zvětšit. Adjustované R² však pravděpodobně klesne: téměř stejný nezachycený podíl se násobí větší úpravou za počet koeficientů.
+
+## Jak vyvážit shodu a jednoduchost modelu?
+
+`r render_glossary_term("r2", display = "R²")` hodnotí shodu s pozorovanými daty, ale nezvýhodňuje jednodušší vysvětlení. Při `r render_glossary_term("porovnani-modelu", display = "porovnání modelů")` proto používáme také **princip úspornosti (parsimony)**: složitější model má být upřednostněn jen tehdy, když přinese dostatečné zlepšení shody.
+
+<!-- TODO: add slug princip-uspornosti to pojmy.yaml -->
+
+::: {.box-question title="Kdy stojí složitost za to?"}
+Dva modely popisují stejná data téměř stejně dobře, ale jeden potřebuje `r length(coef(object = mod_spolecny))` `r render_glossary_term("parametry-modelu", display = "koeficienty")` a druhý `r length(coef(object = mod_interakce))`. Který byste předběžně upřednostnili a jakou další informaci byste chtěli znát?
+:::
+
+Předběžně bychom upřednostnili jednodušší model. Potřebujeme však posoudit, zda malé zlepšení shody složitějšího modelu vyváží `r length(coef(object = mod_interakce)) - length(coef(object = mod_spolecny))` koeficienty navíc.
+
+## Jak `r render_glossary_term("aic", display = "AIC")` vyjadřuje úspornost modelu?
+
+**Akaikeho informační kritérium (Akaike information criterion, AIC)** je alternativní způsob `r render_glossary_term("porovnani-modelu", display = "porovnání kandidátů")`. V jednom čísle vyvažuje:
+
+- shodu modelu s pozorovanými daty;
+- penalizaci za složitost modelu.
+
+Lepší shoda AIC snižuje, zatímco další odhadované veličiny je zvyšují. Proto při srovnání stejných dat preferujeme **nižší AIC**. AIC nevyjadřuje podíl `r render_glossary_term("variabilita", display = "variability")` a nemá stejnou škálu jako R².
+
+## Co nám říkají rozdíly `r render_glossary_term("aic", display = "AIC")` mezi kandidáty?
+
+```{r}
+#| label: pripravit-porovnani-aic
+#| echo: false
+#| output: false
+
+data_porovnani_modelu$aic <-
+  purrr::map_dbl(
+    .x = list_modely,
+    .f = AIC
+  )
+
+nejnizsi_aic <-
+  min(data_porovnani_modelu$aic)
+
+data_porovnani_modelu$rozdil_od_minima_aic <-
+  data_porovnani_modelu$aic -
+  nejnizsi_aic
+```
+
+Hodnotu AIC jednoho modelu získáme přímo funkcí `AIC()`:
+
+```{r}
+#| label: zobrazit-aic-spolecneho-modelu
+#| echo: true
+#| eval: true
+
+# Vypočítáme AIC společné přímky
+AIC(object = mod_spolecny)
+```
+
+Samotné AIC `r formatC(AIC(mod_spolecny), format = "f", digits = 2)` nelze označit za „dobré“ nebo „špatné“. Jde o relativní kritérium: číslo získává význam až ve `r render_glossary_term("porovnani-modelu", display = "srovnání předem určených kandidátů")`.
+
+Porovnávané modely přitom musí používat:
+
+- stejnou `r render_glossary_term("odezva", display = "odezvu")`;
+- stejná `r render_glossary_term("pozorovani", display = "pozorování")`;
+- stejný způsob pravděpodobnostního popisu `r render_glossary_term("residuum", display = "residuí")` — zde u všech kandidátů předpokládáme residua s `r render_glossary_term("rozdeleni", display = "normálním rozdělením")` a stejnou základní strukturou.
+
+Od AIC každého kandidáta odečteme nejnižší AIC v celé sadě. Vztah nejprve zapíšeme pouze názvy veličin:
+
+$$
+\text{rozdíl od nejnižší AIC} =
+\text{AIC kandidáta} -
+\text{nejnižší AIC v sadě}.
+$$
+
+Pro společnou přímku dosadíme její AIC a nejnižší AIC ze tří kandidátů:
+
+$$
+\text{rozdíl od nejnižší AIC} =
+`r formatC(data_porovnani_modelu$aic[1], format = "f", digits = 2)` -
+`r formatC(nejnizsi_aic, format = "f", digits = 2)`.
+$$
+
+Po odečtení dostaneme:
+
+$$
+\text{rozdíl od nejnižší AIC} =
+`r formatC(data_porovnani_modelu$rozdil_od_minima_aic[1], format = "f", digits = 2)`.
+$$
+
+Tento rozdíl se často označuje jako **ΔAIC (delta AIC)**.
+
+<!-- TODO: add slug delta-aic to pojmy.yaml -->
+
+Obecně jej zapíšeme:
+
+$$
+\Delta AIC_i = AIC_i - AIC_{\min}.
+$$
+
+Symbol $i$ označuje konkrétní kandidátní model, $AIC_i$ jeho hodnotu AIC a $AIC_{\min}$ nejnižší AIC v celé kandidátní sadě. Nejlépe podporovaný kandidát má ΔAIC rovné 0; ostatní hodnoty ukazují, o kolik je jejich AIC větší. V této lekci záměrně nepoužíváme univerzální práh, který by rozhodnutí automatizoval.
+
+```{r}
+#| label: zobrazit-relativni-aic
+#| echo: false
+#| results: asis
+
+knitr::kable(
+  x = data_porovnani_modelu[
+    ,
+    c(
+      "model",
+      "aic",
+      "rozdil_od_minima_aic"
+    )
+  ],
+  digits = c(0, 2, 2),
+  col.names = c(
+    "Kandidátní model",
+    "AIC",
+    "Rozdíl od nejnižší AIC (ΔAIC)"
+  ),
+  caption = "AIC a ΔAIC v předem určené kandidátní sadě."
+)
+```
+
+::: {.box-question title="Proč nestačí jedno číslo?"}
+Kolega oznámí: „Můj model má AIC 395, takže je dobrý.“ Jaká informace chybí, abyste mohli jeho tvrzení posoudit?
+:::
+
+Chybí AIC dalších modelů odhadnutých pro stejnou odezvu a stejná pozorování. Teprve rozdíly mezi těmito hodnotami umožňují kandidáty porovnat.
+
+::: {.box-warning title="Nejlepší kandidát nemusí být dobrý model"}
+Porovnání vybírá nejlépe podporovaný model **pouze z modelů, které jsme zařadili do kandidátní sady**. Neříká, že je tento model obecně dobrý ani že jsme našli nejlepší možný popis dat. Jiný model, který jsme vůbec neposuzovali, může stejná data popsat podstatně lépe.
+:::
+
+{{< pagebreak >}}
+
+::: {.box-data title="Doplňující: Jak R vypočítá AIC?" collapse="true"}
+Výpočet AIC používá pravděpodobnostní shodu modelu s daty a penalizaci za počet odhadovaných veličin. Podrobný výpočet budeme potřebovat až v navazujících tématech; v této lekci stačí porovnání vrácené funkcí `AIC()`.
+
+```{r}
+#| label: vypocitat-aic-v-r
+#| echo: true
+#| eval: true
+
+# Vypočítáme AIC všech předem definovaných kandidátů
+data.frame(
+  model = c(
+    "Společná přímka",
+    "Posun mezi druhy",
+    "Různé sklony"
+  ),
+  AIC = c(
+    AIC(object = mod_spolecny),
+    AIC(object = mod_aditivni),
+    AIC(object = mod_interakce)
+  )
+)
+```
+:::
+
+## Ukazují `r render_glossary_term("r2", display = "R²")`, adjustované R² a `r render_glossary_term("aic", display = "AIC")` na stejný model?
+
+Každá míra zachází se shodou a složitostí jinak. Jejich společná tabulka proto není hlasováním, ale podkladem pro argument.
+
+```{r}
+#| label: zobrazit-uplne-porovnani-modelu
+#| echo: false
+#| results: asis
+
+knitr::kable(
+  x = data_porovnani_modelu[
+    ,
+    c(
+      "model",
+      "pocet_koeficientu",
+      "r2",
+      "adjustovane_r2",
+      "aic"
+    )
+  ],
+  digits = c(0, 0, 3, 3, 2),
+  col.names = c(
+    "Kandidátní model",
+    "Počet koeficientů",
+    "R²",
+    "Adjustované R²",
+    "AIC"
+  ),
+  caption = "Tři různé souhrny stejné, předem definované sady kandidátních modelů."
+)
+```
+
+::: {.box-question title="Čtěte tabulku jako argument"}
+Který model má nejvyšší R²? Který má nejvyšší adjustované R² a nejnižší AIC? Vysvětlete neshodu pomocí toho, jak každá míra zachází se shodou a složitostí, ne jako tři rovnocenné hlasy o tom, který model je „pravdivý“.
+:::
+
+`r render_glossary_term("interakce-predikatoru", display = "Interakční model")` má nejvyšší R², protože má nejvíce možností přizpůsobit se datům. Aditivní model má nejvyšší adjustované R² a nejnižší AIC, protože dodatečné `r render_glossary_term("sklon", display = "sklony")` interakčního modelu nepřinesly dostatečné zlepšení shody. Žádná z těchto hodnot neudává pravděpodobnost, že je model pravdivý.
+
+## Stačí dobré skóre k tomu, aby byl model dobrý?
+
+Srovnávací skóre nenahrazuje `r render_glossary_term("diagnostika-modelu", display = "diagnostiku modelu")`. U kandidáta podporovaného adjustovaným R² a AIC kontrolujeme vztah `r render_glossary_term("residuum", display = "residuí")` k `r render_glossary_term("odhadnuta-hodnota", display = "odhadnutým hodnotám")`, Q–Q graf a vliv jednotlivých pozorování.
+
+```{r}
+#| label: zkontrolovat-residua-aditivniho-modelu
+#| echo: true
+#| eval: true
+#| fig-cap: "Residua aditivního modelu podle odhadnuté výšky."
+
+# Zkontrolujeme, zda se rozptyl residuí systematicky mění
+plot(
+  x = fitted(object = mod_aditivni),
+  y = residuals(object = mod_aditivni),
+  col = vec_barvy_druhu[data_stromy$druh_stromu],
+  pch = 19,
+  xlab = "Odhadnutá výška stromu (m)",
+  ylab = "Residuum (m)"
+)
+
+abline(
+  h = 0,
+  col = "#2E2E2E",
+  lty = 2
+)
+```
+
+```{r}
+#| label: zkontrolovat-normalitu-aditivniho-modelu
+#| echo: true
+#| eval: true
+#| fig-cap: "Q–Q graf residuí aditivního modelu."
+
+# Zkontrolujeme tvar rozdělení residuí
+qqnorm(
+  y = residuals(object = mod_aditivni),
+  pch = 19
+)
+
+qqline(
+  y = residuals(object = mod_aditivni),
+  col = "#D55E00",
+  lwd = 2
+)
+```
+
+Z předchozích lekcí také známe otázku, zda některé `r render_glossary_term("pozorovani", display = "pozorování")` model neovlivňuje neobvykle silně. Cookova vzdálenost (Cook's distance) shrnuje, jak silně by se odhadnuté hodnoty změnily po vynechání jednoho pozorování. Orientační čára $4/n$ není automatický test; pouze označuje stromy, které si zaslouží bližší kontrolu.
+
+<!-- TODO: add slug cookova-vzdalenost to pojmy.yaml -->
+
+```{r}
+#| label: zkontrolovat-vliv-aditivniho-modelu
+#| echo: true
+#| eval: true
+#| fig-cap: "Cookovy vzdálenosti pro aditivní model. Přerušovaná čára zobrazuje orientační hodnotu 4/n."
+
+# Vypočítáme vliv jednotlivých pozorování
+vec_cookova_vzdalenost <-
+  cooks.distance(model = mod_aditivni)
+
+hranice_cook <-
+  4 / nobs(object = mod_aditivni)
+
+# Zobrazíme, která pozorování mají největší vliv
+plot(
+  x = vec_cookova_vzdalenost,
+  type = "h",
+  lwd = 2,
+  xlab = "Pořadí stromu v tabulce",
+  ylab = "Cookova vzdálenost"
+)
+
+abline(
+  h = hranice_cook,
+  col = "#D55E00",
+  lty = 2,
+  lwd = 2
+)
+```
+
+Nad orientační čarou leží `r sum(vec_cookova_vzdalenost > hranice_cook)` pozorování. To není důvod je odstranit; je to důvod vrátit se k jejich měření, biologickému významu a vlivu na závěr.
+
+::: {.box-question title="Rozhodnutí po kontrole modelu"}
+Podporují graf residuí, Q–Q graf a Cookovy vzdálenosti závěr ze srovnávací tabulky, nebo vyžadují opatrnější formulaci? Uveďte jeden důvod pro zvolený model a jedno omezení.
+:::
+
+## Který model lze pro tyto stromy nejlépe obhájit?
+
+Aditivní model s průměrem kmene a druhem stromu představuje pro tato data nejlépe obhajitelný model **ze tří posuzovaných kandidátů**. Oproti jedné společné přímce zachytí rozdíly mezi druhy. `r render_glossary_term("interakce-predikatoru", display = "Interakční model")` sice dosáhne nejvyššího `r render_glossary_term("r2", display = "R²")`, ale jeho dodatečné `r render_glossary_term("sklon", display = "sklony")` nepřinesou dostatečný zisk podle adjustovaného R² ani `r render_glossary_term("aic", display = "AIC")`.
+
+Tento závěr zůstává podmíněný. Neříká, že je aditivní model nejlepší ze všech možných modelů. Data navíc obsahují omezený počet stromů, Q–Q graf není dokonale přímý a pozorovací studie sama nedokládá příčinný `r render_glossary_term("efekt", display = "efekt")` druhu.
+
+::: {.box-result title="Odpověď na hlavní otázku"}
+Dobrý model nepoznáme podle jediného čísla. Obhajoba musí propojit biologickou otázku, shodu s daty, složitost, `r render_glossary_term("diagnostika-modelu", display = "diagnostiku")`, interpretovatelnost a omezení dat.
+:::
+
+## Jak `r render_glossary_term("porovnani-modelu", display = "porovnávat modely")` bez automatického hledání?
+
+1. Položte biologickou otázku.
+2. Prohlédněte a zobrazte data.
+3. Definujte malou sadu biologicky zdůvodněných kandidátů.
+4. Použijte pro všechny kandidáty stejnou `r render_glossary_term("odezva", display = "odezvu")` a stejná `r render_glossary_term("pozorovani", display = "pozorování")`.
+5. Porovnejte odhadnuté vztahy, `r render_glossary_term("residuum", display = "residua")`, `r render_glossary_term("r2", display = "R²")`, adjustované R² a `r render_glossary_term("aic", display = "AIC")`.
+6. Zkontrolujte předpoklady a vlivná pozorování.
+7. Obhajte závěr a pojmenujte jeho omezení.
+
+::: {.box-warning title="Automatické hledání nenahrazuje biologickou otázku"}
+Funkce pro automatické přidávání a odebírání členů mohou vytvořit dlouhý seznam modelů, ale samy neurčí, které modely mají biologický smysl. V této lekci proto nepoužíváme krokový výběr ani vyhledávání všech možných kombinací.
+:::
+
+{{< pagebreak >}}
+
+::: {.box-data title="Co když žádný lineární kandidát nestačí?"}
+Pokud všechny kandidátní přímky zanechávají v residuích systematické zakřivení, problém nemusí být jen ve volbě `r render_glossary_term("prediktor", display = "prediktorů")`. Vztah může být `r render_glossary_term("nelinearita", display = "nelineární")` nebo může vyžadovat `r render_glossary_term("transformace", display = "transformaci")` proměnných. Těmto možnostem se budeme věnovat v následující lekci.
+:::
+
+## Shrnutí {.unnumbered}
+
+- Model posuzujeme pomocí několika druhů důkazů, nikoli jedním skóre.
+- `r render_glossary_term("r2", display = "R²")` shrnuje shodu s pozorovanými daty, ale nemůže klesnout po přidání členů do vnořeného `r render_glossary_term("linearni-model", display = "lineárního modelu")`.
+- Adjustované R² a `r render_glossary_term("aic", display = "AIC")` zohledňují složitost odlišnými způsoby.
+- Kandidáty definujeme podle biologické otázky předtím, než porovnáme jejich skóre.
+- Konečná obhajoba musí zahrnout také `r render_glossary_term("diagnostika-modelu", display = "diagnostiku")`, interpretovatelnost a omezení dat.
 
 ## Slovníček pojmů {.unnumbered}
 
@@ -180,5 +1756,16 @@ Pojmy použité v těchto materiálech a jejich definice:
 ```{r}
 #| label: slovnicek
 #| echo: false
-glossary::glossary_table()
+#| results: asis
+
+if (knitr::is_html_output()) {
+  glossary::glossary_table()
+} else {
+  cat(
+    paste0(
+      "Interaktivní slovníček je dostupný online: ",
+      "https://cuni-natur-biostatistics.github.io/slovnik/"
+    )
+  )
+}
 ```
