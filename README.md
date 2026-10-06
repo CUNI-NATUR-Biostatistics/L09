@@ -34,7 +34,7 @@ Následující odkazy vedou vždy na nejnovější schválené vydání L09. Roz
 | Skripta | [Číst online](https://cuni-natur-biostatistics.github.io/L09/current/learning/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/L09/current/learning/skripta.pdf) |
 | Prezentace | [Otevřít slidy](https://cuni-natur-biostatistics.github.io/L09/current/presentation/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/L09/current/presentation/presentation.pdf) |
 
-Pro navazující praktické cvičení je připraven [R skript ke stažení](https://cuni-natur-biostatistics.github.io/L09/current/code/cviceni.R). Skript obsahuje úlohy a kód, se kterými budete pracovat během praktika.
+Skript pro navazující praktické cvičení bude doplněn v samostatném vydání. Toto vydání obsahuje skripta, prezentaci a výuková data.
 
 - [HUB kurzu](https://cuni-natur-biostatistics.github.io/) je hlavní vstup ke všem veřejným studijním materiálům.
 - [Moodle kurzu](https://dl2.cuni.cz/course/view.php?id=106) slouží zapsaným studentům pro oznámení, testy, zadání, odevzdávání a individuální výsledky.
@@ -45,7 +45,7 @@ Pro navazující praktické cvičení je připraven [R skript ke stažení](http
 
 - `Learning_materials/skripta.qmd` je zdroj skript; výsledky jsou `Learning_materials/skripta.html` a `Learning_materials/skripta.pdf`.
 - `Presentation/presentation.qmd` je zdroj slidů; výsledky jsou `Presentation/presentation.html` a `Presentation/presentation.pdf`.
-- `Exercises/cviceni.R` je studentský R skript pro praktické cvičení.
+- `Exercises/cviceni.R` je dosud nevyplněná pracovní šablona; není součástí studentského release balíčku.
 - `data/` obsahuje datové soubory specifické pro tuto lekci.
 - `R/` obsahuje podporované renderovací a tematické nástroje.
 - `theme/` obsahuje synchronizovanou lokální kopii společné vizuální identity kurzu.
