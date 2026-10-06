@@ -1,0 +1,98 @@
+{
+  "$schema": "https://raw.githubusercontent.com/CUNI-NATUR-Biostatistics/_internal/main/pollslive/quiz.schema.json",
+  "schemaVersion": 2,
+  "academicYear": "2026-27",
+  "lesson": "L09",
+  "retrievesLesson": "L08",
+  "lectureDate": "2026-11-30",
+  "title": "L09 – Opakování předchozí lekce – 2026/27",
+  "questions": [
+    {
+      "id": "changing-sex-difference",
+      "text": "Co ukazují nerovnoběžné přímky modrých krabů?",
+      "options": [
+        {
+          "id": "difference-changes",
+          "label": "Rozdíl v zadní šířce krunýře mezi samci a samicemi se mění s délkou krunýře."
+        },
+        {
+          "id": "constant-difference",
+          "label": "Samci mají při každé délce krunýře o stejný kus užší krunýř než samice."
+        },
+        {
+          "id": "lines-must-cross",
+          "label": "O interakci můžeme mluvit, jen když se přímky v grafu překříží."
+        },
+        {
+          "id": "predictor-correlation",
+          "label": "Délka krunýře a pohlaví spolu korelují."
+        }
+      ],
+      "correctOptionId": "difference-changes",
+      "explanation": "Nerovnoběžné přímky znamenají, že rozdíl mezi pohlavími není při všech délkách stejný. Interakce nevyžaduje překřížení přímek a neznamená korelaci prediktorů.",
+      "media": {
+        "path": "assets/l08-nerovnobezne-primky.png",
+        "alt": "Bodový graf zadní šířky krunýře proti délce krunýře modrých krabů se dvěma nerovnoběžnými přímkami pro samice a samce.",
+        "provenance": "Deterministically rendered by R/render_pollslive_assets.R from approved L08 teaching data (L08 data/krabi.csv at revision 48a02706b17ef01d16ef84ec5d962e81710d2c4a; line-ending-normalised source SHA-256 b88686865d6ef17e852495ee368a5d35919be6cefe20f0f6e308104ff68701de); asset SHA-256 BC781EBBA6889736C8E90F1BB6CE125D6BECE1A81F52099D6245D17E527B2126."
+      }
+    },
+    {
+      "id": "conditional-sex-coefficient",
+      "text": "Co znamená koeficient pohlavisamec v modelu s interakcí?",
+      "options": [
+        {
+          "id": "difference-at-zero",
+          "label": "Odhadovaný rozdíl samec − samice při délce krunýře 0 mm."
+        },
+        {
+          "id": "difference-everywhere",
+          "label": "Rozdíl samec − samice při každé délce krunýře."
+        },
+        {
+          "id": "difference-at-mean",
+          "label": "Rozdíl samec − samice při průměrné délce krunýře."
+        },
+        {
+          "id": "slope-difference",
+          "label": "Rozdíl sklonů mezi samci a samicemi."
+        }
+      ],
+      "correctOptionId": "difference-at-zero",
+      "explanation": "V modelu s interakcí je koeficient pohlaví podmíněný: porovnává pohlaví tam, kde je délka krunýře rovna nule. Při jiné délce musíme přičíst příspěvek interakčního koeficientu.",
+      "media": {
+        "path": "assets/l08-koeficient-pohlavi.png",
+        "alt": "Tabulka čtyř koeficientů modelu s interakcí; zvýrazněný je řádek pohlavisamec.",
+        "provenance": "Deterministically rendered by R/render_pollslive_assets.R from approved L08 teaching data (L08 data/krabi.csv at revision 48a02706b17ef01d16ef84ec5d962e81710d2c4a; line-ending-normalised source SHA-256 b88686865d6ef17e852495ee368a5d35919be6cefe20f0f6e308104ff68701de); coefficient values computed from the L08 interaction model; asset SHA-256 099989AAC50DBE9D9865C26938C3DB6E01BC23E96F12925C535CAB72B5CB3939."
+      }
+    },
+    {
+      "id": "additive-versus-interaction",
+      "text": "Čím se liší dva kandidátní modely pro modré kraby?",
+      "options": [
+        {
+          "id": "slope-difference-term",
+          "label": "Interakční model navíc odhaduje rozdíl sklonů, takže rozdíl mezi pohlavími se může měnit s délkou."
+        },
+        {
+          "id": "additive-ignores-sex",
+          "label": "Aditivní model pohlaví vůbec nezohledňuje."
+        },
+        {
+          "id": "different-crabs",
+          "label": "Interakční model používá jiné kraby než aditivní model."
+        },
+        {
+          "id": "different-response",
+          "label": "Interakční model předpovídá jinou odezvu než aditivní model."
+        }
+      ],
+      "correctOptionId": "slope-difference-term",
+      "explanation": "delka_krunyre_mm * pohlavi znamená delka_krunyre_mm + pohlavi + delka_krunyre_mm:pohlavi. Oba modely používají stejné kraby i stejnou odezvu; liší se tím, zda dovolí různé sklony.",
+      "media": {
+        "path": "assets/l08-dva-kandidati.png",
+        "alt": "Dva grafy stejných krabů: vlevo rovnoběžné přímky aditivního modelu, vpravo nerovnoběžné přímky modelu s interakcí, nad nimi jejich vzorce.",
+        "provenance": "Deterministically rendered by R/render_pollslive_assets.R from approved L08 teaching data (L08 data/krabi.csv at revision 48a02706b17ef01d16ef84ec5d962e81710d2c4a; line-ending-normalised source SHA-256 b88686865d6ef17e852495ee368a5d35919be6cefe20f0f6e308104ff68701de); asset SHA-256 1E3771348CA639EBB7B0E77FBBC0BA5D9501A03CCA7F86E039C21BBDC0BEFF64."
+      }
+    }
+  ]
+}
