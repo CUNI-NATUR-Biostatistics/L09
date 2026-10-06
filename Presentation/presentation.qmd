@@ -1,5 +1,5 @@
 ---
-format: 
+format:
   revealjs:
     slide-number: true
     theme: [default, ../theme/presentation_theme.scss, ../theme/presentation_components.scss]
@@ -17,1233 +17,2015 @@ filters:
 ```{r}
 #| label: setup
 #| include: false
+#| warning: false
+#| message: false
 options(htmltools.dir.version = FALSE)
 knitr::opts_chunk$set(
-  fig.width = 7,
-  fig.height = 5,
+  fig.width = 10,
+  fig.height = 5.6,
   fig.align = "center",
-  out.width = "100%"
+  out.width = "100%",
+  warning = FALSE,
+  message = FALSE
 )
-
-if (!require("here")) install.packages("here")
-
-library(here)
 
 here::i_am("Presentation/presentation.qmd")
 
-if (!require("tidyverse")) install.packages("tidyverse")
-if (!require("ggbeeswarm")) install.packages("ggbeeswarm")
-if (!require("ggview")) install.packages("ggview")
-if (!require("magick")) install.packages("magick")
-if (!require("cowplot")) install.packages("cowplot")
-if (!require("remotes")) install.packages("remotes")
-if (!require("waffle")) remotes::install_github("hrbrmstr/waffle")
+source(here::here("R", "set_r_theme.R"))
+source(here::here("R", "Functions", "format_cz.R"))
 
-library(tidyverse)
-library(ggbeeswarm)
-library(ggview)
-library(magick)
-library(cowplot)
-library(waffle)
-
-path_materials <-
-  "Presentation/Materials"
+path_materials <- "Presentation/Materials"
 
 include_local_figure <- function(data_source) {
   knitr::include_graphics(
-    path = here::here(
-      path_materials,
-      data_source
-    ),
+    path = here::here(path_materials, data_source),
     error = TRUE
   )
 }
+
+showtext::showtext_auto(enable = FALSE)
+
+# Czech decimal comma inside LaTeX: braces stop the comma from adding space
+format_cz_math <- function(x, digits = 2) {
+  gsub(
+    pattern = ",",
+    replacement = "{,}",
+    x = format_cz(x = x, digits = digits),
+    fixed = TRUE
+  )
+}
+
+# Species are categories, not semantic roles: brand categorical palette,
+# deliberately distinct from model purple and residual orange.
+vec_barvy_druhu <- c(
+  "Pinus monticola" = "#4E9A8A",
+  "Pinus ponderosa" = "#C2613A",
+  "Pseudotsuga menziesii" = "#2E6CA4"
+)
+
+theme_l09 <- theme_biostat(base_size = 19) +
+  ggplot2::theme(
+    text = ggplot2::element_text(family = ""),
+    axis.title = ggplot2::element_text(family = ""),
+    panel.grid.minor = ggplot2::element_blank(),
+    legend.position = "bottom"
+  )
 ```
 
 ```{r}
 #| label: dynamic link generation
 #| include: false
-project_name <-
-  basename(here::here())
-
-display_name <-
-  paste("Biostatistika", "-", project_name)
-
-github_url <-
-  paste0(
-    "https://github.com/CUNI-NATUR-Biostatistics/",
-    project_name
-  )
-
-slides_url <-
-  paste0(
-    "https://CUNI-NATUR-Biostatistics.github.io/",
-    project_name, "/"
-  )
+project_name <- basename(here::here())
+display_name <- stringr::str_glue("Biostatistika - {project_name}")
+github_url <- stringr::str_glue(
+  "https://github.com/CUNI-NATUR-Biostatistics/{project_name}"
+)
+slides_url <- stringr::str_glue(
+  "https://CUNI-NATUR-Biostatistics.github.io/{project_name}/"
+)
 ```
 
-## Co nám může říct měření tučňáků? {.course-title .bg-indigo}
+## Jak poznáme, že je model dobrý? {.course-title .bg-indigo}
 
 ::: {.course-title-mark}
 ![Logo kurzu Biostatistika](../theme/course-logo-reversed.svg) BIOSTATISTIKA
 :::
 
 ::: {.course-title-number}
-LXX
+L09
 :::
 
 ::: {.course-title-formal}
-Vztahy dvou proměnných
+Porovnání kandidátních modelů: R², adjustované R² a AIC
 :::
 
 ::: {.course-title-link}
 [cuni-natur-biostatistics.github.io/materialy.html](https://cuni-natur-biostatistics.github.io/materialy.html)
 :::
 
-::: {.notes}
-V každé nové lekci nahraďte ukázkovou otázku, název a označení lekce vlastními údaji. Otázka na titulním snímku musí vycházet ze schválené datové linky lekce.
+## Co vlastně na stromě měříme?
+
+:::: {.layout-stack .layout-center-y}
+
+::: columns
+::: {.column width="58%"}
+```{r}
+#| label: zobrazit-stromy-mereni
+#| echo: false
+#| out-width: "100%"
+#| fig-alt: "Terénní měřiči na lesní stanici měří u tří různých jehličnanů průměr kmene ve výšce prsou a výšku stromu."
+#| fig-cap: "Ilustrační obraz vytvořen AI."
+include_local_figure("stromy_mereni.png")
+```
+:::
+::: {.column width="40%"}
+::: {.panel-data}
+[U každého jehličnanu známe]{.card-title}
+
+- **druh stromu** — tři severoamerické jehličnany;
+- **průměr kmene** ve výšce 1,3 m (cm);
+- **výšku stromu** (m).
+:::
+:::
 :::
 
-## Co vidíme v měření tučňáků?
+::: {.fragment}
+[Mají stejně silné stromy různých druhů stejnou výšku?]{.text-size-heading .text-bold}
+:::
 
-TODO: Ukažte jeden konkrétní obrázek, měření nebo jiný háček k úvodní otázce. Nechte studenty nejprve popsat, co vidí.
+::::
 
 ::: {.notes}
-Tento ukázkový snímek nahraďte prvním datovým nebo biologickým háčkem vlastní lekce; ponechte vazbu na otázku z titulního snímku.
+Krátce: co by na stromě měřili studenti? Otázku o druzích nechte otevřenou. Ilustrace pouze ukazuje měření, nikoli výsledek porovnání druhů.
 :::
+
+{{< include ../pollslive/generated/active.qmd >}}
 
 ## Výsledky učení
 
-Po absolvování této přednášky budete schopni:
+Po lekci dokážete:
 
-- TODO: výsledek učení 1
-- TODO: výsledek učení 2
-- TODO: výsledek učení 3
-
-# Obsah přednášky
-
-## Snímek 1
-
-TODO: obsah snímku
-
-```{r}
-#| label: demo-plot
-#| echo: true
-# TODO: ukázka kódu v R
-```
-
-## Shrnutí
-
-- TODO: klíčové body přednášky
-
-# Slide Creator's Guide {.center}
-
-[Slides in this section are intended for lecture authors, not students. Delete this section and the `# Tools Overview` section before using as an actual lecture.]{.text-size-smaller .text-color-grey_olive}
-
-# Golden Rules {.center}
-
-## Rule 1 — Data story first {.bg-parchment}
-
-::: columns
-::: {.column width="48%"}
-::: {.card-warning}
-[Wrong]{.card-title}
-**Pearson correlation**
-
-Pearson's correlation coefficient measures the strength of the linear relationship between two variables...
-
-[formula]
-:::
-:::
-::: {.column width="48%"}
-::: {.card-insight}
-[Right]{.card-title}
-**How do we turn the shape of a cloud into a number?**
-
-[scatter plot the students have seen for several slides already]
-
-*What properties would such a number need to have?*
-
-→ **Correlation coefficient** [the name arrives as the answer]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
+::: incremental
+- vypočítat a vysvětlit [R²]{.text-hgl-indigo_velvet} ze dvou součtů čtverců;
+- vysvětlit, proč [nejvyšší R²]{.text-hgl-orange} automaticky neznamená nejlepší model;
+- interpretovat [adjustované R²]{.text-hgl-indigo_velvet} a použít [AIC]{.text-hgl-indigo_velvet} k porovnání kandidátů;
+- sestavit malou sadu biologicky zdůvodněných kandidátních modelů;
+- [obhájit volbu modelu]{.text-hgl-orange} pomocí otázky, složitosti, diagnostiky a interpretovatelnosti.
 :::
 
-[A statistical term never opens a concept as a heading. Data first → observation → question → only then the name.]{.text-size-smaller .text-color-grey_olive}
+# Jedna přímka pro všechny stromy?
 
-## Rule 2 — One idea per slide
-
-**Every slide communicates one thing.**
-
-If you need to say two things, use two slides.
-
-If you need to say three things, add an interaction between them.
-
-::: {.takeaway-strip}
-**One message. One slide. Contribute to understanding — not to overload.**
-:::
-
-[Test: cover the heading — is the main idea of the slide still clear from the visual or a single sentence?]{.text-size-smaller .text-color-grey_olive}
-
-## Rule 3 — Interaction every 10–15 minutes
-
-::: {.panel-note}
-[Six interaction types]{.panel-title}
-
-| Type | When to use |
-|---|---|
-| Prediction question | Before revealing a result, graph, or test output |
-| Conceptual MCQ | To surface a common misconception; ideally with a polling tool |
-| Think–Pair–Share | After a new concept; 30 s thinking + 1–2 min pair discussion |
-| Silent write | Before discussion or reveal; each student writes one sentence |
-| Interpretation task | After showing a graph, model output, or table |
-| Data exploration | To open a topic — what patterns / hypotheses do you see? |
-:::
-
-::: {.panel-question}
-[Example — prediction question]{.panel-title}
-
-*How does the confidence interval change if we double the sample size?*
-
-**A)** Narrows   **B)** Stays the same   **C)** Widens
-:::
-
-## Rule 4 — Always frame biologically
-
-Every statistical method must be grounded in a concrete biological question.
-
-::: {.blockquote}
-**Four steps of the biological frame:**
-
-1. **Biological question** — "we want to find out whether…"
-2. **Data** — description, type, source
-3. **Statistical method** — what and why
-4. **Interpretation in biological context** — what the result says about the world, not about numbers
-:::
-
-[Never start with "today we'll learn the t-test". Always start with "we want to know whether…"]{.text-size-smaller .text-color-grey_olive}
-
-## Rule 5 — Alternate visual patterns (3-of-5 rule)
-
-**At most 3 of 5 consecutive slides may use a named component as the primary visual element.**
-
-A plain slide — a bold question on an empty background, a full-width graph, a single prominent number — carries more weight precisely because the surrounding slides are more structured.
-
-::: {.strip-orange}
-**3 of 5 — the law of slide visual contrast** · review the block before finalising
-:::
-
-[Components: `.card-*`, `.panel-*`, `.blockquote`, `.takeaway-strip`. If you reach 4+ in a row, convert one slide to a plain visual or an unframed question.]{.text-size-smaller .text-color-grey_olive}
-
-# Five Slide Families {.center}
-
-## Five slide families
+## Jeden řádek tabulky představuje jeden strom
 
 ::: columns
 ::: {.column width="62%"}
+```{r}
+#| label: nacist-data-stromu
+#| echo: true
+data_stromy <- read.csv(
+  file = here::here("data", "allometrie_stromu.csv")
+)
+data_stromy$druh_stromu <- factor(
+  x = data_stromy$druh_stromu
+)
 
-| Family | Goal | Typical component |
-|---|---|---|
-| **Interaction** | Prediction / MCQ / TPS | bold question, `.panel-question` |
-| **Data reveal** | New data or output | full-width graph, plain slide |
-| **Interpretation** | Read the result | `.panel-result`, `.takeaway-strip` |
-| **Rule / warning** | Heuristic, error | `.card-warning`, `.panel-warning` |
-| **Transition / summary** | Reset, conclusion | `.blockquote` in two columns |
+vec_promenne <- c(
+  "druh_stromu", "prumer_kmene_cm", "vyska_stromu_m"
+)
 
+head(
+  x = data_stromy[, vec_promenne],
+  n = 4
+)
+```
 :::
-::: {.column width="35%"}
-::: {.card-olive}
-[Variety of families]{.card-title}
-In one lecture, cycle through all five families.
+::: {.column width="36%" .fragment}
 
-No block of 5+ slides should belong to only one family.
+<br>
+
+::: {.panel-data .text-size-smaller}
+[`r nrow(data_stromy)` stromů]{.card-title}
+
+```{r}
+#| label: pocty-druhu
+#| echo: false
+#| results: asis
+vec_pocty_druhu <- table(data_stromy$druh_stromu)
+cat(
+  paste0(
+    "- *", names(vec_pocty_druhu), "*: ", vec_pocty_druhu, " stromů",
+    collapse = "\n"
+  )
+)
+```
+
+- chybějící hodnoty: `r sum(is.na(data_stromy[, vec_promenne]))`
+- průměr kmene: `r format_cz(min(data_stromy$prumer_kmene_cm), 1)`–`r format_cz(max(data_stromy$prumer_kmene_cm), 1)` cm
+- výška: `r format_cz(min(data_stromy$vyska_stromu_m), 1)`–`r format_cz(max(data_stromy$vyska_stromu_m), 1)` m
 :::
 :::
 :::
 
-[Students should be able to recognise the role of a slide before reading the text — from the colour key, layout, or position in the structure.]{.text-size-smaller .text-color-grey_olive}
+[Data: J. Marshall, University of Idaho · balíček `lgrdata` 0.1.1 (`allometry`) · CC0]{.footer}
 
-# Model output for authors {.center}
+## Jak se výška mění s průměrem kmene?
 
-## Build model tables from the fit
+```{r}
+#| label: zobrazit-stromy
+#| echo: false
+#| fig-height: 5
+#| fig-alt: "Bodový graf výšky stromu proti průměru kmene pro jehličnany tří druhů; výška s průměrem roste."
+graf_stromy <-
+  ggplot2::ggplot(
+    data = data_stromy,
+    mapping = ggplot2::aes(
+      x = prumer_kmene_cm,
+      y = vyska_stromu_m,
+      colour = druh_stromu
+    )
+  ) +
+  ggplot2::geom_point(size = 3, alpha = 0.85) +
+  ggplot2::scale_colour_manual(values = vec_barvy_druhu) +
+  ggplot2::labs(
+    x = "Průměr kmene ve výšce 1,3 m (cm)",
+    y = "Výška stromu (m)",
+    colour = NULL
+  ) +
+  theme_l09 +
+  ggplot2::theme(legend.text = ggplot2::element_text(face = "italic"))
 
-Use this pattern only after a lesson has introduced the model and its base-R output. Keep the model fit and preparation in hidden chunks near the first table; show only the selected Czech-labelled table. Adjust terms, quantities, rounding, and units to the actual teaching question.
+graf_stromy
+```
 
-```r
-# Hidden authoring code after fitting mod_priklad locally:
-koeficienty <-
-  broom::tidy(mod_priklad, conf.int = TRUE)
+::: {.panel-question}
+**Ve dvojici:** Jaký vzorec v datech převládá? Co by mohlo vadit jedné přímce pro všechny stromy?
+:::
 
-tabulka <-
-  data.frame(
-    Parametr = koeficienty$term,
-    Odhad = koeficienty$estimate,
-    `Standardní chyba` = koeficienty$std.error,
-    check.names = FALSE
+## Jedna společná přímka pro všechny druhy
+
+::: columns
+::: {.column width="42%"}
+
+<br>
+
+```{r}
+#| label: odhadnout-spolecny-model
+#| echo: true
+mod_spolecny <- lm(
+  formula = vyska_stromu_m ~
+    prumer_kmene_cm,
+  data = data_stromy
+)
+
+coef(object = mod_spolecny)
+```
+:::
+::: {.column width="56%"}
+```{r}
+#| label: zobrazit-spolecnou-primku
+#| echo: false
+#| fig-width: 7
+#| fig-height: 5.4
+#| fig-alt: "Body stromů tří druhů a jedna společná fialová přímka modelu."
+graf_stromy +
+  ggplot2::geom_abline(
+    intercept = coef(mod_spolecny)[[1]],
+    slope = coef(mod_spolecny)[[2]],
+    colour = biostat_cols[["indigo_velvet"]],
+    linewidth = 1.4
+  ) +
+  ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2))
+```
+:::
+:::
+
+::: {.fragment}
+Sklon: o [`r format_cz(coef(mod_spolecny)[[2]], 2)` m vyšší]{.text-hgl-indigo_velvet} odhadovaná výška na každý centimetr průměru — [stejně pro všechny druhy]{.text-hgl-orange}.
+:::
+
+## Co už umíme přečíst ze `summary()`?
+
+```{r}
+#| label: souhrn-spolecneho-modelu
+#| echo: true
+#| class-output: text-size-tiny
+summary(object = mod_spolecny)
+```
+
+[[Známe:]{.fragment} [[volání modelu · residua · koeficienty s nejistotou]{.text-hgl-indigo_velvet}]{.fragment}]{.text-size-smaller}
+
+::: {.notes}
+V L08 jsme tyto dva řádky záměrně odložili. Hodnoty zatím nečteme — vrátíme se k nim, až je umíme spočítat.
+:::
+
+## Zůstává v residuích rozdíl mezi druhy?
+
+```{r}
+#| label: pripravit-residua-spolecneho-modelu
+#| include: false
+data_residua_spolecny <- data.frame(
+  odhad = fitted(object = mod_spolecny),
+  residuum = residuals(object = mod_spolecny),
+  druh_stromu = data_stromy$druh_stromu
+)
+
+data_prumerna_residua <-
+  aggregate(
+    residuum ~ druh_stromu,
+    data = data_residua_spolecny,
+    FUN = mean
   )
 
-tinytable::tt(tabulka, digits = 2)
+graf_residua_spolecny <-
+  ggplot2::ggplot(
+    data = data_residua_spolecny,
+    mapping = ggplot2::aes(x = odhad, y = residuum, colour = druh_stromu)
+  ) +
+  ggplot2::geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    colour = biostat_cols[["graphite"]]
+  ) +
+  ggplot2::geom_point(size = 3, alpha = 0.85) +
+  ggplot2::scale_colour_manual(values = vec_barvy_druhu) +
+  ggplot2::scale_y_continuous(
+    limits = range(data_residua_spolecny$residuum) + c(-1, 1)
+  ) +
+  ggplot2::labs(
+    x = "Odhadnutá výška stromu (m)",
+    y = "Residuum (m)",
+    colour = NULL
+  ) +
+  theme_l09 +
+  ggplot2::theme(legend.text = ggplot2::element_text(face = "italic")) +
+  ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2))
 ```
 
-Do not copy coefficient values into a hand-written table. Compare the generated values with `coef(mod_priklad)` and `summary(mod_priklad)` and inspect the rendered HTML and PDF before reusing this example.
-
-# Tools Overview {.center}
-
-## `.box-*` aliases — when to use what
-
-| Alias | Maps to | Weight | Colour | When to use |
-|-------|-----------|------|-------|------------|
-| `.box-question` | `.panel-question` | panel (lighter) | orange left border | MCQ, reflection question |
-| `.box-result` | `.panel-result` | panel (lighter) | indigo left border | main conclusion, analysis result |
-| `.box-data` | `.panel-data` | panel (lighter) | olive left border | dataset description, data context |
-| `.box-rule` | `.card-rule` | card (heavier) | amethyst top strip + shadow | rule, heuristic |
-| `.box-warning` | `.card-warning` | card (heavier) | red top strip + shadow | methodological warning |
-
-[Panel aliases (lighter): coloured left border, no shadow. Card aliases (heavier): coloured top strip + shadow. Inner heading: `[text]{.panel-title}` for panels · `[text]{.card-title}` for cards.]{.text-size-smaller .text-color-grey_olive}
-
-## `.box-question` — interaction, MCQ
-
 ::: columns
-::: {.column width="55%"}
-::: {.box-question}
-[Question for reflection]{.panel-title}
-
-What percentage of penguin body-mass variability is explained by bill length?
-
-**A)** less than 30 % &nbsp;&nbsp; **B)** 30–60 % &nbsp;&nbsp; **C)** more than 60 %
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-question}
-[Question for reflection]{.panel-title}
-
-Question text + choices A / B / C.
-:::
+::: {.column width="64%"}
+::: {.r-stack}
+```{r}
+#| label: zobrazit-residua-spolecneho-modelu
+#| echo: false
+#| fig-width: 8
+#| fig-height: 6
+#| fig-alt: "Residua společné přímky proti odhadnuté výšce, barevně podle druhu stromu."
+graf_residua_spolecny
 ```
-
-[= `.panel-question` · orange left border · heading `{.panel-title}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## `.box-result` — main result
-
-::: columns
-::: {.column width="55%"}
-::: {.box-result}
-[What we see]{.panel-title}
-
-Each millimetre of bill length corresponds on average to **+8.7 g** body mass
-(95% CI: 6.2–11.2 g). The model explains 45 % of body-mass variability.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-result}
-[What we see]{.panel-title}
-
-Main conclusion or analysis result.
-:::
-```
-
-[= `.panel-result` · indigo left border · heading `{.panel-title}` or `{.panel-lead}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## `.box-data` — dataset description
-
-::: columns
-::: {.column width="55%"}
-::: {.box-data}
-[Palmer Penguins]{.panel-title}
-
-344 penguins from three islands · 3 species *(Adelie, Chinstrap, Gentoo)*
-
-Variables: bill length and depth (mm), flipper length (mm), body mass (g), sex, year
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-data}
-[Dataset name]{.panel-title}
-
-Brief description: number of
-observations, variables, source.
-:::
-```
-
-[= `.panel-data` · olive left border · heading `{.panel-title}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## `.box-warning` — methodological warning
-
-::: columns
-::: {.column width="55%"}
-::: {.box-warning}
-[Caution — correlation ≠ causation]{.card-title}
-
-A longer bill does not imply that *the bill causes* greater body mass — both traits
-may reflect overall body size.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-warning}
-[Warning heading]{.card-title}
-
-Methodological error, misinterpretation,
-data limitation.
-:::
-```
-
-[= `.card-warning` · **card** · red top strip + shadow · heading `{.card-title}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## `.box-rule` — rule, heuristic
-
-::: columns
-::: {.column width="55%"}
-::: {.box-rule}
-[Mean or median?]{.card-title}
-
-If the data are symmetric → mean.
-
-If the data are skewed or contain outliers → median.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-rule}
-[Rule heading]{.card-title}
-
-Condition → recommendation.
-Or a verbal heuristic.
-:::
-```
-
-[= `.card-rule` · **card** · amethyst top strip + shadow · heading `{.card-title}`]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Combination: `.box-question` + `.takeaway-strip`
-
-::: columns
-::: {.column width="55%"}
-::: {.box-question}
-[Question for reflection]{.panel-title}
-
-Why does bill length differ between penguin species and within a single species?
-:::
-
-::: {.takeaway-strip}
-**Morphology as adaptation.** Bill length reflects life strategy — Gentoo penguins forage differently from Adelie.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.box-question}
-[Question]{.panel-title}
-Question...
-:::
-
-::: {.takeaway-strip}
-**Conclusion.** Closing the conclusion.
-:::
-```
-
-[`.takeaway-strip` after `.box-question` closes a slide sequence. One slide = one question + one conclusion.]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Fragment: incremental reveal of `.box-result`
-
-::: columns
-::: {.column width="55%"}
-Let's look at the linear model output.
 
 ::: {.fragment}
-::: {.box-result}
-[Result]{.panel-title}
+```{r}
+#| label: zobrazit-residua-s-prumery-druhu
+#| echo: false
+#| fig-width: 8
+#| fig-height: 6
+#| fig-alt: "Stejná residua s vodorovnými čarami průměrného residua každého druhu; Pinus monticola leží převážně nad nulou."
+graf_residua_spolecny +
+  ggplot2::geom_hline(
+    data = data_prumerna_residua,
+    mapping = ggplot2::aes(yintercept = residuum, colour = druh_stromu),
+    linewidth = 1.4
+  )
+```
+:::
+:::
+:::
+::: {.column width="34%"}
 
-Bill length coefficient: **+8.7 g/mm** (95% CI: 6.2–11.2 g).
-The effect is statistically and biologically significant.
+<br>
+
+::: {.panel-question}
+Leží residua některého druhu převážně nad nulou, nebo pod ní?
 :::
-:::
-:::
-::: {.column width="42%"}
-```markdown
-Sentence before the pause.
 
 ::: {.fragment}
-::: {.box-result}
-[Result]{.panel-title}
-Text that is revealed.
+Průměrné residuum *P. monticola*: [`r format_cz(data_prumerna_residua$residuum[data_prumerna_residua$druh_stromu == "Pinus monticola"], 1, signed = TRUE)` m]{.text-hgl-orange}
+
+Společná přímka [přehlíží rozdíly mezi druhy]{.text-hgl-orange}.
 :::
 :::
+:::
+
+# Tři představy o růstu stromů
+
+## Jaké jiné přímky by mohly stromy popsat?
+
+::: columns
+::: {.column width="62%"}
+```{r}
+#| label: zobrazit-stromy-pro-nacrt
+#| echo: false
+#| fig-width: 8
+#| fig-height: 6
+#| fig-alt: "Stejný bodový graf stromů bez přímek, připravený pro náčrt alternativních modelů."
+graf_stromy +
+  ggplot2::guides(colour = ggplot2::guide_legend(nrow = 2))
 ```
-
-[`::: {.fragment}` wraps any `.box-*` block. Students see the sentence → click → result.]{.text-size-smaller .text-color-grey_olive}
 :::
-:::
-
-## Tool: plain question without a frame {.center}
+::: {.column width="36%"}
 
 <br>
 
-::: {.text-center .text-size-large .text-bold}
-How does the confidence interval change if we double the sample size?
-:::
-
-<br>
-
-::: {.text-center}
-**A)** Narrows &nbsp;&nbsp;&nbsp; **B)** Stays the same &nbsp;&nbsp;&nbsp; **C)** Widens
-:::
-
-<br>
-
-[Plain slide: bold question + choices without a frame. Maximum visual contrast against slides with `.box-*` components.]{.text-size-smaller .text-color-grey_olive}
-
-## Roughnotation — use sparingly
-
-Each millimetre of penguin bill length corresponds on average to
-[+8.7 g body mass]{.rn-underline-indigo} — the effect is
-[biologically significant]{.rn-box-orange}.
-
-<br>
-
-::: columns
-::: {.column width="48%"}
-```markdown
-[text]{.rn-underline-indigo}
-[text]{.rn-box-orange}
-[text]{.rn-circle-amethyst}
-[text]{.rn-bracket-indigo}
-```
-:::
-::: {.column width="48%"}
-```markdown
-[text]{.rn-highlight-orange}
-[text]{.rn-cross-graphite}
-```
-
-Colours: `indigo`, `orange`, `amethyst`,
-`olive`, `graphite`, `red`
-:::
-:::
-
-[**Sparingly:** max 1–2 effects per slide, 3–5 per lecture. Types: `underline`, `box`, `circle`, `bracket`, `highlight`, `cross`. Not as decoration — only for one key moment in a concept.]{.text-size-smaller .text-color-grey_olive}
-
-# Reference Slides: SCSS Components {.center}
-
-# Cards {.center}
-
-## Card: basic structure
-
-::: {.card-indigo}
-[Card heading]{.card-title}
-
-Card body — one or two short paragraphs. The font is intentionally smaller than the base
-slide size (0.82 em) to fit more content.
-
-- Cards can also contain a list
-- Each item on its own line
-:::
-
-[Syntax: `::: {.card-indigo}` + `[text]{.card-title}` for the coloured top strip — without the old `.slide-card` + variant combination.]{.text-size-smaller .text-color-grey_olive}
-
-## Card: .card-title
-
-::: columns
-::: {.column width="60%"}
-::: {.card-insight}
-[This is .card-title]{.card-title}
-
-`[text]{.card-title}` must be the **first thing** inside the card — it creates the coloured top strip.
-:::
-:::
-
-::: {.column width="38%"}
-```markdown
-::: {.card-insight}
-[Section name]{.card-title}
-
-Card body.
-:::
-```
-:::
-:::
-
-## Card: compact variant
-
-::: columns
-::: {.column width="48%"}
-::: {.card-orange}
-[Standard]{.card-title}
-
-`.card-orange` — padding `0.7rem 1rem`. Suitable for longer content.
-:::
-:::
-
-::: {.column width="48%"}
-::: {.card-orange .card-compact}
-[Compact]{.card-title}
-
-`.card-orange .card-compact` — reduced padding (`0.45rem 0.75rem`). For denser layouts.
-:::
-:::
-:::
-
-## Card: overview of variants
-
-::: columns
-::: {.column width="18%"}
-::: {.card-indigo}
-[indigo]{.card-title}
-`.card-indigo`
-:::
-:::
-::: {.column width="18%"}
-::: {.card-orange}
-[orange]{.card-title}
-`.card-orange`
-:::
-:::
-::: {.column width="18%"}
-::: {.card-amethyst}
-[amethyst]{.card-title}
-`.card-amethyst`
-:::
-:::
-::: {.column width="18%"}
-::: {.card-olive}
-[olive]{.card-title}
-`.card-olive`
-:::
-:::
-::: {.column width="18%"}
-::: {.card-red}
-[red]{.card-title}
-`.card-red`
-:::
-:::
-:::
-
-::: columns
-::: {.column width="16%"}
-::: {.card-question}
-[question]{.card-title}
-`.card-question`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-insight}
-[insight]{.card-title}
-`.card-insight`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-warning}
-[warning]{.card-title}
-`.card-warning`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-data}
-[data]{.card-title}
-`.card-data`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-result}
-[result]{.card-title}
-`.card-result`
-:::
-:::
-::: {.column width="16%"}
-::: {.card-rule}
-[rule]{.card-title}
-`.card-rule`
-:::
-:::
-:::
-
-[Semantic variants are aliases: `.card-question` = orange, `.card-insight` = `.card-result` = indigo, `.card-warning` = red, `.card-data` = olive, `.card-rule` = amethyst. Shorthand: `.box-question`, `.box-result`, `.box-data`, `.box-warning`, `.box-rule`.]{.text-size-smaller .text-color-grey_olive}
-
-# Panels {.center}
-
-## Panel: `.panel-result`
-
-::: columns
-::: {.column width="55%"}
-::: {.panel-result}
-[Key insight]{.panel-title}
-
-Purple left border. For the main message of a block — conclusion, analysis result, or key number.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.panel-result}
-[Heading]{.panel-title}
-Panel text.
-:::
-```
-
-[`.panel-title` is `display: block`; gives the heading h3 appearance without `###`.]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Panel: `.panel-question`
-
-::: columns
-::: {.column width="55%"}
 ::: {.panel-question}
-[Conclusion or option]{.panel-title}
+**Ve dvojici:** Načrtněte dvě jiné možnosti než jednu společnou přímku.
 
-Orange left border. For conclusions, comparison results, or offering multiple answer choices.
+Co by každá z nich tvrdila o stromech?
+:::
+
+::: {.fragment}
+Pomůcka: modely z minulé lekce — [`+`]{.text-hgl-indigo_velvet} a [`*`]{.text-hgl-indigo_velvet}.
 :::
 :::
-::: {.column width="42%"}
-```markdown
-::: {.panel-question}
-[Conclusion or option]{.panel-title}
-Panel text.
 :::
+
+## Tři modely vyjadřují tři biologické představy
+
+```{r}
+#| label: zobrazit-glyfy-kandidatu
+#| echo: false
+#| fig-height: 2.2
+#| fig-alt: "Tři schémata: jedna přímka, tři rovnoběžné přímky a tři přímky s různými sklony."
+vec_nazvy_modelu <- c(
+  "Společná přímka",
+  "Posun mezi druhy",
+  "Různé sklony"
+)
+
+data_glyfy <- data.frame(
+  model = factor(
+    rep(vec_nazvy_modelu, times = c(1, 3, 3)),
+    levels = vec_nazvy_modelu
+  ),
+  skupina = c("a", "a", "b", "c", "a", "b", "c"),
+  intercept = c(1, 2, 1, 0, 0.6, 0.3, 0),
+  sklon = c(1, 1, 1, 1, 1.5, 1, 0.55)
+)
+
+ggplot2::ggplot(data = data_glyfy) +
+  ggplot2::geom_abline(
+    mapping = ggplot2::aes(intercept = intercept, slope = sklon, group = skupina),
+    colour = biostat_cols[["indigo_velvet"]],
+    linewidth = 1.6
+  ) +
+  ggplot2::facet_wrap(facets = ggplot2::vars(model), nrow = 1) +
+  ggplot2::coord_cartesian(xlim = c(0, 3), ylim = c(0, 5)) +
+  ggplot2::theme_void(base_size = 20) +
+  ggplot2::theme(
+    strip.text = ggplot2::element_text(face = "bold", margin = ggplot2::margin(b = 6)),
+    panel.border = ggplot2::element_rect(colour = biostat_cols[["light_gray"]], fill = NA)
+  )
 ```
-:::
-:::
-
-## Panel: `.panel-question` + `.panel-lead`
-
-::: columns
-::: {.column width="55%"}
-::: {.panel-question}
-[Computation result]{.panel-lead}
-
-Large highlighted result — replaces the old `.answer-title`. Use at most once per slide.
-:::
-:::
-::: {.column width="42%"}
-```markdown
-::: {.panel-question}
-[Computation result]{.panel-lead}
-
-Text below the result.
-:::
-```
-
-[`.panel-lead` is large and bold. Suitable for a key number or conclusion.]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Panel: `.panel-note` and `.panel-warning`
-
-::: columns
-::: {.column width="48%"}
-::: {.panel-note}
-[Instructions or output]{.panel-title}
-
-Neutral olive border. For instructions, workflow steps, or model output.
-:::
-:::
-::: {.column width="48%"}
-::: {.panel-warning}
-[Caution!]{.panel-title}
-
-Red left border. For warnings, common errors, or deliberate alerts.
-:::
-:::
-:::
-
-## Panel: overview of colour variants
-
-::: columns
-::: {.column width="18%"}
-::: {.panel-indigo}
-[indigo]{.panel-title}
-`.panel-indigo`
-:::
-:::
-::: {.column width="18%"}
-::: {.panel-orange}
-[orange]{.panel-title}
-`.panel-orange`
-:::
-:::
-::: {.column width="18%"}
-::: {.panel-amethyst}
-[amethyst]{.panel-title}
-`.panel-amethyst`
-:::
-:::
-::: {.column width="18%"}
-::: {.panel-olive}
-[olive]{.panel-title}
-`.panel-olive`
-:::
-:::
-::: {.column width="18%"}
-::: {.panel-red}
-[red]{.panel-title}
-`.panel-red`
-:::
-:::
-:::
-
-[Semantic variants are aliases: `.panel-result` = indigo, `.panel-question` = orange, `.panel-warning` = red, `.panel-note` = amethyst, `.panel-data` = olive. Shorthand (`.box-*`) wraps the matching panel.]{.text-size-smaller .text-color-grey_olive}
-
-# Takeaway strip {.center}
-
-## Takeaway strip: standard
-
-Sentence that leads into the conclusion — contextual paragraph above the strip.
-
-::: {.takeaway-strip}
-**Main slide conclusion.** `.takeaway-strip` — indigo-to-orange gradient background,
-indigo left border. One per slide, placed at the bottom.
-:::
-
-[`::: {.takeaway-strip}` — the gradient is built in, no extra class needed.]{.text-size-smaller .text-color-grey_olive}
-
-## Takeaway strip: compact variant
-
-Sentence above the strip as usual.
-
-::: {.takeaway-strip}
-Main conclusion — standard strip.
-:::
-
-::: {.takeaway-strip .strip-compact}
-Supplementary conclusion — `.strip-compact` reduces `margin-top`. Useful for two conclusions together.
-:::
-
-## Strip: colour variants
-
-::: columns
-::: {.column width="18%"}
-::: {.strip-indigo}
-`.strip-indigo`
-:::
-:::
-::: {.column width="18%"}
-::: {.strip-orange}
-`.strip-orange`
-:::
-:::
-::: {.column width="18%"}
-::: {.strip-amethyst}
-`.strip-amethyst`
-:::
-:::
-::: {.column width="18%"}
-::: {.strip-olive}
-`.strip-olive`
-:::
-:::
-::: {.column width="18%"}
-::: {.strip-red}
-`.strip-red`
-:::
-:::
-:::
-
-# Blockquote {.center}
-
-## Blockquote div: `.blockquote`
-
-::: {.blockquote}
-**Definition or quotation.** `.blockquote` — light purple background, indigo left border (6px),
-rounded corners. Font 0.82 em.
-
-- Can contain a list
-- Each item on its own line
-:::
-
-[Use `::: {.blockquote}`, not Markdown `>`. The div variant gets correct styling;
-Markdown blockquote gets different styles from `presentation_theme.scss`.]{.text-size-smaller .text-color-grey_olive}
-
-# Slide backgrounds {.center}
-
-## Backgrounds: dark variants {.bg-indigo}
-
-This slide has the class `{.bg-indigo}`. Text and headings are automatically white.
-
-::: columns
-::: {.column width="48%"}
-Syntax — add the class to the slide heading:
-
-```markdown
-## Slide title {.bg-indigo}
-```
-:::
-::: {.column width="48%"}
-Available dark variants:
-
-- `{.bg-indigo}` — primary indigo
-- `{.bg-amethyst}` — lighter purple
-- `{.bg-olive}` — grey-green
-- `{.bg-red}` — red
-- `{.bg-graphite}` — dark grey
-:::
-:::
-
-## Backgrounds: light variants {.bg-parchment}
-
-This slide has the class `{.bg-parchment}`. Text is automatically graphite.
-
-::: columns
-::: {.column width="48%"}
-Available light variants:
-
-- `{.bg-orange}` — orange
-- `{.bg-parchment}` — cream
-- `{.bg-white}` — pure white
-:::
-::: {.column width="48%"}
-Text and heading colour adapts automatically — no need to add `.text-color-*`.
-:::
-:::
-
-# Inline highlights {.center}
-
-## Inline highlight: `.text-hgl-{color}`
-
-The model intercept is −153.4 and the length coefficient is
-[4.05 g/mm]{.text-hgl-indigo_velvet} — each millimetre of length corresponds on average
-to four grams of body mass.
-
-Caution — this procedure works [only when the normality assumption is met]{.text-hgl-orange}.
-
-[Syntax: `[text]{.text-hgl-indigo_velvet}` — coloured chip with contrasting text. Available colours: `indigo_velvet`, `orange`, `amethyst`, `grey_olive`, `graphite`, `white`, `light_gray`, `parchment`.]{.text-size-smaller .text-color-grey_olive}
-
-## Inline highlight: `.text-bg-{color}` and `.text-color-{color}`
-
-::: columns
-::: {.column width="48%"}
-[`.text-hgl-indigo_velvet`]{.text-hgl-indigo_velvet} — chip with contrasting text
-
-[`.text-bg-indigo_velvet`]{.text-bg-indigo_velvet} — chip without text colour change
-
-[`.text-color-indigo_velvet`]{.text-color-indigo_velvet} — text colour only
-
-[`.text-color-indigo_velvet .text-bold`]{.text-color-indigo_velvet .text-bold} — colour + bold
-:::
-::: {.column width="48%"}
-```markdown
-[text]{.text-hgl-indigo_velvet}
-[text]{.text-bg-indigo_velvet}
-[text]{.text-color-indigo_velvet}
-[text]{.text-color-indigo_velvet .text-bold}
-```
-:::
-:::
-
-# Roughnotation {.center}
-
-## Roughnotation: shorthand syntax
-
-Shorthand `{.rn-{type}-{colour}}` expands via `rn-shorthand.lua`:
-
-::: columns
-::: {.column width="48%"}
-**Short form (new):**
-
-Each millimetre of length corresponds to approximately
-[four grams of body mass]{.rn-underline-indigo}.
-
-```markdown
-[text]{.rn-underline-indigo}
-```
-:::
-::: {.column width="48%"}
-**Long form (still functional):**
-
-```markdown
-[text]{.rn-fragment rn-type=underline
-  rn-color="#5D2890"}
-```
-:::
-:::
-
-[Available types: `underline`, `box`, `circle`, `highlight`, `cross`, `bracket`. Colours: `indigo`, `orange`, `amethyst`, `olive`, `graphite`, `red`.]{.text-size-smaller .text-color-grey_olive}
-
-## Roughnotation: `box`, `circle`, `bracket`
 
 ::: columns
 ::: {.column width="32%"}
-**box**
+`vyska ~ prumer`
 
-**R² = [0.76]{.rn-box-indigo}**
-
-```markdown
-[0.76]{.rn-box-indigo}
-```
+Všechny druhy sdílejí [stejný intercept i sklon]{.text-hgl-indigo_velvet}.
 :::
 ::: {.column width="32%"}
-**circle**
+`vyska ~ prumer + druh`
 
-The relationship is [strong]{.rn-circle-orange}.
-
-```markdown
-[strong]{.rn-circle-orange}
-```
+Při stejném průměru se druhy mohou lišit [výškou]{.text-hgl-indigo_velvet}, sklon sdílejí.
 :::
 ::: {.column width="32%"}
-**bracket**
+`vyska ~ prumer * druh`
 
-**ŷ = β₀ + [β₁x]{.rn-bracket-indigo}**
-
-```markdown
-[β₁x]{.rn-bracket-indigo}
-```
+Vztah průměru a výšky se může [mezi druhy lišit]{.text-hgl-indigo_velvet}.
 :::
 :::
 
-[Animation fires on fragment arrival. Do not use both colours on the same slide.]{.text-size-smaller .text-color-grey_olive}
-
-# Fragments and progressive disclosure {.center}
-
-## Fragment: `.fragment` block
-
-A sentence that is on the slide from the start.
-
-::: {.fragment}
-::: {.panel-result}
-[Conclusion arrives after pause]{.panel-title}
-
-This entire block appears as a single fragment — the student sees the sentence above
-and only after clicking does the panel with the conclusion reveal itself.
-:::
+::: {.fragment .takeaway-strip}
+Tuto sadu kandidátů určíme [předem]{.text-hgl-orange} — z biologické otázky, ne z výsledků.
 :::
 
-[Syntax: `::: {.fragment}` wraps any block. Works with panels, blockquotes, strips, and cards.]{.text-size-smaller .text-color-grey_olive}
-
-## Fragment: `.incremental` list
-
-Which properties must a good correlation coefficient satisfy?
-
-::: {.incremental}
-- It must be symmetric: correlation of X with Y = correlation of Y with X.
-- It must be dimensionless: independent of the scale of variables.
-- It must be in the interval −1 to +1.
-- +1 = perfect positive dependence, −1 = perfect negative dependence.
-:::
-
-[Each item appears on click.]{.text-size-smaller .text-color-grey_olive}
-
-# Typography {.center}
-
-## Typography: sizes
-
-::: columns
-::: {.column width="55%"}
-[`.text-size-heading` — 140 % of base]{.text-size-heading}
-
-[`.text-size-large` — 130 % of base]{.text-size-large}
-
-Normal text (100 %, base 30 px)
-
-[`.text-size-smaller` — 82 % of base]{.text-size-smaller}
-
-[`.text-size-tiny` — 65 % of base]{.text-size-tiny}
-:::
-::: {.column width="42%"}
-```markdown
-[text]{.text-size-heading}
-[text]{.text-size-large}
-[text]{.text-size-smaller}
-[text]{.text-size-tiny}
-```
-
-[`.text-size-body` = 100 % (explicit reset). Old `.text-larger`/`.text-smaller`/`.text-tiny` are removed.]{.text-size-smaller .text-color-grey_olive}
-:::
-:::
-
-## Typography: weight, alignment, font
-
-::: {.text-center}
-`.text-center` — horizontal centre
-:::
-
-::: {.text-right}
-`.text-right` — right alignment
-:::
-
-<br>
-
-[`.text-font-heading` — Source Sans 3, heading weight]{.text-font-heading}
-
-[`.text-font-monospace` — JetBrains Mono]{.text-font-monospace}
-
-[`.text-bold` — bold]{.text-bold}
-
-# Colour utilities {.center}
-
-## Colours: indigo_velvet and amethyst
-
-::: columns
-::: {.column width="48%"}
-::: {.bg-indigo_velvet style="padding:0.55rem 0.8rem;border-radius:10px;margin-bottom:0.5rem;"}
-[`.bg-indigo_velvet` — primary indigo]{.text-color-white}
-:::
-[`.text-color-indigo_velvet`]{.text-color-indigo_velvet}
-
-[`.text-hgl-indigo_velvet`]{.text-hgl-indigo_velvet}
-:::
-::: {.column width="48%"}
-::: {.bg-amethyst style="padding:0.55rem 0.8rem;border-radius:10px;margin-bottom:0.5rem;"}
-[`.bg-amethyst` — lighter purple]{.text-color-white}
-:::
-[`.text-color-amethyst`]{.text-color-amethyst}
-
-[`.text-hgl-amethyst`]{.text-hgl-amethyst}
-:::
-:::
-
-## Colours: orange and graphite
-
-::: columns
-::: {.column width="48%"}
-::: {.bg-orange style="padding:0.55rem 0.8rem;border-radius:10px;margin-bottom:0.5rem;"}
-[`.bg-orange` — vivid orange]{.text-color-graphite}
-:::
-[`.text-color-orange`]{.text-color-orange}
-
-[`.text-hgl-orange`]{.text-hgl-orange}
-:::
-::: {.column width="48%"}
-::: {.bg-graphite style="padding:0.55rem 0.8rem;border-radius:10px;margin-bottom:0.5rem;"}
-[`.bg-graphite` — dark base]{.text-color-white}
-:::
-[`.text-color-graphite`]{.text-color-graphite}
-
-[`.text-hgl-graphite`]{.text-hgl-graphite}
-:::
-:::
-
-## Colours: neutral palette tones
-
-::: columns
-::: {.column width="23%"}
-::: {.bg-parchment style="padding:0.5rem 0.7rem;border-radius:10px;border:1px solid #ccc;"}
-[`.bg-parchment`]{.text-color-graphite .text-size-smaller}
-:::
-[`.text-color-parchment`]{.text-color-parchment .text-size-smaller .bg-graphite style="padding:1px 4px;border-radius:3px;"}
-
-[`.text-hgl-parchment`]{.text-hgl-parchment .text-size-smaller}
-:::
-::: {.column width="23%"}
-::: {.bg-grey_olive style="padding:0.5rem 0.7rem;border-radius:10px;"}
-[`.bg-grey_olive`]{.text-color-white .text-size-smaller}
-:::
-[`.text-color-grey_olive`]{.text-color-grey_olive .text-size-smaller}
-
-[`.text-hgl-grey_olive`]{.text-hgl-grey_olive .text-size-smaller}
-:::
-::: {.column width="23%"}
-::: {.bg-light_gray style="padding:0.5rem 0.7rem;border-radius:10px;border:1px solid #ccc;"}
-[`.bg-light_gray`]{.text-color-graphite .text-size-smaller}
-:::
-[`.text-color-light_gray`]{.text-color-light_gray .text-size-smaller .bg-graphite style="padding:1px 4px;border-radius:3px;"}
-
-[`.text-hgl-light_gray`]{.text-hgl-light_gray .text-size-smaller}
-:::
-::: {.column width="23%"}
-::: {.bg-white style="padding:0.5rem 0.7rem;border-radius:10px;border:1px solid #ccc;"}
-[`.bg-white`]{.text-color-graphite .text-size-smaller}
-:::
-[`.text-color-white`]{.text-color-white .text-size-smaller .bg-graphite style="padding:1px 4px;border-radius:3px;"}
-
-[`.text-hgl-white`]{.text-hgl-white .text-size-smaller}
-:::
-:::
-
-# Layout utilities {.center}
-
-## Layout: `.columns.align-top`
-
-::: {.columns .align-top}
-::: {.column width="48%"}
-**Left column** starts at the top — without `.align-top` the content would be vertically centred.
-
-::: {.card-indigo}
-Card in the left column.
-
-Second paragraph inside the card — the left column is taller.
-:::
-:::
-::: {.column width="48%"}
-**Right column** is shorter.
-
-Without `.align-top` the right text would shift down to the centre of the column pair.
-:::
-:::
-
-[Syntax: `::: {.columns .align-top}` — add the class `.align-top` to `.columns`.]{.text-size-smaller .text-color-grey_olive}
-
-## Layout: vertical offsets
-
-::: {.card-question}
-[Example: `.slide-margin-top-15`]{.kicker}
-
-This card would have `margin-top: 15%` if it had the class `.slide-margin-top-15`.
-Useful for vertically centring an isolated element on a slide.
-:::
-
-::: {.takeaway-strip .strip-compact}
-`.slide-margin-top-15` → `margin-top: 15%` · `.slide-margin-top-25` → `margin-top: 25%` · `.center-vertical` → absolute centre
-:::
-
-[For a group of related elements, prefer the normal-flow `.layout-stack.layout-center-y` utility shown below.]{.text-size-smaller .text-color-grey_olive}
-
-## Layout: `.layout-grid-2`
-
-:::: {.layout-grid-2}
-::: {.panel-result}
-[Left result]{.panel-title}
-
-Two equal-width elements form one comparison.
-:::
-
-::: {.panel-question}
-[Right question]{.panel-title}
-
-The shared gap keeps the pair readable.
-:::
-::::
-
-::: {.takeaway-strip}
-Use `::: {.layout-grid-2}` for a comparison or prompt pair—not merely to decorate an ordinary list.
-:::
-
-## Layout: vertical stack
-
-:::: {.layout-stack}
-::: {.box-question}
-First related teaching element.
-:::
-
-::: {.box-result}
-Second element with consistent breathing room.
-:::
-
-::: {.takeaway-strip}
-The default gap is `1.4rem`; override `--layout-gap` on the wrapper only when the rendered composition needs it.
-:::
-::::
-
-## Layout: centred stack
+## Všechny tři modely odhadneme ze stejných `r nrow(data_stromy)` stromů
 
 :::: {.layout-stack .layout-center-y}
-::: {.box-question .text-center}
-Which observation would change your conclusion?
+
+```{r}
+#| label: odhadnout-kandidatni-modely
+#| echo: true
+# Společnou přímku odhadneme znovu, aby byly všechny tři modely vedle sebe
+mod_spolecny <- lm(
+  formula = vyska_stromu_m ~ prumer_kmene_cm,
+  data = data_stromy
+)
+
+mod_aditivni <- lm(
+  formula = vyska_stromu_m ~ prumer_kmene_cm + druh_stromu,
+  data = data_stromy
+)
+
+mod_interakce <- lm(
+  formula = vyska_stromu_m ~ prumer_kmene_cm * druh_stromu,
+  data = data_stromy
+)
+```
+
+::: {.fragment}
+::: {.panel-data}
+Stejná odezva [`vyska_stromu_m`]{.text-hgl-graphite} · stejných [`r nobs(mod_spolecny)`]{.text-hgl-graphite} stromů v každém modelu
+:::
 :::
 
-::: {.takeaway-strip .text-center}
-`.layout-center-y` centres the short stack in normal flow without transforming its children.
-:::
 ::::
 
+::: {.notes}
+Tato podmínka bude důležitá později u AIC; teď ji jen pojmenujeme.
+:::
+
+## Který model prochází nejblíže pozorovaným stromům?
+
+```{r}
+#| label: pripravit-predikce-kandidatu
+#| include: false
+data_mrizka <- expand.grid(
+  prumer_kmene_cm = seq(
+    from = min(data_stromy$prumer_kmene_cm),
+    to = max(data_stromy$prumer_kmene_cm),
+    length.out = 100
+  ),
+  druh_stromu = levels(data_stromy$druh_stromu)
+)
+
+list_kandidati <- list(mod_spolecny, mod_aditivni, mod_interakce)
+
+data_predikce <-
+  purrr::map2(
+    .x = list_kandidati,
+    .y = vec_nazvy_modelu,
+    .f = ~ data.frame(
+      data_mrizka,
+      odhad = predict(object = .x, newdata = data_mrizka),
+      model = .y
+    )
+  ) |>
+  purrr::list_rbind()
+
+data_predikce$model <- factor(data_predikce$model, levels = vec_nazvy_modelu)
+
+# The common model has one line: draw it once, in model purple
+data_predikce_spolecny <-
+  data_predikce[
+    data_predikce$model == vec_nazvy_modelu[1] &
+      data_predikce$druh_stromu == levels(data_stromy$druh_stromu)[1],
+  ]
+
+data_body_kandidati <-
+  purrr::map2(
+    .x = list_kandidati,
+    .y = vec_nazvy_modelu,
+    .f = ~ data.frame(
+      data_stromy[, c("druh_stromu", "prumer_kmene_cm", "vyska_stromu_m")],
+      odhad = fitted(object = .x),
+      model = .y
+    )
+  ) |>
+  purrr::list_rbind()
+
+data_body_kandidati$model <- factor(data_body_kandidati$model, levels = vec_nazvy_modelu)
+
+graf_kandidati <-
+  ggplot2::ggplot(
+    data = data_body_kandidati,
+    mapping = ggplot2::aes(x = prumer_kmene_cm, y = vyska_stromu_m)
+  ) +
+  ggplot2::geom_point(
+    mapping = ggplot2::aes(colour = druh_stromu),
+    size = 2.2,
+    alpha = 0.8
+  ) +
+  ggplot2::geom_line(
+    data = data_predikce[data_predikce$model != vec_nazvy_modelu[1], ],
+    mapping = ggplot2::aes(y = odhad, colour = druh_stromu, group = druh_stromu),
+    linewidth = 1.2
+  ) +
+  ggplot2::geom_line(
+    data = data_predikce_spolecny,
+    mapping = ggplot2::aes(y = odhad),
+    colour = biostat_cols[["indigo_velvet"]],
+    linewidth = 1.3
+  ) +
+  ggplot2::facet_wrap(facets = ggplot2::vars(model), nrow = 1) +
+  ggplot2::scale_colour_manual(values = vec_barvy_druhu) +
+  ggplot2::labs(
+    x = "Průměr kmene (cm)",
+    y = "Výška stromu (m)",
+    colour = NULL
+  ) +
+  theme_l09 +
+  ggplot2::theme(
+    legend.text = ggplot2::element_text(face = "italic"),
+    strip.text = ggplot2::element_text(face = "bold")
+  )
+```
+
+```{r}
+#| label: zobrazit-kandidati
+#| echo: false
+#| fig-height: 4.6
+#| fig-alt: "Tři panely se stejnými stromy: jedna společná přímka, tři rovnoběžné přímky a tři přímky s různými sklony."
+graf_kandidati
+```
+
+::: columns
+::: {.column width="32%"}
+::: {.card-compact}
+**A** · Společná přímka
+:::
+:::
+::: {.column width="32%"}
+::: {.card-compact}
+**B** · Posun mezi druhy
+:::
+:::
+::: {.column width="32%"}
+::: {.card-compact}
+**C** · Různé sklony
+:::
+:::
+:::
+
+## Nejblíže prochází přímky s různými sklony
+
+```{r}
+#| label: zobrazit-kandidati-s-residui
+#| echo: false
+#| fig-height: 4.6
+#| fig-alt: "Stejné tři panely se svislými oranžovými úsečkami residuí a součtem čtverců residuí v záhlaví; nejmenší je u modelu Různé sklony."
+vec_popisky_rss <- stats::setNames(
+  object = paste0(
+    vec_nazvy_modelu,
+    "\nRSS = ",
+    format_cz(purrr::map_dbl(list_kandidati, deviance), 0),
+    " m²"
+  ),
+  nm = vec_nazvy_modelu
+)
+
+graf_kandidati +
+  ggplot2::facet_wrap(
+    facets = ggplot2::vars(model),
+    nrow = 1,
+    labeller = ggplot2::as_labeller(vec_popisky_rss)
+  ) +
+  ggplot2::geom_segment(
+    mapping = ggplot2::aes(
+      xend = prumer_kmene_cm,
+      y = odhad,
+      yend = vyska_stromu_m
+    ),
+    colour = biostat_cols[["orange"]],
+    linewidth = 0.7,
+    alpha = 0.9
+  )
+```
+
+::: {.fragment .text-center}
+[Je proto nejlepší?]{.text-size-heading .text-bold .text-hgl-orange}
+:::
+
+::: {.notes}
+Oranžové úsečky jsou residua v každém panelu; RSS v záhlaví je známý součet jejich čtverců (L03–L04). Rozdíly jsou malé — a právě proto potřebujeme víc než nejmenší RSS.
+:::
+
+## Podle čeho poznáme lepší model?
+
+:::: {.layout-stack .layout-center-y}
+
+[Podle čeho byste mezi modely vybírali?]{.text-size-heading .text-bold}
+
+::: incremental
+- jak těsně model odpovídá [pozorovaným datům]{.text-hgl-graphite};
+- kolik [koeficientů]{.text-hgl-indigo_velvet} potřebuje;
+- zda v [residuích]{.text-hgl-orange} nezůstává systematický vzorec;
+- zda odpovídá biologické otázce;
+- zda jeho výsledek dokážeme smysluplně interpretovat.
+:::
+
+::: {.fragment .takeaway-strip}
+Žádné jediné číslo neodpoví na všechny tyto otázky.
+:::
+
+::::
+
+# Jak změřit shodu modelu s daty?
+
+## Co už víme o součtu čtverců residuí?
+
+:::: {.layout-stack .layout-center-y}
+
+::: columns
+::: {.column width="32%"}
+::: {.card-data}
+[L03]{.card-title}
+
+Kandidátní přímky jsme porovnávali [součtem čtverců residuí]{.text-hgl-orange}.
+:::
+:::
+::: {.column width="32%"}
+::: {.card-data}
+[L04]{.card-title}
+
+Stejnou veličinu jsme označili **RSS** (*residual sum of squares*).
+:::
+:::
+::: {.column width="32%"}
+::: {.card-data}
+[L06]{.card-title}
+
+Skupinové průměry RSS zmenšily oproti jednomu společnému průměru.
+:::
+:::
+:::
+
+<br>
+
+::: {.panel-question}
+Co se stane s RSS, když přímka prochází blíže pozorovaným bodům?
+:::
+
+::: {.fragment}
+Kratší residua → menší čtverce → [menší RSS]{.text-hgl-orange} = těsnější shoda s daty.
+:::
+
+::::
+
+## Je přímka lepší než předpověď průměrem?
+
+```{r}
+#| label: pripravit-sest-stromu
+#| include: false
+vec_radky_sest <- c(1, 11, 22, 32, 43, 58)
+
+data_sest <-
+  data_stromy[
+    vec_radky_sest,
+    c("druh_stromu", "prumer_kmene_cm", "vyska_stromu_m")
+  ]
+
+data_sest$strom <- LETTERS[seq_len(nrow(data_sest))]
+
+prumerna_vyska_sest <- mean(data_sest$vyska_stromu_m)
+
+graf_sest_zaklad <-
+  ggplot2::ggplot(
+    data = data_sest,
+    mapping = ggplot2::aes(x = prumer_kmene_cm, y = vyska_stromu_m)
+  ) +
+  ggplot2::geom_hline(
+    yintercept = prumerna_vyska_sest,
+    linetype = "dashed",
+    colour = biostat_cols[["graphite"]],
+    linewidth = 1
+  ) +
+  ggplot2::annotate(
+    geom = "text",
+    x = min(data_sest$prumer_kmene_cm),
+    y = prumerna_vyska_sest,
+    label = paste0("průměr ", format_cz(prumerna_vyska_sest, 1), " m"),
+    vjust = -0.6,
+    hjust = 0,
+    colour = biostat_cols[["graphite"]],
+    size = 5.5
+  ) +
+  ggplot2::geom_point(size = 4.5, colour = biostat_cols[["grey_olive"]]) +
+  ggplot2::geom_text(
+    mapping = ggplot2::aes(label = strom),
+    nudge_x = -1.6,
+    size = 6,
+    fontface = "bold",
+    colour = biostat_cols[["graphite"]]
+  ) +
+  ggplot2::coord_cartesian(
+    xlim = range(data_sest$prumer_kmene_cm) + c(-3, 3),
+    ylim = range(data_sest$vyska_stromu_m, prumerna_vyska_sest) + c(-3, 3)
+  ) +
+  ggplot2::labs(x = "Průměr kmene (cm)", y = "Výška stromu (m)") +
+  theme_l09
+```
+
+::: columns
+::: {.column width="62%"}
+```{r}
+#| label: zobrazit-sest-stromu
+#| echo: false
+#| fig-width: 8
+#| fig-height: 6
+#| fig-alt: "Šest skutečných stromů A až F a vodorovná přerušovaná čára jejich průměrné výšky."
+graf_sest_zaklad
+```
+:::
+::: {.column width="36%"}
+
+<br>
+
+Šest skutečných stromů z tabulky.
+
+Předpověď bez prediktoru: každému stromu [průměrnou výšku]{.text-hgl-graphite}.
+
+<br>
+
+::: {.panel-question}
+Prošla by přímka podle průměru kmene body blíže než průměr?
+:::
+:::
+:::
+
+## Jak velké jsou rozdíly výšek kolem průměru?
+
+```{r}
+#| label: spocitat-celkovy-soucet-sest
+#| include: false
+data_sest$odchylka <- data_sest$vyska_stromu_m - prumerna_vyska_sest
+data_sest$ctverec_odchylky <- data_sest$odchylka^2
+ss_total_sest <- sum(data_sest$ctverec_odchylky)
+```
+
+::: columns
+::: {.column width="56%"}
+```{r}
+#| label: zobrazit-odchylky-sest
+#| echo: false
+#| fig-width: 7.5
+#| fig-height: 6
+#| fig-alt: "Stejných šest stromů se svislými úsečkami od průměrné výšky k pozorované výšce."
+graf_sest_zaklad +
+  ggplot2::geom_segment(
+    mapping = ggplot2::aes(
+      xend = prumer_kmene_cm,
+      y = prumerna_vyska_sest,
+      yend = vyska_stromu_m
+    ),
+    colour = biostat_cols[["graphite"]],
+    linewidth = 1.3
+  )
+```
+:::
+::: {.column width="42%" .text-size-smaller}
+```{r}
+#| label: tabulka-odchylky-sest
+#| echo: false
+knitr::kable(
+  x = data.frame(
+    Strom = data_sest$strom,
+    Odchylka = format_cz(data_sest$odchylka, 1),
+    `Čtverec` = format_cz(data_sest$ctverec_odchylky, 1),
+    check.names = FALSE
+  ),
+  align = "crr"
+)
+```
+
+::: {.fragment}
+Součet čtverců: [`r format_cz(ss_total_sest, 1)` m²]{.text-hgl-graphite}
+:::
+:::
+:::
+
+::: {.fragment .takeaway-strip}
+Tomuto součtu říkáme [celkový součet čtverců]{.text-hgl-graphite} (*total sum of squares*).
+:::
+
+## Kolik rozdílů zůstane po odhadnutí přímky?
+
+```{r}
+#| label: spocitat-rss-sest
+#| include: false
+mod_sest <- lm(vyska_stromu_m ~ prumer_kmene_cm, data = data_sest)
+data_sest$odhad <- fitted(object = mod_sest)
+data_sest$residuum <- residuals(object = mod_sest)
+data_sest$ctverec_residua <- data_sest$residuum^2
+ss_res_sest <- sum(data_sest$ctverec_residua)
+
+strom_max_residuum <- data_sest$strom[which.max(data_sest$residuum)]
+strom_max_ctverec <- data_sest$strom[which.max(data_sest$ctverec_residua)]
+```
+
+::: columns
+::: {.column width="56%"}
+```{r}
+#| label: zobrazit-residua-sest
+#| echo: false
+#| fig-width: 7.5
+#| fig-height: 6
+#| fig-alt: "Stejných šest stromů s fialovou odhadnutou přímkou a oranžovými úsečkami residuí."
+graf_sest_zaklad +
+  ggplot2::geom_abline(
+    intercept = coef(mod_sest)[[1]],
+    slope = coef(mod_sest)[[2]],
+    colour = biostat_cols[["indigo_velvet"]],
+    linewidth = 1.4
+  ) +
+  ggplot2::geom_segment(
+    data = data_sest,
+    mapping = ggplot2::aes(
+      xend = prumer_kmene_cm,
+      y = odhad,
+      yend = vyska_stromu_m
+    ),
+    colour = biostat_cols[["orange"]],
+    linewidth = 1.6
+  )
+```
+:::
+::: {.column width="42%" .text-size-smaller}
+```{r}
+#| label: tabulka-residua-sest
+#| echo: false
+knitr::kable(
+  x = data.frame(
+    Strom = data_sest$strom,
+    Residuum = format_cz(data_sest$residuum, 1),
+    `Čtverec` = format_cz(data_sest$ctverec_residua, 1),
+    check.names = FALSE
+  ),
+  align = "crr"
+)
+```
+
+RSS: [`r format_cz(ss_res_sest, 1)` m²]{.text-hgl-orange} · celkový: `r format_cz(ss_total_sest, 1)` m²
+:::
+:::
+
+::: {.fragment}
+Který strom leží [nejvýše nad přímkou]{.text-hgl-orange}? A který [nejvíce přispívá k RSS]{.text-hgl-orange}?
+:::
+
+::: {.notes}
+Odpověď: nejvýše nad přímkou leží strom `r strom_max_residuum` (největší kladné residuum), nejvíce k RSS přispívá strom `r strom_max_ctverec` (největší čtverec). Umocnění odstraní znaménko — o příspěvku k RSS rozhoduje velikost residua, ne jeho směr.
+:::
+
+## Jakou část rozdílů přímka zachytila?
+
+```{r}
+#| label: spocitat-r2-sest
+#| include: false
+r2_sest <- 1 - ss_res_sest / ss_total_sest
+```
+
+$$
+\text{zachycený podíl} = 1 - \frac{\text{součet čtverců residuí}}{\text{celkový součet čtverců}}
+$$
+
+::: {.panel-question}
+Jaká část rozdílů ve výšce [zůstala]{.text-hgl-orange} a jakou část přímka [zachytila]{.text-hgl-indigo_velvet}? Dosaďte RSS `r format_cz(ss_res_sest, 1)` m² a celkový součet čtverců `r format_cz(ss_total_sest, 1)` m².
+:::
+
+::: {.fragment}
+$$
+\text{zachycený podíl} = 1 - \frac{`r format_cz_math(ss_res_sest, 1)`}{`r format_cz_math(ss_total_sest, 1)`}
+$$
+:::
+
+::: {.fragment}
+$$
+\text{zachycený podíl} = `r format_cz_math(r2_sest, 3)`
+$$
+:::
+
+## Zachycený podíl se jmenuje R²
+
+:::: {.layout-stack .layout-center-y}
+
+::: {.panel-result}
+[Koeficient determinace R² (*coefficient of determination*)]{.panel-title}
+
+$$
+\Large R^2 = 1 - \frac{SS_{\mathrm{res}}}{SS_{\mathrm{total}}}
+$$
+:::
+
+::: incremental
+- $SS_{\mathrm{res}}$ — [součet čtverců residuí]{.text-hgl-orange} (RSS) od odhadnuté přímky;
+- $SS_{\mathrm{total}}$ — [celkový součet čtverců]{.text-hgl-graphite} odchylek od průměru;
+- u šesti stromů: $R^2 = `r format_cz_math(r2_sest, 3)`$.
+:::
+
+::::
+
+## Jak se mění RSS a R², když přímku natáčíme?
+
+```{r}
+#| label: pripravit-natoceni-primky
+#| include: false
+# Every candidate line passes through the centre of the six trees
+# (mean diameter, mean height). Slope 0 is the mean-only prediction,
+# the fitted slope is the least-squares line from the previous slides.
+prumer_x_sest <- mean(data_sest$prumer_kmene_cm)
+sklon_odhad_sest <- coef(mod_sest)[["prumer_kmene_cm"]]
+
+spocitat_natoceni <- function(sklon) {
+  odhad <- prumerna_vyska_sest + sklon * (data_sest$prumer_kmene_cm - prumer_x_sest)
+  rss <- sum((data_sest$vyska_stromu_m - odhad)^2)
+  list(
+    sklon = sklon,
+    odhad = odhad,
+    rss = rss,
+    r2 = 1 - rss / ss_total_sest
+  )
+}
+
+stopifnot(
+  isTRUE(all.equal(spocitat_natoceni(0)$rss, ss_total_sest)),
+  isTRUE(all.equal(spocitat_natoceni(sklon_odhad_sest)$rss, ss_res_sest))
+)
+
+nakreslit_natoceni <- function(sklon, velikost_textu = 1) {
+  natoceni <- spocitat_natoceni(sklon)
+  data_usecky <- data.frame(
+    prumer_kmene_cm = data_sest$prumer_kmene_cm,
+    vyska_stromu_m = data_sest$vyska_stromu_m,
+    odhad = natoceni$odhad
+  )
+
+  graf_body <-
+    graf_sest_zaklad +
+    ggplot2::geom_abline(
+      intercept = prumerna_vyska_sest - sklon * prumer_x_sest,
+      slope = sklon,
+      colour = biostat_cols[["indigo_velvet"]],
+      linewidth = 1.4
+    ) +
+    ggplot2::geom_segment(
+      data = data_usecky,
+      mapping = ggplot2::aes(
+        x = prumer_kmene_cm,
+        xend = prumer_kmene_cm,
+        y = odhad,
+        yend = vyska_stromu_m
+      ),
+      colour = biostat_cols[["orange"]],
+      linewidth = 1.6
+    ) +
+    ggplot2::labs(
+      subtitle = paste0("sklon přímky: ", format_cz(sklon, 2), " m/cm")
+    )
+
+  data_sloupce <- data.frame(
+    soucet = factor(
+      c("celkový", "RSS"),
+      levels = c("RSS", "celkový")
+    ),
+    hodnota = c(ss_total_sest, natoceni$rss)
+  )
+
+  graf_sloupce <-
+    ggplot2::ggplot(
+      data = data_sloupce,
+      mapping = ggplot2::aes(x = hodnota, y = soucet, fill = soucet)
+    ) +
+    ggplot2::geom_col(width = 0.6) +
+    ggplot2::geom_text(
+      mapping = ggplot2::aes(label = format_cz(hodnota, 0)),
+      hjust = -0.15,
+      size = 5.5 * velikost_textu,
+      colour = biostat_cols[["graphite"]]
+    ) +
+    ggplot2::scale_fill_manual(
+      values = c(
+        "celkový" = biostat_cols[["graphite"]],
+        "RSS" = biostat_cols[["orange"]]
+      ),
+      guide = "none"
+    ) +
+    ggplot2::scale_x_continuous(limits = c(0, ss_total_sest * 1.35)) +
+    ggplot2::labs(
+      x = "Součet čtverců (m²)",
+      y = NULL,
+      title = paste0("R² = ", format_cz(natoceni$r2, 3))
+    ) +
+    theme_l09 +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(
+        colour = biostat_cols[["indigo_velvet"]],
+        face = "bold",
+        size = 26 * velikost_textu
+      ),
+      panel.grid.major.y = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_blank()
+    )
+
+  cowplot::plot_grid(
+    graf_body,
+    graf_sloupce,
+    nrow = 1,
+    rel_widths = c(1.45, 1)
+  )
+}
+
+# Smooth back-and-forth sweep with a pause at both ends
+vec_krok <- (1 - cos(seq(from = 0, to = pi, length.out = 28))) / 2
+vec_sklony_animace <-
+  sklon_odhad_sest *
+  c(rep(0, 8), vec_krok, rep(1, 8), rev(vec_krok))
+
+adresar_snimku <- file.path(tempdir(), "natoceni_primky")
+dir.create(adresar_snimku, showWarnings = FALSE)
+
+vec_soubory_snimku <-
+  purrr::imap_chr(
+    .x = vec_sklony_animace,
+    .f = function(sklon, poradi) {
+      soubor <- file.path(adresar_snimku, sprintf("snimek_%03d.png", poradi))
+      ggplot2::ggsave(
+        filename = soubor,
+        plot = nakreslit_natoceni(sklon),
+        width = 12,
+        height = 5.6,
+        dpi = 110,
+        bg = biostat_cols[["parchment"]]
+      )
+      soubor
+    }
+  )
+
+magick::image_read(vec_soubory_snimku) |>
+  magick::image_animate(delay = 8, optimize = TRUE) |>
+  magick::image_write(
+    path = here::here(path_materials, "natoceni_primky_r2.gif")
+  )
+```
+
+```{r}
+#| label: zobrazit-natoceni-primky
+#| echo: false
+#| fig-alt: "Animace: šest stromů a fialová přímka, která se natáčí kolem středu dat od vodorovného průměru k odhadnuté přímce a zpět. Oranžové úsečky residuí se zkracují, sloupec RSS se zmenšuje vůči celkovému součtu čtverců a R² roste od 0 k hodnotě odhadnuté přímky."
+include_local_figure("natoceni_primky_r2.gif")
+```
+
+::: {.panel-question}
+Sledujte oranžové úsečky a sloupec RSS: kdy je R² nulové a kdy největší?
+:::
+
+::: {.notes}
+Všechny přímky procházejí středem dat (průměrný průměr kmene, průměrná výška). Vodorovná přímka je předpověď průměrem, krajní poloha je odhadnutá přímka. Hodnota 1 − RSS / celkový součet čtverců se počítá pro každou polohu; R² modelu je ta pro odhadnutou přímku.
+:::
+
+## Stejných šest stromů, čtyři natočení přímky
+
+```{r}
+#| label: zobrazit-natoceni-staticky
+#| echo: false
+#| fig-height: 5.2
+#| fig-alt: "Čtyři panely se stejnými šesti stromy: přímka natočená na 0, třetinu, dvě třetiny a celý odhadnutý sklon. Residua se zkracují, RSS klesá a R² roste od 0 k hodnotě odhadnuté přímky."
+vec_podily_sklonu <- c(0, 1 / 3, 2 / 3, 1)
+
+list_natoceni_panely <-
+  purrr::map(
+    .x = vec_podily_sklonu * sklon_odhad_sest,
+    .f = function(sklon) {
+      natoceni <- spocitat_natoceni(sklon)
+      # Lean base for small panels: same points and axes, no text labels
+      ggplot2::ggplot(
+        data = data_sest,
+        mapping = ggplot2::aes(x = prumer_kmene_cm, y = vyska_stromu_m)
+      ) +
+        ggplot2::geom_hline(
+          yintercept = prumerna_vyska_sest,
+          linetype = "dashed",
+          colour = biostat_cols[["graphite"]],
+          linewidth = 0.8
+        ) +
+        ggplot2::geom_point(size = 3.5, colour = biostat_cols[["grey_olive"]]) +
+        ggplot2::coord_cartesian(
+          xlim = range(data_sest$prumer_kmene_cm) + c(-3, 3),
+          ylim = range(data_sest$vyska_stromu_m, prumerna_vyska_sest) + c(-3, 3)
+        ) +
+        theme_l09 +
+        ggplot2::geom_abline(
+          intercept = prumerna_vyska_sest - sklon * prumer_x_sest,
+          slope = sklon,
+          colour = biostat_cols[["indigo_velvet"]],
+          linewidth = 1.2
+        ) +
+        ggplot2::geom_segment(
+          data = data.frame(
+            prumer_kmene_cm = data_sest$prumer_kmene_cm,
+            vyska_stromu_m = data_sest$vyska_stromu_m,
+            odhad = natoceni$odhad
+          ),
+          mapping = ggplot2::aes(
+            x = prumer_kmene_cm,
+            xend = prumer_kmene_cm,
+            y = odhad,
+            yend = vyska_stromu_m
+          ),
+          colour = biostat_cols[["orange"]],
+          linewidth = 1.3
+        ) +
+        ggplot2::labs(
+          x = NULL,
+          y = NULL,
+          title = paste0("RSS ", format_cz(natoceni$rss, 0), " · R² ", format_cz(natoceni$r2, 2))
+        ) +
+        ggplot2::theme(
+          plot.title = ggplot2::element_text(size = 15, face = "bold"),
+          axis.text = ggplot2::element_text(size = 11)
+        )
+    }
+  )
+
+cowplot::plot_grid(plotlist = list_natoceni_panely, nrow = 1)
+```
+
+::: {.fragment}
+Vodorovná přímka je předpověď [průměrem]{.text-hgl-graphite}: RSS = celkový součet čtverců, R² = 0. Odhadnutá přímka má [nejmenší RSS]{.text-hgl-orange}, a proto [největší R²]{.text-hgl-indigo_velvet}.
+:::
+
+## Dává `summary()` stejné R² pro všech `r nrow(data_stromy)` stromů?
+
+```{r}
+#| label: spocitat-r2-vsechny
+#| include: false
+ss_total_vsechny <- sum(
+  (data_stromy$vyska_stromu_m - mean(data_stromy$vyska_stromu_m))^2
+)
+ss_res_spolecny <- deviance(object = mod_spolecny)
+r2_spolecny <- 1 - ss_res_spolecny / ss_total_vsechny
+
+stopifnot(
+  isTRUE(all.equal(r2_spolecny, summary(mod_spolecny)$r.squared))
+)
+```
+
+:::: {.layout-stack .layout-center-y}
+
+$$
+R^2 = 1 - \frac{`r format_cz_math(ss_res_spolecny, 1)`}{`r format_cz_math(ss_total_vsechny, 1)`} = `r format_cz_math(r2_spolecny, 3)`
+$$
+
+::: {.fragment}
+```{r}
+#| label: r2-ze-summary
+#| echo: true
+summary(object = mod_spolecny)$r.squared
+```
+:::
+
+::: {.fragment}
+`Multiple R-squared` ve výpisu je [tentýž výpočet]{.text-hgl-indigo_velvet} — nic nového.
+:::
+
+::::
+
+##
+
+:::: {.layout-stack .layout-center-y}
+
+::: {.box-question}
+[Společná přímka má R² = `r format_cz(r2_spolecny, 3)`. Co to znamená?]{.text-size-heading .text-bold}
+:::
+
+::: columns
+::: {.column width="32%"}
+::: {.card-question}
+**A**
+
+Model správně předpověděl `r format_cz(100 * r2_spolecny, 1)` % stromů.
+:::
+:::
+::: {.column width="32%"}
+::: {.card-question}
+**B**
+
+[Model zachytil `r format_cz(100 * r2_spolecny, 1)` % variability výšky kolem průměru v těchto datech.]{.rn-circle-orange}
+:::
+:::
+::: {.column width="32%"}
+::: {.card-question}
+**C**
+
+S pravděpodobností `r format_cz(r2_spolecny, 3)` je model pravdivý.
+:::
+:::
+:::
+
+::: {.panel-olive}
+Přesvědčte souseda, proč jste vybrali svoji možnost.
+:::
+
+::: {.fragment}
+Obhajitelná je [B]{.text-hgl-indigo_velvet}: R² popisuje podíl zachycené variability v datech, ze kterých byl model odhadnut.
+:::
+
+::::
+
+## Co R² popisuje a na co nestačí?
+
+:::: {.layout-stack .layout-center-y}
+
+::: columns
+::: {.column width="48%"}
+::: {.panel-result}
+[R² popisuje]{.panel-title}
+
+- podíl [variability odezvy]{.text-hgl-indigo_velvet} zachycený modelem;
+- ve [stejných datech]{.text-hgl-graphite}, na kterých byl model odhadnut.
+:::
+:::
+::: {.column width="48%"}
+::: {.panel-question}
+[R² neříká]{.panel-title}
+
+- zda model splňuje předpoklady;
+- zda je vztah příčinný;
+- jak dobře model poslouží pro nové stromy;
+- [zda je to nejlepší z našich kandidátů?]{.text-hgl-orange}
+:::
+:::
+:::
+
+::::
+
+# Pomáhá každý koeficient navíc?
+
+## Co udělá R² po přidání druhu a interakce?
+
+:::: {.layout-stack .layout-center-y}
+
+[`prumer` → `prumer + druh` → `prumer * druh`]{.text-size-heading}
+
+[Co se stane s R², když přidáme druh a interakci?]{.text-bold}
+
+::: columns
+::: {.column width="32%"}
+::: {.card-question}
+**A** · R² poroste
+:::
+:::
+::: {.column width="32%"}
+::: {.card-question}
+**B** · R² může klesnout
+:::
+:::
+::: {.column width="32%"}
+::: {.card-question}
+**C** · R² zůstane stejné
+:::
+:::
+:::
+
+::::
+
+::: {.notes}
+Hlasování rukou. Odpověď na dalším snímku; zde ji neprozrazovat.
+:::
+
+## R² po přidání členů neklesne
+
+```{r}
+#| label: pripravit-porovnani-r2
+#| include: false
+data_porovnani <- data.frame(
+  model = factor(vec_nazvy_modelu, levels = vec_nazvy_modelu),
+  k = purrr::map_int(list_kandidati, ~ length(coef(.x))),
+  rss = purrr::map_dbl(list_kandidati, deviance),
+  r2 = purrr::map_dbl(list_kandidati, ~ summary(.x)$r.squared)
+)
+```
+
+::: columns
+::: {.column width="56%"}
+```{r}
+#| label: zobrazit-porovnani-r2
+#| echo: false
+#| fig-width: 7
+#| fig-height: 5.4
+#| fig-alt: "R² tří kandidátních modelů roste od společné přímky přes posun mezi druhy k různým sklonům."
+ggplot2::ggplot(
+  data = data_porovnani,
+  mapping = ggplot2::aes(x = model, y = r2, group = 1)
+) +
+  ggplot2::geom_line(colour = biostat_cols[["indigo_velvet"]], linewidth = 1) +
+  ggplot2::geom_point(colour = biostat_cols[["indigo_velvet"]], size = 5) +
+  ggplot2::geom_text(
+    mapping = ggplot2::aes(label = format_cz(r2, 3)),
+    vjust = -1.1,
+    size = 6,
+    colour = biostat_cols[["indigo_velvet"]]
+  ) +
+  ggplot2::scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 10)) +
+  ggplot2::scale_y_continuous(
+    limits = c(min(data_porovnani$r2) - 0.01, max(data_porovnani$r2) + 0.012),
+    labels = function(x) format_cz(x, 2)
+  ) +
+  ggplot2::labs(x = NULL, y = "R²") +
+  theme_l09
+```
+:::
+::: {.column width="42%"}
+
+<br>
+
+```{r}
+#| label: tabulka-porovnani-r2
+#| echo: false
+knitr::kable(
+  x = data.frame(
+    Model = data_porovnani$model,
+    k = data_porovnani$k,
+    RSS = format_cz(data_porovnani$rss, 0)
+  ),
+  align = "lrr"
+)
+```
+
+::: {.fragment}
+Složitější model umí [zopakovat jednodušší]{.text-hgl-indigo_velvet} — RSS proto nemůže vzrůst.
+:::
+:::
+:::
+
+::: {.fragment .box-warning}
+**Vyšší R² není automatické vítězství.** I téměř zbytečný prediktor R² nesníží.
+:::
+
+## Které koeficienty jednotlivé modely odhadují?
+
+```{r}
+#| label: pripravit-nazvy-koeficientu
+#| include: false
+list_nazvy_koeficientu <- purrr::map(list_kandidati, ~ names(coef(.x)))
+text_koeficienty <- purrr::map_chr(
+  list_nazvy_koeficientu,
+  ~ paste0("`", .x, "`", collapse = "<br>")
+)
+```
+
+::: {.panel-question}
+Který seznam patří společné přímce, který posunu mezi druhy a který různým sklonům?
+:::
+
+::: columns
+::: {.column width="28%"}
+::: {.card-indigo .text-size-smaller}
+[A[ · Společná přímka · k = `r length(list_nazvy_koeficientu[[1]])`]{.fragment}]{.card-title}
+
+`r text_koeficienty[1]`
+:::
+:::
+::: {.column width="40%"}
+::: {.card-indigo .text-size-smaller}
+[B[ · Různé sklony · k = `r length(list_nazvy_koeficientu[[3]])`]{.fragment}]{.card-title}
+
+`r text_koeficienty[3]`
+:::
+:::
+::: {.column width="30%"}
+::: {.card-indigo .text-size-smaller}
+[C[ · Posun mezi druhy · k = `r length(list_nazvy_koeficientu[[2]])`]{.fragment}]{.card-title}
+
+`r text_koeficienty[2]`
+:::
+:::
+:::
+
+## Jak R² opravit za počet koeficientů?
+
+```{r}
+#| label: spocitat-adjustovane-r2-aditivni
+#| include: false
+n_stromu <- nobs(object = mod_aditivni)
+k_aditivni <- length(coef(object = mod_aditivni))
+r2_aditivni <- summary(object = mod_aditivni)$r.squared
+r2_adj_aditivni <- summary(object = mod_aditivni)$adj.r.squared
+
+stopifnot(
+  isTRUE(all.equal(
+    r2_adj_aditivni,
+    1 - (1 - r2_aditivni) * (n_stromu - 1) / (n_stromu - k_aditivni)
+  ))
+)
+```
+
+$$
+\text{adjustované R}^2 = 1 - \text{nezachycený podíl} \times \text{úprava za počet stromů a koeficientů}
+$$
+
+::: {.fragment}
+Posun mezi druhy: $R^2 = `r format_cz_math(r2_aditivni, 3)`$, [$n = `r n_stromu`$]{.text-hgl-graphite} stromů, [$k = `r k_aditivni`$]{.text-hgl-indigo_velvet} koeficienty
+
+$$
+R^2_{\mathrm{adj}} = 1 - \left(1 - `r format_cz_math(r2_aditivni, 3)`\right) \times \frac{`r n_stromu` - 1}{`r n_stromu` - `r k_aditivni`} = `r format_cz_math(r2_adj_aditivni, 3)`
+$$
+:::
+
+::: {.fragment}
+**Adjustované R²** (*adjusted R-squared*):
+
+$$
+\Large R^2_{\mathrm{adj}} = 1 - \left(1 - R^2\right) \times \frac{n - 1}{n - k}
+$$
+:::
+
+::: {.notes}
+Ukažte, kde je shoda (1 − R²), velikost dat (n) a složitost (k). S každým koeficientem navíc roste zlomek (n − 1)/(n − k).
+:::
+
+## Co udělá adjustované R² po přidání interakce?
+
+```{r}
+#| label: pripravit-adjustovane-r2-kandidatu
+#| include: false
+data_porovnani$r2_adj <- purrr::map_dbl(list_kandidati, ~ summary(.x)$adj.r.squared)
+```
+
+:::: {.layout-stack .layout-center-y}
+
+Posun mezi druhy → Různé sklony: R² [`r format_cz(data_porovnani$r2[2], 3)` → `r format_cz(data_porovnani$r2[3], 3)`]{.text-hgl-indigo_velvet} · *k* `r data_porovnani$k[2]` → `r data_porovnani$k[3]` · *n* = `r n_stromu`
+
+[**A** · adjustované R² vzroste]{.text-size-heading}
+
+[**B** · adjustované R² klesne]{.text-size-heading}
+
+::::
+
+## Adjustované R² po přidání interakce klesne
+
+::: columns
+::: {.column width="58%"}
+```{r}
+#| label: zobrazit-r2-a-adjustovane
+#| echo: false
+#| fig-width: 7.5
+#| fig-height: 5.4
+#| fig-alt: "R² tří modelů stále roste, zatímco adjustované R² je nejvyšší u posunu mezi druhy a u různých sklonů klesne."
+data_r2_dlouhe <- data.frame(
+  model = rep(data_porovnani$model, times = 2),
+  mira = factor(
+    rep(c("R²", "adjustované R²"), each = nrow(data_porovnani)),
+    levels = c("R²", "adjustované R²")
+  ),
+  hodnota = c(data_porovnani$r2, data_porovnani$r2_adj)
+)
+
+ggplot2::ggplot(
+  data = data_r2_dlouhe,
+  mapping = ggplot2::aes(x = model, y = hodnota, group = mira, linetype = mira)
+) +
+  ggplot2::geom_line(colour = biostat_cols[["indigo_velvet"]], linewidth = 1) +
+  ggplot2::geom_point(colour = biostat_cols[["indigo_velvet"]], size = 4.5) +
+  ggplot2::geom_text(
+    mapping = ggplot2::aes(
+      label = format_cz(hodnota, 3),
+      vjust = ifelse(mira == "R²", -1, 2)
+    ),
+    size = 5.5,
+    colour = biostat_cols[["indigo_velvet"]]
+  ) +
+  ggplot2::scale_linetype_manual(values = c("solid", "dashed")) +
+  ggplot2::scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 10)) +
+  ggplot2::scale_y_continuous(
+    limits = range(data_r2_dlouhe$hodnota) + c(-0.008, 0.01),
+    labels = function(x) format_cz(x, 2)
+  ) +
+  ggplot2::labs(x = NULL, y = NULL, linetype = NULL) +
+  theme_l09
+```
+:::
+::: {.column width="40%"}
+
+<br>
+
+Dva sklony navíc zlepšily R² jen o [`r format_cz(data_porovnani$r2[3] - data_porovnani$r2[2], 3)`]{.text-hgl-indigo_velvet}.
+
+<br>
+
+::: {.fragment .panel-result}
+Zlomek $\frac{n-1}{n-k}$ vzrostl víc, než se zmenšil nezachycený podíl → [úprava zvítězila]{.text-hgl-orange}.
+:::
+:::
+:::
+
+## Co už o třech modelech víme?
+
+:::: {.layout-stack .layout-center-y}
+
+::: {.box-question}
+Jak poznáme, že je model dobrý?
+:::
+
+::: columns
+::: {.column width="48%"}
+::: {.panel-result}
+[Už umíme říct]{.panel-title}
+
+- R² měří [shodu s daty]{.text-hgl-indigo_velvet} a vždy upřednostní nejpružnější model.
+- Adjustované R² upřednostní [posun mezi druhy]{.text-hgl-indigo_velvet}.
+:::
+:::
+::: {.column width="48%" .fragment}
+::: {.panel-question}
+[Zatím nevíme]{.panel-title}
+
+- Kdy se složitost [obecně vyplatí]{.text-hgl-orange}?
+- Vypadají residua vybraného modelu v pořádku?
+:::
+:::
+:::
+
+::::
+
+# Kdy se složitost vyplatí?
+
+## Vyplatí se model šitý na míru?
+
+:::: {.layout-stack .layout-center-y}
+
+::: columns
+::: {.column width="55%"}
+```{r}
+#| label: zobrazit-stromy-krejci
+#| echo: false
+#| out-width: "100%"
+#| fig-alt: "Krejčí obléká jehličnan do obleku s desítkami švů kopírujících každý hrbol; vedle visí jednoduchý dobře padnoucí kabát."
+#| fig-cap: "Ilustrační obraz vytvořen AI."
+include_local_figure("stromy_krejci.png")
+```
+:::
+::: {.column width="43%"}
+::: {.panel-question}
+**Ve dvojici:** Posun mezi druhy a různé sklony popisují stromy téměř stejně dobře (R² `r format_cz(summary(mod_aditivni)$r.squared, 3)` a `r format_cz(summary(mod_interakce)$r.squared, 3)`). První potřebuje [`r length(coef(mod_aditivni))`]{.text-hgl-indigo_velvet} koeficienty, druhý [`r length(coef(mod_interakce))`]{.text-hgl-indigo_velvet}.
+
+Který byste upřednostnili? Co byste chtěli vědět, než se rozhodnete?
+:::
+:::
+:::
+
+::: {.fragment .panel-result}
+[Princip úspornosti (*parsimony*)]{.panel-title}
+
+Složitější model upřednostníme jen tehdy, když [dostatečně zlepší shodu]{.text-hgl-orange} s daty.
+:::
+
+::::
+
+## AIC váží shodu i složitost
+
+:::: {.layout-stack .layout-center-y}
+
+::: columns
+::: {.column width="52%"}
+
+::: {.panel-result}
+[Akaikeho informační kritérium (*Akaike information criterion*, AIC)]{.panel-title}
+
+- lepší shoda AIC [snižuje]{.text-hgl-indigo_velvet};
+- každá odhadovaná veličina navíc AIC [zvyšuje]{.text-hgl-orange};
+- preferujeme [nižší AIC]{.text-hgl-indigo_velvet}.
+:::
+:::
+::: {.column width="44%"}
+
+```{r}
+#| label: aic-spolecneho-modelu
+#| echo: true
+AIC(object = mod_spolecny)
+```
+
+::: {.fragment}
+AIC [není podíl]{.text-hgl-orange} a nemá stejnou škálu jako R².
+:::
+:::
+:::
+
+::::
+
+## Model má AIC `r format_cz(AIC(mod_spolecny))`. Je to dobrý model?
+
+:::: {.layout-stack .layout-center-y}
+
+::: columns
+::: {.column width="32%"}
+::: {.card-question}
+**A** · Ano, AIC je nízké.
+:::
+:::
+::: {.column width="32%"}
+::: {.card-question}
+**B** · Ne, AIC je vysoké.
+:::
+:::
+::: {.column width="32%"}
+::: {.card-question}
+**C** · [Z jedné hodnoty to nepoznáme.]{.rn-circle-orange}
+:::
+:::
+:::
+
+::: {.fragment .box-rule}
+AIC je [relativní]{.text-hgl-indigo_velvet}. Porovnáváme jen modely se [stejnou odezvou]{.text-hgl-graphite}, [stejnými pozorováními]{.text-hgl-graphite} a stejným předpokladem o rozdělení residuí.
+:::
+
+::::
+
+::: {.notes}
+Hlasování a krátké přesvědčování souseda proběhne před odkrytím; kroužek u C a pravidlo přijdou až po něm.
+:::
+
+## O kolik je AIC každého kandidáta vyšší než nejnižší?
+
+```{r}
+#| label: spocitat-delta-aic
+#| include: false
+data_porovnani$aic <- purrr::map_dbl(list_kandidati, AIC)
+aic_min <- min(data_porovnani$aic)
+data_porovnani$delta_aic <- data_porovnani$aic - aic_min
+model_min_aic <- as.character(data_porovnani$model[which.min(data_porovnani$aic)])
+```
+
+$$
+\Delta\text{AIC} = \text{AIC kandidáta} - \text{nejnižší AIC v sadě}
+$$
+
+::: {.fragment}
+
+Společná přímka: $`r format_cz_math(data_porovnani$aic[1])` - `r format_cz_math(aic_min)` = `r format_cz_math(data_porovnani$delta_aic[1])`$
+:::
+
+::: {.fragment}
+```{r}
+#| label: tabulka-delta-aic
+#| echo: false
+knitr::kable(
+  x = data.frame(
+    Model = data_porovnani$model,
+    AIC = format_cz(data_porovnani$aic),
+    `ΔAIC` = format_cz(data_porovnani$delta_aic),
+    check.names = FALSE
+  ),
+  align = "lrr"
+)
+```
+:::
+
+::: {.fragment}
+[`r model_min_aic`]{.text-hgl-indigo_velvet} má ΔAIC = 0 · univerzální práh [nepoužíváme]{.text-hgl-orange}
+:::
+
+## Ukazují R², adjustované R² a AIC na stejný model?
+
+```{r}
+#| label: tabulka-syntezy
+#| echo: false
+knitr::kable(
+  x = data.frame(
+    Model = data_porovnani$model,
+    k = data_porovnani$k,
+    `R² ↑` = format_cz(data_porovnani$r2, 3),
+    `adj. R² ↑` = format_cz(data_porovnani$r2_adj, 3),
+    `AIC ↓` = format_cz(data_porovnani$aic),
+    check.names = FALSE
+  ),
+  align = "lrrrr"
+)
+```
+
+<br>
+
+::: {.panel-question}
+**Ve dvojici:** Proč R² upřednostní jiný model než adjustované R² a AIC?
+:::
+
+::: {.fragment}
+R² hodnotí [jen shodu]{.text-hgl-indigo_velvet}. Adjustované R² a AIC [penalizují složitost]{.text-hgl-orange} — dva sklony navíc se nevyplatily. Nejsou to tři hlasy o pravdě.
+:::
+
+## Nejlépe podporovaný kandidát nemusí být dobrý model
+
+:::: {.layout-stack .layout-center-y}
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| label: zobrazit-stromy-porota
+#| echo: false
+#| out-width: "100%"
+#| fig-alt: "Porota lesních zvířat hodnotí tři kandidáty na pódiu, zatímco čtvrtý, nepozvaný kandidát čeká za dveřmi."
+#| fig-cap: "Ilustrační obraz vytvořen AI."
+include_local_figure("stromy_porota.png")
+```
+:::
+::: {.column width="48%"}
+::: {.box-warning}
+Porovnání řadí [jen modely, které jsme do sady zařadili]{.text-hgl-orange}.
+
+Neříká, že je vítěz obecně dobrý. Model, který jsme vůbec neposuzovali, může stromy popsat lépe.
+:::
+:::
+:::
+
+::: {.fragment}
+[Proto vybraný model ještě zkontrolujeme.]{.text-size-heading .text-bold}
+:::
+
+::::
+
+# Obstojí vybraný model?
+
+## Zůstává v residuích modelu s posunem mezi druhy nějaký vzorec?
+
+```{r}
+#| label: pripravit-diagnostiku-aditivniho-modelu
+#| include: false
+data_diagnostika <- data.frame(
+  odhad = fitted(object = mod_aditivni),
+  residuum = residuals(object = mod_aditivni),
+  druh_stromu = data_stromy$druh_stromu
+)
+
+graf_residua_aditivni <-
+  ggplot2::ggplot(
+    data = data_diagnostika,
+    mapping = ggplot2::aes(x = odhad, y = residuum)
+  ) +
+  ggplot2::geom_hline(yintercept = 0, linetype = "dashed", colour = biostat_cols[["graphite"]]) +
+  ggplot2::geom_point(
+    mapping = ggplot2::aes(colour = druh_stromu),
+    size = 2.8,
+    alpha = 0.85
+  ) +
+  ggplot2::scale_colour_manual(values = vec_barvy_druhu, guide = "none") +
+  ggplot2::labs(x = "Odhadnutá výška (m)", y = "Residuum (m)", title = "Residua") +
+  theme_l09
+
+graf_qq_aditivni <-
+  ggplot2::ggplot(data = data_diagnostika, mapping = ggplot2::aes(sample = residuum)) +
+  ggplot2::stat_qq(colour = biostat_cols[["grey_olive"]], size = 2.8) +
+  ggplot2::stat_qq_line(colour = biostat_cols[["indigo_velvet"]], linewidth = 1.2) +
+  ggplot2::labs(x = "Teoretické kvantily", y = "Kvantily residuí", title = "Q–Q graf") +
+  theme_l09
+```
+
+::: {.r-stack}
+```{r}
+#| label: zobrazit-diagnostiku-aditivniho-modelu
+#| echo: false
+#| fig-height: 3.4
+#| fig-alt: "Vlevo residua modelu s posunem mezi druhy proti odhadnuté výšce, vpravo Q–Q graf residuí."
+cowplot::plot_grid(graf_residua_aditivni, graf_qq_aditivni, nrow = 1)
+```
+
+::: {.fragment}
+```{r}
+#| label: zobrazit-diagnostiku-aditivniho-modelu-s-trendem
+#| echo: false
+#| fig-height: 3.4
+#| fig-alt: "Stejné grafy; v residuích je navíc vyhlazená oranžová křivka, která tvoří oblouk: nízké i nejvyšší odhadnuté výšky mají residua převážně pod nulou, středně vysoké nad nulou."
+cowplot::plot_grid(
+  graf_residua_aditivni +
+    ggplot2::geom_smooth(
+      method = "loess",
+      formula = y ~ x,
+      se = FALSE,
+      colour = biostat_cols[["orange"]],
+      linewidth = 1.4
+    ),
+  graf_qq_aditivni,
+  nrow = 1
+)
+```
+:::
+:::
+
+[**Ve dvojici:** Leží residua v celém rozsahu odhadnutých výšek náhodně kolem nuly?]{.text-size-smaller}
+
+::: {.fragment .text-size-smaller}
+Residua tvoří [oblouk]{.text-hgl-orange} · Q–Q graf [není přímý]{.text-hgl-orange} → závěr formulujeme opatrně.
+:::
+
+::: {.notes}
+Vyhlazenou křivku znají studenti z L08. Nízké i nejvyšší stromy leží převážně pod nulou, středně vysoké nad ní. Oblouk je skutečný a týká se všech tří kandidátů (viz residua společné přímky na začátku); druh stromu ho neodstraní. Nechte otázku otevřenou až do závěrečného snímku.
+:::
+
+## Které stromy ovlivňují model nejvíc?
+
+```{r}
+#| label: cookova-vzdalenost
+#| echo: false
+#| fig-height: 4.6
+#| fig-alt: "Cookovy vzdálenosti všech stromů pro model Posun mezi druhy s přerušovanou orientační čarou 4/n; několik stromů leží nad ní."
+data_cook <- data.frame(
+  poradi = seq_len(nobs(mod_aditivni)),
+  cook = cooks.distance(model = mod_aditivni)
+)
+hranice_cook <- 4 / nobs(mod_aditivni)
+pocet_nad_hranici <- sum(data_cook$cook > hranice_cook)
+
+ggplot2::ggplot(data = data_cook, mapping = ggplot2::aes(x = poradi, y = cook)) +
+  ggplot2::geom_segment(
+    mapping = ggplot2::aes(xend = poradi, y = 0, yend = cook),
+    colour = biostat_cols[["grey_olive"]],
+    linewidth = 1.2
+  ) +
+  ggplot2::geom_hline(
+    yintercept = hranice_cook,
+    linetype = "dashed",
+    colour = biostat_cols[["orange"]],
+    linewidth = 1.1
+  ) +
+  ggplot2::labs(x = "Pořadí stromu v tabulce", y = "Cookova vzdálenost") +
+  theme_l09
+```
+
+Počet stromů nad orientační čarou $4/n$: [`r pocet_nad_hranici`]{.text-hgl-orange}
+
+::: {.fragment .takeaway-strip}
+Důvod [stromy prověřit]{.text-hgl-orange} — ne je automaticky odstranit.
+:::
+
+## Obhajte model dvěma větami
+
+:::: {.layout-stack .layout-center-y}
+
+::: {.panel-question}
+[40 s sami · ve dvojici porovnejte]{.panel-title}
+
+„Ze tří kandidátů vybíráme model ____, protože ____.“
+
+„Omezením tohoto závěru je ____.“
+:::
+
+::: {.fragment}
+Opřete se aspoň o [dva různé druhy důkazů]{.text-hgl-orange}: shodu, složitost, diagnostiku, biologický smysl.
+:::
+
+::::
+
+## Který model lze pro tyto stromy nejlépe obhájit?
+
+:::: {.layout-stack .layout-center-y}
+
+::: columns
+::: {.column width="50%"}
+::: {.panel-result}
+[Posun mezi druhy]{.panel-title}
+
+- zachytí rozdíly mezi druhy, které společná přímka přehlíží;
+- nejvyšší adjustované R² ([`r format_cz(max(data_porovnani$r2_adj), 3)`]{.text-hgl-indigo_velvet}) a nejnižší AIC.
+:::
+:::
+::: {.column width="46%" .fragment}
+::: {.panel-question}
+[Omezení]{.panel-title}
+
+- vybírali jsme jen ze tří kandidátů;
+- residua tvoří [oblouk]{.text-hgl-orange}: přímka nevystihuje tvar vztahu;
+- `r nobs(mod_aditivni)` stromů, Q–Q graf není přímý;
+- pozorovací data: nejde o příčinný efekt druhu.
+:::
+:::
+:::
+
+::: {.fragment .box-result}
+Dobrý model nepoznáme podle jediného čísla. Obhajoba propojuje [otázku, shodu, složitost, diagnostiku a interpretovatelnost]{.text-hgl-indigo_velvet}.
+:::
+
+::::
+
+## Jak porovnávat modely bez automatického hledání?
+
+::: columns
+::: {.column width="56%"}
+::: incremental
+1. Položte biologickou otázku.
+2. Prohlédněte a zobrazte data.
+3. Určete malou sadu [zdůvodněných kandidátů]{.text-hgl-indigo_velvet}.
+4. Použijte [stejnou odezvu a stejná pozorování]{.text-hgl-graphite}.
+5. Porovnejte přímky, residua, R², adjustované R² a AIC.
+6. Zkontrolujte předpoklady a vlivná pozorování.
+7. Obhajte závěr a [pojmenujte omezení]{.text-hgl-orange}.
+:::
+:::
+::: {.column width="42%" .fragment}
+
+<br>
+
+::: {.box-warning}
+Automatické přidávání a odebírání členů vytvoří mnoho modelů, ale [neurčí, které dávají biologický smysl]{.text-hgl-orange}.
+:::
+:::
+:::
+
+## Co si odnést
+
+:::: {.layout-stack .layout-center-y}
+
+::: incremental
+- Model posuzujeme [několika druhy důkazů]{.text-hgl-orange}, ne jedním skóre.
+- R² = podíl zachycené variability; po přidání členu [neklesne]{.text-hgl-indigo_velvet}.
+- Adjustované R² a AIC [penalizují složitost]{.text-hgl-orange}, každé jinak.
+- AIC je [relativní]{.text-hgl-indigo_velvet}: jen pro stejnou odezvu a stejná pozorování.
+- Kandidáty určujeme [předem]{.text-hgl-orange} a závěr obhajujeme i diagnostikou.
+:::
+
+::::
+
+[Data: J. Marshall, University of Idaho · `lgrdata::allometry` · CC0]{.footer}
+
+## Co když žádná přímka nestačí?
+
+:::: {.layout-stack .layout-center-y}
+
+::: columns
+::: {.column width="62%"}
+```{r}
+#| label: zobrazit-stromy-strop
+#| echo: false
+#| out-width: "100%"
+#| fig-alt: "Obří rovné měřidlo stoupá až do mraků, zatímco staré tlusté stromy vedle něj už do výšky nerostou."
+#| fig-cap: "Ilustrační obraz vytvořen AI."
+include_local_figure("stromy_strop.png")
+```
+:::
+::: {.column width="36%"}
+[Všechny tři kandidáty jsme kreslili jako přímky — a residua přesto tvoří oblouk.]{.text-size-heading}
+:::
+:::
+
+::: {.fragment}
+[Jak popsat vztah, který není přímkový?]{.text-size-heading .text-bold .text-hgl-orange}
+:::
+
+::::
