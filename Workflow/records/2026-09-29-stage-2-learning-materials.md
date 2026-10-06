@@ -15,7 +15,7 @@
 - Stages 0-1 PR merged: [x]
 - Branch created from updated default branch: [x]
 - `git status --short` reviewed before editing: [x] (clean)
-- Written-materials PR: not created
+- Written-materials PR: #2, merged into `main` at `fdc6195` on 2026-10-01
 
 ## Inspiration consulted
 
@@ -236,6 +236,6 @@ Read each row as the state before and after its matching story-map block. A ques
 - [x] Written materials are review-ready
 - [x] Replacement story-map status is `complete`
 - [x] Replacement human story-map approval is `approved` and recorded
-- [ ] Diff contains only the intended Stage 2 written-material files and outputs
-- [ ] Written-materials PR ready to merge
-- Notes: Ondřej Mottl approved two earlier versions on 2026-09-30, then completed a full-document review that reopened the gate. He explicitly approved the complete 31-block replacement map and matching ledger on 2026-09-30. The learning-material prose was rewritten within that map and Ondřej's subsequent detailed review findings were implemented. The revised artifact passed follow-up lesson-vision and glossary reviews, produced a visually checked 29-page PDF, and received final human approval from Ondřej Mottl on 2026-10-01. No written-materials PR has been created.
+- [x] Diff contains only the intended Stage 2 written-material files and outputs
+- [x] Written-materials PR ready to merge
+- Notes: Ondřej Mottl approved two earlier versions on 2026-09-30, then completed a full-document review that reopened the gate. He explicitly approved the complete 31-block replacement map and matching ledger on 2026-09-30. The learning-material prose was rewritten within that map and Ondřej's subsequent detailed review findings were implemented. The revised artifact passed follow-up lesson-vision and glossary reviews, produced a visually checked 29-page PDF, and received final human approval from Ondřej Mottl on 2026-10-01. Written-materials PR #2 was merged on 2026-10-01.
