@@ -1,0 +1,414 @@
+# Stages 4-5 - Slide Storyboard, Build, and Human Review
+
+## Metadata
+
+- Week: L09
+- Date: 2026-10-05
+- Author: Claude Code (Opus 5.5), working with Ondřej Mottl
+- Reviewer: Ondřej Mottl (story map, ledger, PollsLive questions, illustration plan G1–G4 and species palette approved 2026-10-05; earlier generated illustrations rejected the same day; finished 55-slide presentation approved as done 2026-10-06)
+
+## Git checkpoint
+
+- Stage group: Stages 4-5 presentation
+- Branch: `lesson/l09-presentation`
+- Base branch and commit: `main` at `fdc6195` (merged Stages 2-3 PR #2)
+- Stages 2-3 PR merged: [x] (#2, merged 2026-10-01)
+- Branch created from updated default branch: [x] (`git fetch` followed by a branch from `origin/main`; no upstream set)
+- `git status --short` reviewed before editing: [x] (clean)
+- Presentation PR: not created
+
+## Inspiration consulted
+
+- Relevant sources from `_internal/obecne/nove/biostatistics_course_inspiration_hub.md`: Modern Statistics with R (model-based analysis spine), CUNY Biostatistics (begin from a biological question, interpret before selecting), PH525x (formulas as explicit design choices). These are the same sources used for the approved Stage 0 scope and Stage 2 materials.
+- Visual or data-storytelling pattern worth borrowing: one anchor scatterplot of the 63 trees that returns throughout the deck; a six-tree build on fixed axes that makes both sums of squares visible; candidate cards frozen before any score appears; predict-then-reveal for each metric's behaviour.
+- How the pattern is adapted to this course's slide rules: every metric gets data moment → prompt → naming → brief formalisation. Each metric reveal is followed immediately by its scope or limit, and the deck ends with a conditional, evidence-based defence rather than a winner.
+- What from the source is intentionally not being reused: stepwise or all-subsets selection, p-value term selection, universal ΔAIC thresholds, likelihood algebra, Akaike weights, AICc/BIC and cross-validation.
+
+## Presentation vision
+
+The deck asks one question from start to finish: **Jak poznáme, že je model dobrý?** Students first reuse the familiar single-model workflow on the new tree data until the residuals show that one common line overlooks species. They then freeze three biologically meaningful candidates, see that the most flexible model sits closest to the points, and learn why "closest" is not enough. R² is built from six real trees and checked against `summary()`. Adjusted R² and AIC each arrive as answers to a visible complexity problem. The deck closes by returning to diagnostics and defending the additive model conditionally, as the best of three predeclared candidates rather than "the true model".
+
+The slides compress the approved 31-block skripta. They introduce no core concept that the skripta lacks. The optional likelihood Extra (skripta block 27) is deliberately omitted from the slides.
+
+## Mandatory story map
+
+- Artifact: Presentation (`Presentation/presentation.qmd`)
+- Granularity: one row per slide, including section dividers and PollsLive slides
+- Story-map status: complete
+- Heading-strip audit completed: [x]
+- Knowledge-state audit completed: [x]
+- Human story-map approval: approved
+- Approved by: Ondřej Mottl
+- Approval date: 2026-10-05
+- Approval decision and requested revisions: Ondřej Mottl first rejected the three existing L09 generated illustrations and requested a story map built around new ones, possibly in different places. After the revision (new G1–G4 on slides 2, 40, 45 and 53; slide 15 converted to a sketch task on the anchor graph; the criteria call-out moved to slide 20), he explicitly approved all open items on 2026-10-05: the 53-slide story map and knowledge-state ledger, the PollsLive integration map and three exact questions, the generated illustration plan G1–G4, and the brand categorical palette for species colours.
+
+`Internal role` and `Speaker note` are backstage. `Student-facing heading` is the exact proposed visible title. No full slide copy has been drafted. Numbers quoted in speaker notes come from an internal probe of the locked data; on the slides every value will be computed inline from the model objects.
+
+| Order | Internal role | Student-facing heading | Speaker note |
+|---|---|---|---|
+| 1 | Question-first title | Jak poznáme, že je model dobrý? | `.course-title` arrival screen. L09, formal title "Porovnání kandidátních modelů: R², adjustované R² a AIC", course link. No data yet. |
+| 2 | Measurement-context hook (new generated illustration G1) | Co vlastně na stromě měříme? | `stromy_mereni.png` with visible AI disclosure: a field crew measures trunk diameter at 1.3 m and tree height on three visibly different conifers. One body line poses the biological question: "Mají stejně silné stromy různých druhů stejnou výšku?" The image grounds the variables and species and makes no claim about the answer. |
+| 3 | PollsLive collection | Co si pamatujete z minulé lekce? | Generated by the PollsLive include: QR/link plus three self-paced L08 retrieval questions. |
+| 4 | Retrieval Q1 (generated) | Co ukazují nerovnoběžné přímky modrých krabů? | Exact text and options under *PollsLive retrieval proposal* below. |
+| 5 | Retrieval Q2 (generated) | Co znamená koeficient `pohlavisamec` v modelu s interakcí? | As above. |
+| 6 | Retrieval Q3 (generated) | Čím se liší dva kandidátní modely pro modré kraby? | Spoken bridge: L08 ended by asking which of the two candidates to choose. That is today's problem, on new data. |
+| 7 | Learning outcomes | Výsledky učení | 4–5 incremental bullets matching the skripta outcomes (calculate and explain R²; interpret adjusted R²; compare candidates relatively with AIC; explain why the highest R² is not automatically best; defend a choice). Name the measures only as destinations. |
+| 8 | Section divider | Jedna přímka pro všechny stromy? | Minimal H1. |
+| 9 | Data orientation and check | Jeden řádek tabulky představuje jeden strom | Code left (`read.csv`, `factor`, `head()` on the three lesson variables), output right. A fragment panel summarises the data check computed inline: 63 trees, 3 species (19/22/22), no missing values, diameter and height ranges. CC0 `lgrdata` source in footer. |
+| 10 | Anchor graph, first view, plus noticing prompt | Jak se výška mění s průměrem kmene? | Full-width species-coloured scatterplot (the lecture's anchor graph). Think–pair–share: the strongest pattern, plus one reason a single line might not suffice. |
+| 11 | Familiar model fit | Jedna společná přímka pro všechny druhy | Visible `lm(vyska_stromu_m ~ prumer_kmene_cm)` left; anchor graph plus one purple common line right. Retrieve intercept, slope and fitted value quickly. |
+| 12 | Model-summary retrieval and open questions | Co už umíme přečíst ze `summary()`? | Full output. Bracket the familiar parts (call, residual summary, coefficient table); mark *Multiple R-squared* and *Adjusted R-squared* as open questions, recalling that L08 deliberately postponed them. Their values are not interpreted. |
+| 13 | Residual evidence (pair prompt, then annotation) | Zůstává v residuích rozdíl mezi druhy? | Residuals vs fitted, coloured by species. Pair prompt first; a fragment then adds the species mean-residual markers (*P. monticola* mostly above zero). Conclusion: one common line overlooks species. |
+| 14 | Section divider | Tři představy o růstu stromů | Minimal H1. |
+| 15 | Candidate generation from prior knowledge | Jaké jiné přímky by mohly stromy popsat? | Anchor graph with species colours and no lines. Pair task: using L08 tools, sketch two alternatives to the common line. Students should produce "parallel lines" and "different slopes" themselves. No illustration: the real points are the stimulus. |
+| 16 | Candidate set frozen before scores | Tři modely vyjadřují tři biologické představy | Three cards with stable names and glyphs (Společná přímka / Posun mezi druhy / Různé sklony): formula plus one-line biological claim each. State that this set is fixed before any comparison. |
+| 17 | Visible fitting, same response and rows | Všechny tři modely odhadneme ze stejných 63 stromů | Three short `lm()` calls with the same `data = data_stromy`. One highlighted line: same response, same trees. This prepares the AIC comparability rule without naming AIC. |
+| 18 | Prediction vote | Který model prochází nejblíže pozorovaným stromům? | Three panels on common axes (common line drawn as one purple line; species lines elsewhere). Vote A/B/C before any number appears. |
+| 19 | Reveal and open problem | Nejblíže prochází přímky s různými sklony | Same panels plus orange residual segments in all three panels; each facet header shows that candidate's RSS (prior knowledge from L03–L04), computed inline. A fragment poses the open question "Je proto nejlepší?" without answering it. |
+| 20 | Comparison criteria | Podle čeho poznáme lepší model? | Ask the room to call out criteria first, then reveal an incremental list: closeness to data, number of coefficients, residual pattern, biological question, interpretability. No single number answers all of them. |
+| 21 | Section divider | Jak změřit shodu modelu s daty? | Minimal H1. |
+| 22 | Sums-of-squares retrieval | Co už víme o součtu čtverců residuí? | Callbacks: first line search (L03), the RSS name (L04), reduction of RSS by group means (L06). Quick question: what happens to RSS when the line passes closer? Answer as a fragment. |
+| 23 | Mean-only reference, six-tree data moment | Je přímka lepší než předpověď průměrem? | Six real trees A–F (rows 1, 11, 22, 32, 43, 58) in grey; dashed graphite mean line. Prediction prompt: which leaves larger squared distances, the mean or the line? Hold fixed axes for slides 23–25. |
+| 24 | Total sum of squares (named after seen) | Jak velké jsou rozdíly výšek kolem průměru? | Same axes plus deviation segments; compact deviation/square table; the sum (≈ 836.8 m²) is then named "celkový součet čtverců (total sum of squares)". |
+| 25 | RSS on the same six trees | Kolik rozdílů zůstane po odhadnutí přímky? | Same axes, purple line fitted to the six trees (as in the skripta), orange residual segments, residual and squared-residual table, RSS (147,6 m² inline) beside the retained total (836,8 m²). Fragment question: which tree lies highest above the line, and which contributes most to RSS? Separates signed size from squared contribution. |
+| 26 | Unnamed captured proportion | Jakou část rozdílů přímka zachytila? | Text-only relationship, then the visible prompt with both sums (students compute), then the substitution and the result (0,824 inline) as fragments. No name yet. |
+| 27 | Concept naming and general formula | Zachycený podíl se jmenuje R² | Name "koeficient determinace R² (coefficient of determination)", then R² = 1 − SS_res / SS_total, with each symbol tied to slides 24–25. |
+| 28 | Animated synthesis of slides 24–27 (requested by Ondřej Mottl, 2026-10-06) | Jak se mění RSS a R², když přímku natáčíme? | GIF (`natoceni_primky_r2.gif`, built at render time with `magick` from ggplot frames): the six trees stay fixed and a purple line rotates around (mean diameter, mean height) between slope 0 (the mean prediction) and the fitted slope and back, pausing at both ends. Orange residuals and a side bar of RSS against the total sum of squares update every frame, with R² computed per frame (0,000 → 0,824). Prompt: when is R² zero and when is it largest? |
+| 29 | Static fallback and interpretation | Stejných šest stromů, čtyři natočení přímky | Small multiples at 0, ⅓, ⅔ and the full fitted slope, with RSS and R² in each panel title (inline); this is also the PDF fallback for the animation. Fragment: the horizontal line is the mean prediction (RSS = total, R² = 0); the fitted line has the smallest RSS and the largest R². |
+| 30 | Full-data transfer and software check | Dává `summary()` stejné R² pro všech 63 stromů? | Full-data substitution 1 − 1877,4 / 8084,6 = 0,768 (inline), then visible `summary(mod_spolecny)$r.squared`. A plain fragment links it to `Multiple R-squared` from slide 12, answering the first open question there. |
+| 31 | Misconception MCQ (blank heading) | *(prázdný nadpis)* | Blank-heading MCQ box: "Společná přímka má R² = 0,768. Co to znamená?" A: share of correctly predicted trees; B: share of height variability around the mean captured in these data; C: probability that the model is true. Partner convince, then circle B. |
+| 32 | Scope and limits | Co R² popisuje a na co nestačí? | Two panels. Left: in-sample share of variability. Right: not a check of assumptions, not causation, not performance on new trees, and (an open question) not a tool for choosing between models. |
+| 33 | Section divider | Pomáhá každý koeficient navíc? | Minimal H1. |
+| 34 | Prediction vote | Co udělá R² po přidání druhu a interakce? | One formula strip `prumer` → `prumer + druh` → `prumer * druh`, visually separate from the options. Options: rises / may fall / stays the same. Vote before reveal. |
+| 35 | Reveal plus misconception card | R² po přidání členů neklesne | Dot chart of R² (0,768 → 0,793 → 0,797) plus k/RSS table. A nested model can copy the simpler fit, so RSS cannot rise. Fragment card: "Vyšší R² není automatické vítězství". |
+| 36 | Make complexity concrete (matching task) | Které koeficienty jednotlivé modely odhadují? | Three unlabelled, shuffled coefficient lists A/B/C generated from `coef()`. Students decide which list belongs to which candidate; the model name and *k* (2 / 6 / 4) are revealed as fragments in each card's title strip. |
+| 37 | Adjusted-R² construction | Jak R² opravit za počet koeficientů? | Words, then the additive-model substitution 1 − (1 − 0.793) × (63 − 1)/(63 − 4) = 0.782 (inline R), then the general formula. Name "adjustované R² (adjusted R-squared)". Point out where fit, n and k sit in the formula. |
+| 38 | Prediction vote | Co udělá adjustované R² po přidání interakce? | Evidence card: R² 0.793 → 0.797, k 4 → 6, n = 63. Vote: rises / falls. |
+| 39 | Reveal and interpretation | Adjustované R² po přidání interakce klesne | Paired R² and adjusted-R² values for all three candidates (0.764 / 0.782 / 0.779). The two extra slopes improve fit too little for the adjustment. |
+| 40 | Spine return (mid-lecture) | Co už o třech modelech víme? | `.box-question` repeats the title question verbatim. Left `.panel-result`: R² and adjusted R² show fit, and the penalised fit prefers the shift model. Right `.panel-question`: is the gain worth its complexity in general? Do the residuals look acceptable? |
+| 41 | Section divider | Kdy se složitost vyplatí? | Minimal H1. |
+| 42 | Parsimony question, then naming (new generated illustration G3) | Vyplatí se model šitý na míru? | `stromy_krejci.png` in the left column (55 %), the question panel on the right. Think–pair: shift vs different slopes fit almost equally well (R² inline) with 4 vs 6 coefficients; which would you prefer, and what else would you want to know? A fragment then names "princip úspornosti (parsimony)". |
+| 43 | AIC naming and computation | AIC váží shodu i složitost | Name "Akaikeho informační kritérium (Akaike information criterion, AIC)". Better fit lowers AIC, extra estimated quantities raise it, so lower is preferred. Visible `AIC(object = mod_spolecny)` returns 398.64. It is not a proportion and has a different scale from R². |
+| 44 | Misconception MCQ plus comparability rule | Model má AIC 398,64. Je to dobrý model? | Value inline from `AIC(mod_spolecny)`. Options: yes, because it is low / no, because it is high / cannot tell from one value. Partner convince. The reveal states the rule: AIC is relative and comparable only for the same response, the same observations and the same residual assumptions. |
+| 45 | ΔAIC construction and comparison | O kolik je AIC každého kandidáta vyšší než nejnižší? | Words (upright ΔAIC), then the common-line substitution (398,64 − 395,44 = 3,20) as a fragment, then the table 3,20 / 0 / 2,83, then a one-line takeaway: the shift model has ΔAIC = 0 and no universal threshold is used. |
+| 46 | Metric synthesis (pair explanation) | Ukazují R², adjustované R² a AIC na stejný model? | Combined table with metric chips (R² ↑, adj. R² ↑, AIC ↓). Pairs explain why R² favours different slopes while adjusted R² and AIC favour the shift model, through each metric's treatment of fit versus complexity rather than three votes on truth. |
+| 47 | Candidate-set caveat (new generated illustration G2) | Nejlépe podporovaný kandidát nemusí být dobrý model | `stromy_porota.png` with AI disclosure, in a two-column layout beside the `.box-warning`: a jury of forest animals compares three tree models on a stage, while a fourth, unexamined candidate waits outside the door. The warning says the comparison ranks only the models we put in the set, and a model we never considered could describe the trees better. |
+| 48 | Section divider | Obstojí vybraný model? | Minimal H1. |
+| 49 | Diagnostic return (honest reading) | Zůstává v residuích modelu s posunem mezi druhy nějaký vzorec? | Residuals vs fitted and Q–Q plot for the shift model. Pair prompt first; a fragment overlays a smoothed curve (familiar from L08) that shows an arch: low and the tallest fitted heights mostly below zero, middle heights above. Reading: arch plus non-straight Q–Q plot, so the conclusion is stated cautiously. |
+| 50 | Influence check (L07 callback) | Které stromy ovlivňují model nejvíc? | Cook's distance with a 4/n guide line; 4 trees above it (inline). Message: a reason to inspect those trees, not to delete them. |
+| 51 | Silent write, then pair | Obhajte model dvěma větami | Sentence stems: "Vybíráme …, protože …" and "Omezením je …". 40 s silent write, then compare with a neighbour. |
+| 52 | Spine answer | Který model lze pro tyto stromy nejlépe obhájit? | Support: captures the species differences the common line misses; highest adjusted R² and lowest AIC. Limits: only three candidates; residuals form an arch (a straight line misses the shape); 63 trees and a non-straight Q–Q plot; observational data, no causal species effect. `.box-result` gives the answer to slide 1. |
+| 53 | Reusable workflow plus warning | Jak porovnávat modely bez automatického hledání? | Seven-step workflow strip from the skripta. `.box-warning`: automatic searches do not replace the biological question. |
+| 54 | Key-ideas summary | Co si odnést | 4–5 one-line takeaways with semantic highlights. |
+| 55 | Closing question and L10 bridge (new generated illustration G4) | Co když žádná přímka nestačí? | `stromy_strop.png` in the left column (62 %), the statement on the right. All three candidates were straight lines, yet their residuals arch (seen on slides 13 and 47). Fragment question: how do we describe a relationship that is not a straight line? Not answered; it hands over to L10. |
+
+Planned totals: 55 visible slides (53 approved on 2026-10-05, plus the two animation slides 28–29 requested on 2026-10-06), including 6 H1 dividers (8, 14, 21, 33, 41, 48) and 4 PollsLive-generated slides (3–6).
+
+## Knowledge-state ledger
+
+| Concept block | May assume before | Introduced or earned here | Must not assume yet | Evidence or experience |
+|---|---|---|---|---|
+| 1 — Hook, retrieval, outcomes (1–7) | Students fit and interpret `lm()` models, including additive and interaction models (L07–L08); L08 closed by asking which of two candidates to choose. | Lesson question; retrieved L08 ideas (changing contrast, conditional coefficient, two candidate structures). | The tree data, any metric meaning or direction, a preferred candidate. | Generated measurement-context illustration G1 (variables and species only, no evidence claim); three L08 evidence-reading questions. |
+| 2 — One common line (8–13) | Scatterplots, `lm()`, `summary()` coefficients, residual plots; L08 parked the R² lines. | Data unit and check, anchor graph, common-line fit, two open output lines, species structure in the residuals. | Alternative candidates or any comparison measure. | `head()`/`table()` output, anchor scatterplot, `summary()`, species-coloured residuals with mean markers. |
+| 3 — Candidate set (14–20) | Additive and interaction formulas (L07–L08); residual pattern from block 2. | Three frozen candidates as biological claims; same response and same rows; the most flexible model sits closest; several kinds of evidence are needed. | That closer fit means a better model; any metric name. | Student-sketched alternatives on the anchor graph, candidate cards, three `lm()` calls, three-panel figure, vote and reveal. |
+| 4 — R² (21–32) | RSS from L03/L04/L06; means; residuals. | Mean-only reference; total sum of squares (new); RSS paired with it; captured proportion, then named R²; R² rises continuously from 0 as the line rotates from the mean towards the fitted slope; full-data equality with `summary()`; interpretation limits. | That the highest R² is best; adjusted R²; AIC. | Six real trees on fixed axes, expanded sums, computed proportion, full-data substitution, MCQ. |
+| 5 — Complexity (33–40) | R² calculation and meaning; candidate formulas. | Nested R² cannot fall; coefficient identities 2/4/6; adjusted R² built from R², n and k; adjusted R² can fall. | Parsimony as a named principle; AIC. | Prediction votes, R² table, coefficient matching, additive-model substitution, R²-vs-adjusted comparison, spine return. |
+| 6 — Parsimony and AIC (41–47) | Fit improvement versus coefficient cost (block 5). | Parsimony named; AIC as a relative fit-versus-complexity criterion with lower preferred; comparability conditions; ΔAIC; why the metrics disagree; candidate-set limit. | Likelihood mechanics, the AIC formula, thresholds, truth probabilities. | Generated tailor illustration G3, visible `AIC()` output, MCQ, ΔAIC construction, synthesis table, generated jury illustration G2 beside the candidate-set warning. |
+| 7 — Diagnostics and defence (48–53) | Residual plot, Q–Q plot, Cook's distance (L07); smoothed residual curve (L08); all three metrics. | Scores stay conditional on diagnostics; the residual arch shows that a straight line misses the shape of the relationship; conditional defence of the shift model with the arch as a stated limit; candidate-first workflow. | Deleting influential trees; causal species effects; automatic selection; how to model the curvature. | Shift-model residual and Q–Q panels with a fragment smoothed curve, Cook's distances, written defence, evidence card. |
+| 8 — Close (54–55) | Complete comparison; the residual arch seen on slides 13 and 49. | Key ideas; an open question about describing a relationship that is not a straight line. | Transformations or nonlinear fitting. | Summary and an open closing question beside generated illustration G4. |
+
+## PollsLive retrieval proposal
+
+This block needs **its own explicit approval** (integration map plus exact questions) in addition to the story map, per `.ai/authoring/pollslive.md`.
+
+### Integration map
+
+- Placement: slides 3–6, after the hook (slide 2) and before `Výsledky učení` (slide 7), via `{{< include ../pollslive/generated/active.qmd >}}`.
+- Retrieves: approved and merged L08 material on interaction as a changing contrast, conditional main-effect coefficients, and the additive versus interaction candidate pair from the L08 closing slide.
+- Bridge (spoken): L08 ended with "Který biologicky smysluplný model máme zvolit?" L09 answers that question with new data and comparison tools.
+- Scheduled lecture: 2026-11-30 (from `_internal/pollslive/activation-2026-27.json`).
+- Evidence assets: deterministically re-rendered from the L08 teaching data (`L08/data/krabi.csv`, blue form), pinned to an L08 revision with source and asset SHA-256 in provenance. Explanations avoid hardcoded numbers.
+
+### Exact questions
+
+#### 1. Changing contrast
+
+- ID: `changing-sex-difference`
+- Text: `Co ukazují nerovnoběžné přímky modrých krabů?`
+- Options:
+  1. `Rozdíl v zadní šířce krunýře mezi samci a samicemi se mění s délkou krunýře.` **Correct**
+  2. `Samci mají při každé délce krunýře o stejný kus užší krunýř než samice.`
+  3. `O interakci můžeme mluvit, jen když se přímky v grafu překříží.`
+  4. `Délka krunýře a pohlaví spolu korelují.`
+- Explanation: `Nerovnoběžné přímky znamenají, že rozdíl mezi pohlavími není při všech délkách stejný. Interakce nevyžaduje překřížení přímek a neznamená korelaci prediktorů.`
+- Evidence: L08 blue-crab points with the two fitted interaction lines across the observed lengths.
+- Alt: `Bodový graf zadní šířky krunýře proti délce krunýře modrých krabů se dvěma nerovnoběžnými přímkami pro samice a samce.`
+
+#### 2. Conditional coefficient
+
+- ID: `conditional-sex-coefficient`
+- Text: `Co znamená koeficient pohlavisamec v modelu s interakcí?`
+- Options:
+  1. `Odhadovaný rozdíl samec − samice při délce krunýře 0 mm.` **Correct**
+  2. `Rozdíl samec − samice při každé délce krunýře.`
+  3. `Rozdíl samec − samice při průměrné délce krunýře.`
+  4. `Rozdíl sklonů mezi samci a samicemi.`
+- Explanation: `V modelu s interakcí je koeficient pohlaví podmíněný: porovnává pohlaví tam, kde je délka krunýře rovna nule. Při jiné délce musíme přičíst příspěvek interakčního koeficientu.`
+- Evidence: coefficient card from the L08 interaction model (`zadni_sirka_mm ~ delka_krunyre_mm * pohlavi`) with the `pohlavisamec` row highlighted; values rendered from the model.
+- Alt: `Tabulka čtyř koeficientů modelu s interakcí; zvýrazněný je řádek pohlavisamec.`
+
+#### 3. Two candidates
+
+- ID: `additive-versus-interaction`
+- Text: `Čím se liší dva kandidátní modely pro modré kraby?`
+- Options:
+  1. `Interakční model navíc odhaduje rozdíl sklonů, takže rozdíl mezi pohlavími se může měnit s délkou.` **Correct**
+  2. `Aditivní model pohlaví vůbec nezohledňuje.`
+  3. `Interakční model používá jiné kraby než aditivní model.`
+  4. `Interakční model předpovídá jinou odezvu než aditivní model.`
+- Explanation: `delka_krunyre_mm * pohlavi znamená delka_krunyre_mm + pohlavi + delka_krunyre_mm:pohlavi. Oba modely používají stejné kraby i stejnou odezvu; liší se tím, zda dovolí různé sklony.`
+- Evidence: the L08 closing card, with the two formulas beside two mini-panels (parallel versus nonparallel lines) on the same crabs.
+- Alt: `Dva grafy stejných krabů: vlevo rovnoběžné přímky aditivního modelu, vpravo nerovnoběžné přímky modelu s interakcí, pod nimi jejich vzorce.`
+
+### Retrieval-block knowledge state
+
+| Step | May assume before | Retrieved here | Must not assume yet | Evidence |
+|---|---|---|---|---|
+| Q1 | Reading fitted lines by group (L08). | Interaction is a changing contrast; not crossing, not correlation. | Model comparison. | Nonparallel-line plot. |
+| Q2 | Coefficient table of an interaction model (L08). | Main effects in an interaction model are conditional on 0 mm. | Anything about fit quality. | Coefficient card. |
+| Q3 | `*` expansion and additive form (L08). | Candidates differ in structure but share response and observations. | That one candidate is better, or any metric. | Two formulas with two panels. |
+| Bridge | L08 closing question. | How to choose between justified candidates is open. | R², adjusted R², AIC. | Spoken bridge to the tree data. |
+
+## Active-learning cadence
+
+| Minute (approx.) | Slide | Activity | Evidence of learning |
+|---|---|---|---|
+| 2 | 2 | Quick question: which measurements, and do species differ? | Variables grounded before data |
+| 5–12 | 3–6 | PollsLive retrieval | Read L08 evidence |
+| 17 | 10 | Think–pair–share: pattern and doubt | Separate visible pattern from model claim |
+| 22 | 13 | Pair: residuals by species | Diagnose structure a model overlooks |
+| 26 | 15 | Pair: sketch alternative lines on the anchor graph | Transfer of L08 additive and interaction forms |
+| 30 | 18 | Prediction vote | Commit before the closeness reveal |
+| 33 | 20 | Call-out: criteria for a better model | Prior intuitions made explicit |
+| 38–44 | 23–26 | Predict, then compute the captured proportion | Build R² from two sums of squares |
+| 48 | 29 | MCQ with partner convince | Reject the percent-correct and truth readings of R² |
+| 53 | 32 | Prediction vote: R² after adding terms | Nested monotonicity |
+| 57 | 34 | Matching coefficients | Concrete complexity counts |
+| 61 | 36 | Prediction vote: adjusted R² | Penalty logic |
+| 67 | 40 | Think–pair: is complexity worth it? | Parsimony before AIC |
+| 71 | 42 | MCQ: is AIC 398.64 good? | AIC is relative |
+| 75 | 44 | Pair: explain disagreement | Metrics differ by treatment of complexity |
+| 82 | 49 | Silent write, then pair | Conditional defence |
+| 88 | 53 | Closing question | Bridge to nonlinearity |
+
+The longest stretch without an interaction is about 8–10 minutes.
+
+## Visual vocabulary (planned)
+
+- **Anchor graph:** the 63-tree diameter–height scatterplot, with fixed axes wherever practical. Used on slides 10, 11, 18–19 (faceted) and in residual form on 13 and 47.
+- **Six-tree build:** slides 23–26 keep identical axes and point positions; each slide adds one layer (mean line, then deviations, then fitted line and residuals).
+- **Semantic colour:** observed data grey; model lines and model-derived values purple; residuals, the current contrast and the complexity penalty orange; the mean-only reference graphite dashed. Text highlights follow the same mapping (`.text-hgl-graphite`, `.text-hgl-indigo_velvet`, `.text-hgl-orange`).
+- **Species colour (decision for approval):** the skripta used `#0072B2`, `#D55E00` and `#5D2890`. The last two collide with the brand's semantic orange and purple. The deck will use the brand categorical palette (teal `#4E9A8A`, terracotta `#C2613A`, steel blue `#2E6CA4`), documented in the source, and will keep species colour off slides where purple and orange carry semantic meaning.
+- **Candidate identity:** the three names Společná přímka / Posun mezi druhy / Různé sklony always appear in that order, each with a small line glyph (one line / three parallel / three fanned).
+- **Metric chips:** `R² ↑`, `adj. R² ↑` and `AIC ↓` give a consistent cue for each metric's preferred direction on slides 33, 37, 43 and 44.
+- **Interaction cue:** prompts use `.panel-question` or a bold minimal question. Votes use equal option cards, and the correct option is marked only with `.rn-circle-orange` after commitment. Slide 29 is the single blank-heading MCQ.
+- **Generated illustrations:** four new assets (G1–G4, below) on slides 2, 40, 45 and 53. They share one visual language, carry Czech alt text and the visible caption "Ilustrační obraz vytvořen AI.", and carry no statistical evidence. The earlier L09 assets (`model-casting.jpg`, `one-ruler-three-trees.jpg`, `complexity-machine.jpg`) are rejected for the presentation.
+
+## Generated illustration plan
+
+The human author rejected the three existing L09 illustrations on 2026-10-05 and asked for new ones, possibly in different places. The plan below replaces them. Each image has one teaching job; removing it should weaken the hook, the metaphor or the bridge, not merely the decoration.
+
+### Shared visual language
+
+- Style: original flat editorial paper-cut illustration with crisp layered shapes and gentle paper texture. This is the same medium as the approved L08 crab set, so the course stays visually consistent.
+- Recurring cast: three recognisably different conifers matching the data (*Pinus monticola*: slender, soft long-needled crown; *Pinus ponderosa*: thick plated orange-brown bark, open crown; *Pseudotsuga menziesii*: dense conical crown, drooping branch tips). The trees are friendly but not cartoon-faced, and the same three silhouettes appear in every image.
+- Setting: a North-American-feeling mountain conifer forest and field station, with an uncluttered background and generous negative space for Quarto labels.
+- Palette: muted forest greens, bark browns, off-white and graphite. Course purple and orange are avoided so semantic overlays stay free.
+- Global constraints: no text, letters, numbers, formulas, graph axes, tick marks, logos or watermarks; no human faces in close-up; no image may imply a statistical result, a winner or a species difference in height.
+- Storage and provenance: `Presentation/Materials/<name>.png` plus `Presentation/Materials/GENERATED_IMAGES.md` with the exact prompts, any targeted edits, rejected variants and SHA-256 hashes, following L08.
+
+### G1 — `stromy_mereni.png` (slide 2)
+
+- Teaching role: make the three measured quantities concrete (species, trunk diameter at 1.3 m, tree height) before the data appear.
+- Alt: `Terénní měřiči na lesní stanici měří u tří různých jehličnanů průměr kmene ve výšce prsou a výšku stromu.`
+- Prompt core: a field crew of two (seen from behind or the side, small in frame) at a forest measuring station. One wraps a plain diameter tape around a trunk at chest height, with a simple marker post showing that height. The other sights the treetop with a plain handheld clinometer. The three conifer species stand side by side at similar trunk thickness but are not visibly ranked by height. Mood: bright, curious, lightly comic (a squirrel inspecting the tape).
+- Acceptance: the tape is clearly at chest height; the height measurement reads as an action; no species looks deliberately taller as a "result".
+
+### G2 — `stromy_porota.png` (slide 45)
+
+- Teaching role: a memorable picture of the candidate-set limit: we rank only the candidates we invited.
+- Alt: `Porota lesních zvířat hodnotí tři kandidáty na pódiu, zatímco čtvrtý, nepozvaný kandidát čeká za dveřmi.`
+- Prompt core: a small forest-theatre stage. A jury of three forest animals (owl, fox, badger) holding plain blank score cards looks at three small potted conifers, each with a different simple "measuring line" accessory (one straight stick; three parallel sticks; three fanned sticks). Through a half-open side door, a fourth, different-looking candidate peeks in, unnoticed. No crown, no podium ranking, no winner.
+- Acceptance: the three candidates are visually equal; the fourth candidate is clearly outside the judged set; the score cards are blank.
+
+### G3 — `stromy_krejci.png` (slide 40)
+
+- Teaching role: a metaphor for fit versus complexity. Tailoring to every bump of one tree fits *this* tree but adds many seams; a simple coat fits well enough.
+- Alt: `Krejčí obléká jehličnan do obleku s desítkami švů kopírujících každý hrbol; vedle visí jednoduchý dobře padnoucí kabát.`
+- Prompt core: a fox tailor with a tape measure fits a single conifer into an absurdly over-tailored suit with dozens of seams, patches and pins tracing every bump of the trunk. Beside it on a stand hangs a simple coat that fits the same tree shape well with few seams. A second, slightly different tree waits in line, looking doubtful that the over-tailored suit would fit it.
+- Acceptance: neither garment is shown as winning; the over-tailored suit looks effortful rather than wrong; the waiting tree introduces the "would it fit another tree?" doubt without any text.
+
+### G4 — `stromy_strop.png` (slide 53)
+
+- Teaching role: an open-question bridge to L10. A straight line can keep rising where real growth levels off.
+- Alt: `Obří rovné měřidlo stoupá až do mraků, zatímco staré tlusté stromy vedle něj už do výšky nerostou.`
+- Prompt core: a row of conifers from young and slim to old and very thick, whose heights rise and then level off among the oldest trees. A giant straight measuring stick leans along the row and keeps rising past them into the clouds. A small hiker or squirrel looks up at the stick, puzzled.
+- Acceptance: the levelling-off is visible but gentle; there are no axes, scale marks or numbers; the image reads as a question, not as evidence about the L09 data.
+
+### Generation route and boundary
+
+- This Claude Code session has no image-generation tool. The prompt cores above will be expanded into full prompts (use case, asset type, primary request, scene, subject, style, composition, lighting, palette, constraints, avoid) in `GENERATED_IMAGES.md`. Generation then runs with an available image tool (L08 and the rejected L09 set used OpenAI built-in image generation), followed by targeted edits until each acceptance check passes.
+- Each selected image is reviewed at full slide size before it enters the deck. The human author may reject any image independently of the story-map approval.
+- The rejected files remain under `Learning_materials/images/`, where `skripta.qmd` does not use them. Removing them is a separate decision and is not part of this plan.
+
+## Story-map audits before human approval
+
+- **Heading strip:** title question → what we measure on a tree → L08 retrieval → outcomes → one common line → species residuals → three candidates → closeness is not enough → sums of squares → R² named, checked and bounded → added terms always raise R² → adjusted R² → spine return → parsimony → AIC → ΔAIC → disagreement explained → caveat → diagnostics → defence → workflow → bridge. It reads as a content narrative. No heading uses the banned sequencing words (nejdřív, potom, teď, dnes, znovu, nakonec, teprve).
+- **Data story first:** every block opens with a data moment or question (13, 18, 23, 32, 36, 40) before its term appears. Concept names arrive in headings only at their naming step (27 R², 35 adjusted R², 41 AIC).
+- **First use:** total sum of squares is named on 24 after deviations are visible on 23. R² is named on 27 after the computation on 26. Coefficient counts (34) come before adjusted R² uses k (35). Parsimony (40) comes before AIC (41). Comparability conditions arrive with the first single-value AIC question (42), before ΔAIC (43).
+- **No leakage:** slides 18–20 do not use any metric name. Slide 30's "not a tool for choosing between models" is posed as an open limit, and slides 32–33 earn it. No slide relies on likelihood.
+- **Opening order:** title → hook → retrieval (3–6) → outcomes (7) → first data moment (9–10), as `AGENTS.md` requires.
+- **Spine:** the title question returns at 20 (criteria), 38 (mid-lecture accounting) and 50 (answer).
+- **Inline values:** every number in slide copy, headings (slide 42) and annotations will be computed from `mod_spolecny`, `mod_aditivni` and `mod_interakce`.
+- **Illustrations:** G1 grounds the variables only; G2 and G3 are metaphors attached to ideas already earned (the candidate set; fit versus complexity); G4 poses the closing question. None appears before the evidence it accompanies, and none carries a result.
+- **Divergence from the skripta:** the optional AIC-computation Extra (skripta block 27) is not on the slides. The skripta's standalone R² exercise with invented SS values (500/125) is replaced on the slides by real-data computation (26 and 28). No new concepts are introduced.
+
+## Risks and fixes
+
+- **Pacing risk:** 53 slides in 90 minutes. Six dividers and four PollsLive slides are fast, but the R² block (21–30) is the heaviest. Trim candidates if the human prefers a shorter deck: merge 22 into 23, fold 34 into 35, or fold 48 into 47.
+- **Visual rhythm risk:** many table-and-number slides in blocks 4–6. Fix: the six-tree build uses figures, metric results appear as a dot chart rather than tables where possible, and the 3-in-5 component-furniture threshold will be audited.
+- **Content risk:** students may read ΔAIC 2.83 versus 3.20 as a meaningful ranking between common and interaction models. The slide-43 note keeps the comparison relative and threshold-free.
+- **Dependency:** the L09 PollsLive adapter (config, assets, asset-render script, validation workflow) is not yet in this repository. It must be copied from the current `_L-template` revision after approval, and the lesson-reader GitHub App access must be verified.
+
+## Stage 4 drafting notes (2026-10-05)
+
+- `Presentation/presentation.qmd` was drafted from the approved story map, replacing the template gallery. Slide copy, headings and order follow the map. Two small implementation choices were made within it:
+  - slide 19 draws residual segments in all three panels, not only the third, so the comparison is fair;
+  - slide 13 reveals the species mean-residual lines as an overlaid fragment (`.r-stack`) on the same plot, so the prompt stays visible.
+- At first drafting, G1–G4 did not exist yet (no image tool in the drafting session), so each position was marked `PLACEHOLDER G1`–`G4` in an HTML comment containing the exact chunk to add. The placeholders were later replaced by the generated images (see *Illustration generation and integration*). The chunk is written without a code fence, because knitr executes fenced chunks even inside HTML comments. The slides are laid out to work without the images until they exist. Full prompts and acceptance checks are in `Presentation/Materials/GENERATED_IMAGES.md`.
+- Species colours use the approved brand categorical palette (teal, terracotta, steel blue). Model lines and model-derived values are purple; residual segments are orange; the mean-only reference is a graphite dashed line; mean deviations on slide 24 are graphite.
+- Every displayed statistic is computed inline from the fitted objects, including the AIC value in the slide-42 heading and the tree count in two headings. Two `stopifnot()` checks guard the full-data R² (`summary()` equality) and the adjusted-R² formula.
+- PollsLive adapter added, following the approved proposal:
+  - `pollslive/config.json` pins the `_internal` client at `8f85e9f9…`, as in L03–L08;
+  - `pollslive/quiz.json` holds the three approved questions verbatim, dated 2026-11-30;
+  - `pollslive/source/l08-krabi.csv` is a copy of L08 `data/krabi.csv` at L08 revision `48a0270`, verified by a line-ending-normalised SHA-256;
+  - `R/render_pollslive_assets.R` deterministically renders the three evidence PNGs into `pollslive/assets/`;
+  - `pollslive/validate.mjs` was updated to the current merged `_L-template` version, and `node pollslive/validate.mjs` passes.
+- `R/Functions/format_cz.R` was copied from L08 for Czech decimal formatting.
+- Offline rendering needed the pinned client cache (normally created by a synchronized render). It was built locally from the `_internal` checkout at the exact pinned commit, followed by `npm ci` and the lock stamp, which is the same procedure the sync path runs. The cache is gitignored.
+- The canonical render ran `R/generate_theme.R`, which synced canonical `_brand` updates into the lesson's cached theme files: `R/Functions/render_presentation_outputs.R` (Windows UTF-8 locale fix), `R/Functions/render_glossary_term.R`, `theme/presentation_components.scss`, `theme/semantic-boxes.lua`, `theme/brand_manifest.json` and `Learning_materials/skripta_theme.typ`. These are descendants of `_brand`, not lesson edits; whether to include them in this PR is for the author to decide.
+
+## Independent review round 1 (2026-10-05)
+
+Reviewer: separate read-only subagent following `.ai/agents/vision-corrector.md`, with full-canvas inspection of all 53 rendered PDF slides.
+
+Findings and resolution:
+
+- **HIGH — residual pattern misread (slides 47, 50, 53).** Verified independently. The shift model's mean residual is about −5,9 m below 16 m fitted height, +3,2 m at 16–32 m and −2,1 m above. Adding a quadratic diameter term would cut RSS from about 1675 to 687. Slide 47 now gives a pair prompt first and then a fragment smoothed curve and an honest reading (an arch). Slide 50 moves the arch to the limitations. Slide 53 builds its closing question on the arch students have seen. Rows 47, 50 and 53 updated. Note for the author: the approved skripta does not claim the residuals are pattern-free, but it also does not name the arch; whether to add a sentence there is a separate decision.
+- **HIGH — slide 26 prompt after its answer.** The prompt with both sums is now visible before the substitution and result fragments, and the reveal-mechanics wording was removed.
+- **MEDIUM — fixed:**
+  - slide 40 now compares the genuinely near-equal pair (shift vs different slopes, 4 vs 6 coefficients, R² inline);
+  - slide 34 shows unlabelled lists A/B/C first and reveals the model names and *k* afterwards;
+  - slide 32 shows the candidates as one strip, separate from the options;
+  - slide 25's question is unambiguous;
+  - slide 52's highlight colours now match their first use (penalty and "předem" orange; "relativní" and "neklesne" purple), and non-model phrases on slides 20 and 49 are no longer purple;
+  - slide 19's facet headers show each candidate's RSS;
+  - component-furniture runs were broken up: slide 28 lost its strip, slide 35's general formula is plain, slide 36 has plain options;
+  - slide 9's code is no longer clipped.
+- **LOW — fixed:**
+  - slide 33's heading now says R² does not decrease;
+  - slide 17 uses named vertical arguments, a centred layout and a comment explaining the repeated fit;
+  - Czech decimal commas on the y-axes of slides 33 and 37;
+  - upright `\Delta\text{AIC}` on slide 43, with that slide decluttered;
+  - slide 47 is named after the stable candidate name;
+  - slide 49 no longer uses "pak"; slide 48's count is phrased independently of plural agreement;
+  - slide 29 has a fragment explanation, so the answer also appears in the static PDF;
+  - slide 11's figure leaves room above the slide number.
+- **LOW — not changed, reported:**
+  - slide 2 stays weak until illustration G1 exists;
+  - `format_cz_math()` stays in the setup chunk as document-wide infrastructure;
+  - the generated PollsLive slides show a stray ": " after the "Správná odpověď" title, "Potom" in the generated intro, and plain-text formula rendering. These come from the `_brand`/`_internal` generator, not lesson source, and are reported for upstream correction.
+- Fragment initial and intermediate states were checked from source order only; the static PDF shows final states.
+
+## Independent review round 2 (2026-10-05)
+
+The same read-only reviewer confirmed that all round-1 findings are resolved or credibly justified, including both HIGH findings, and that object locality, hardcoded values and sequencing words remain clean. The remaining LOW items were fixed:
+- story-map rows 32, 34, 40 and 43, and ledger blocks 7–8, now match the deck;
+- slide 34's model name and *k* sit in each card's title strip as aligned fragments;
+- slide 47 has smaller figures and a shorter reading, with the detail moved to the speaker note;
+- slide 9's `head()` call is vertical.
+
+The residual arch was verified for all three candidates: mean residuals are about −5,8 m (fitted height < 16 m), +3,2 to +3,5 m (16–32 m) and −2,1 to −2,8 m (> 32 m). Open author decision: the slides name this arch, while the approved skripta leaves it implicit (its L10 box is phrased hypothetically).
+
+## Illustration generation and integration (2026-10-05)
+
+- Codex generated the four approved G1–G4 scenes using OpenAI built-in `image_gen`, following `Presentation/Materials/GENERATED_IMAGES.md` and the canonical `_brand` palette. Final files: `stromy_mereni.png`, `stromy_porota.png`, `stromy_krejci.png`, `stromy_strop.png` in `Presentation/Materials/`.
+- G1 and G3 received one targeted edit each to remove tick marks from their measuring tapes. G2 and G4 passed author visual checks on the first output. Exact submitted prompts, selected outputs, rejected variants and SHA-256 hashes are recorded in the provenance file and `Presentation/Materials/GENERATED_IMAGE_PROMPTS.json`.
+- All four placeholder comments were replaced by active image chunks at the approved slide positions (2, 40, 45, 53). Layouts use the existing brand column components; every image has Czech alternative text and a visible `Ilustrační obraz vytvořen AI.` caption. Existing lesson copy, analytical code, headings, teaching sequence and fragment order were preserved; the obsolete slide-2 speaker note was updated.
+- The canonical `R/render_presentation.R` wrapper completed using the existing synced theme and cached offline PollsLive quiz. Both HTML variants and the 53-page PDF rendered successfully. `Presentation/presentation.html` and `docs/index.html` are byte-identical. Source checks passed for unchanged heading order, four AI captions, removed placeholders, UTF-8 without BOM or replacement characters, and a clean source whitespace diff.
+- Author visual inspection of the four full slide canvases confirmed readable images/captions and no clipping or collisions. R reported the existing project out-of-sync message and theme-variable warnings during rendering; environment/theme maintenance was outside this image update.
+- A separate read-only reviewer following `.ai/agents/vision-corrector.md` reviewed the complete source, all four image assets, all 53 full static PDF canvases and the complete-deck overview. Verdict: **No findings.** The approved illustration plan, palette, Czech alternative text, AI disclosure and provenance are consistent; no insertion regression, clipping or collision was found. Live HTML fragment states were checked from source order, not through live browser interaction. Human approval of the finished deck remains pending.
+
+## Author revision: R² rotation animation (2026-10-06)
+
+- Request: Ondřej Mottl asked for an animation that oscillates between "Jak velké jsou rozdíly výšek kolem průměru?" and "Kolik rozdílů zůstane po odhadnutí přímky?". The points stay the same, the line moves between slope 0 and the fitted slope, and SS and R² are recalculated at every step. He was unsure where to place it and suggested before "Co R² popisuje a na co nestačí?".
+- Placement chosen: directly after "Zachycený podíl se jmenuje R²" (new slides 28–29), before the transfer to all 63 trees. Reasons: it stays on the six trees and fixed axes of slides 23–27; R² is already named, so each frame can show it; and placing it after the 63-tree transfer and the MCQ would break the flow by returning to the six trees.
+- Implementation:
+  - every candidate line passes through (mean diameter, mean height), so slope 0 is exactly the mean prediction (RSS = total sum of squares) and the end slope is exactly the six-tree least-squares line (`stopifnot()` guards both ends);
+  - 72 frames with a cosine-eased sweep and pauses, delay 0,08 s, assembled with `magick` (already in renv; `gganimate`/`gifski` are not) into `Presentation/Materials/natoceni_primky_r2.gif`, regenerated at render time;
+  - slide 29 is the static fallback that `presentation.md` requires and that the PDF shows.
+- Speaker note on slide 28: the value 1 − RSS / total sum of squares is computed for every position, and the model's R² is the one at the fitted line.
+- Slide numbers quoted elsewhere in this record (cadence table, review rounds, drafting notes) refer to the 53-slide numbering of 2026-10-05; slides after 27 have moved by +2.
+- Validation: canonical offline render passes (55 slides, 55-page PDF); the GIF and fallback slide were inspected; HTML matches `docs/index.html`. Independent review of the new slides and human review are pending.
+
+## Visual workflow checks
+
+- Story map completed and explicitly human-approved before full slide copy: [x] (approved 2026-10-05)
+- Text-light slides (no dense walls): [x]
+- Staged reveal via fragments/incremental: [x]
+- Figures generated locally near slide blocks: [x] (object locality confirmed by the independent reviewer)
+- Immediate interpretation after key visuals: [x]
+- Interaction cadence present: [x]
+
+## Slide-role rhythm
+
+- Main interaction slide form used: prediction votes on equal cards (18, 32, 36), two MCQs (29 blank heading, 42), and pair prompts beside figures (10, 13, 15, 40, 44).
+- Main evidence reveal form used: same axes with one new layer (11, 19, 23–25), and code plus output (9, 12, 17, 41).
+- Main interpretation form used: graph plus takeaway, and result/question panels (30, 38).
+- Where the bridge to the next concept happens: 20 (to measuring fit), 30 (to complexity), 38 (to parsimony), 45 (to diagnostics), 53 (to L10).
+
+## Stage 5 - Human review gate
+
+- Finished slide headings compared with the story map: [x] (all 55 rendered headings match the 55 story-map rows)
+- Heading-strip, visible-copy, and first-use audits completed: [x]
+- Lesson-vision review completed: [x] (two independent read-only rounds on 2026-10-05; see *Independent review round 1* and *round 2*)
+- Human review completed: [x] (Ondřej Mottl, 2026-10-06)
+- Credible findings resolved: [x]
+- Presentation rendered and checked: [x] (canonical offline render: 55-slide HTML, 55-page PDF, `docs/index.html` identical to `Presentation/presentation.html`; full-slide PDF inspection)
+- Reviewer decision: Ondřej Mottl approved the finished presentation as done on 2026-10-06 ("i consider the L09 presentation as done").
+
+### Final human approval (2026-10-06)
+
+- Approver: Ondřej Mottl
+- Approval scope: the complete 55-slide deck, including his own manual polish of the slides on 2026-10-06 (not itemised here), the four generated illustrations G1–G4 as integrated, and the R² rotation animation with its static fallback (slides 28–29).
+- Review-gate note: the independent reviewer reviewed the deck before G1–G4 were integrated and before the author's manual polish and the animation slides 28–29 were added. Those later changes were checked by rendering and full-slide inspection by the drafting assistant and approved by the author, but did not receive a separate independent review.
+- Validation state at approval: canonical offline render passes; PollsLive validation passes (`node pollslive/validate.mjs`); the synchronized PollsLive render has not been run yet, because it requires the quiz inputs to be committed and pushed first.
+
+## Decision
+
+- [x] Slides ready for review
+- [x] Finished presentation approved by Ondřej Mottl (2026-10-06)
+- [x] Story-map status is `complete`
+- [x] Human story-map approval is `approved` and recorded
+- [x] PollsLive integration map and exact questions approved and recorded
+- [x] Generated illustration plan G1–G4 approved
+- [x] Each selected generated image accepted by Ondřej Mottl (as part of the final approval of the finished deck on 2026-10-06; images were also checked at full size by the generating assistant and on the rendered slides 2, 40, 45 and 53 by the drafting assistant)
+- [ ] Diff contains only Stages 4-5 sources, records, and corresponding outputs — open decision. Besides the Stages 4-5 files, the working tree contains (a) canonical `_brand` theme syncs written by `R/generate_theme.R` during rendering (`R/Functions/render_presentation_outputs.R`, `R/Functions/render_glossary_term.R`, `theme/presentation_components.scss`, `theme/semantic-boxes.lua`, `theme/brand_manifest.json`, `Learning_materials/skripta_theme.typ`) and (b) a status correction to the Stage 2 record (PR #2 merged). Decide whether these go into the presentation PR or a separate maintenance PR.
+- [ ] Presentation PR ready to merge
+- Notes: Ondřej Mottl approved the story map, ledger, PollsLive questions, illustration plan and species palette on 2026-10-05, and the finished 55-slide presentation on 2026-10-06. Remaining steps, each needing separate authorization:
+  1. commit the Stages 4-5 files and push `lesson/l09-presentation`, including `pollslive/quiz.json`, `pollslive/assets/` and their sources;
+  2. run the synchronized PollsLive render (`POLLSLIVE_RENDER_MODE=sync`), which needs the pushed quiz inputs and `gh` authentication;
+  3. open, review and merge the presentation PR;
+  4. after merge, open a separate `_internal` activation PR for the L09 PollsLive row (lecture 2026-11-30);
+  5. start the post-presentation exercise workstream on a new `lesson/l09-exercises` branch.
+  Open author decision carried over: whether the approved skripta should name the residual arch explicitly, as the slides now do.
