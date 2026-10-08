@@ -34,9 +34,9 @@ Následující odkazy vedou vždy na nejnovější schválené vydání L09. Roz
 | Skripta | [Číst online](https://cuni-natur-biostatistics.github.io/L09/current/learning/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/L09/current/learning/skripta.pdf) |
 | Prezentace | [Otevřít slidy](https://cuni-natur-biostatistics.github.io/L09/current/presentation/) | [Stáhnout PDF](https://cuni-natur-biostatistics.github.io/L09/current/presentation/presentation.pdf) |
 
-Dosavadní stabilní vydání obsahuje skripta, prezentaci a výuková data. Nový [Skript ke cvičení (návrh)](Exercises/cviceni.R) obsahuje osm hlavních úloh a dvacet dobrovolných úloh navíc na stejných 63 stromech. Je připraven pro 120minutové praktikum; hlavní trasa počítá se 70 minutami samostatné práce, dobrovolná banka slouží i k pozdějšímu procvičování. Ke spuštění stačí základní R a CSV, bez dodatečných balíčků.
+[Skript ke cvičení](https://cuni-natur-biostatistics.github.io/L09/current/code/cviceni.R) obsahuje osm hlavních úloh a dvacet dobrovolných úloh navíc na stejných 63 stromech. Je připraven pro 120minutové praktikum; hlavní trasa počítá se 70 minutami samostatné práce, dobrovolná banka slouží i k pozdějšímu procvičování. Ke spuštění stačí základní R a [CSV dat](https://cuni-natur-biostatistics.github.io/L09/current/data/allometrie_stromu.csv), bez dodatečných balíčků.
 
-Cvičení čeká na výslovné schválení hotového skriptu a samostatné vydání. Pro kontrolu návrhu stáhněte skript z této větve a [CSV dat](data/allometrie_stromu.csv), vytvořte složku `L09_praktikum` s podsložkou `data` a postupujte podle úvodu skriptu. Při otevření zdrojového souboru na GitHubu použijte tlačítko **Download raw file**, které stáhne obsah souboru. Po vydání bude skript dostupný na stabilní cestě [`/L09/current/code/cviceni.R`](https://cuni-natur-biostatistics.github.io/L09/current/code/cviceni.R); tato cesta v dosavadním vydání ještě není dostupná. [Stabilní CSV](https://cuni-natur-biostatistics.github.io/L09/current/data/allometrie_stromu.csv) je součástí již vydaných materiálů.
+Stáhněte oba soubory, vytvořte složku `L09_praktikum` s podsložkou `data` a postupujte podle úvodu skriptu. CSV patří do `data`, skript do hlavní složky. Při otevření zdrojového souboru na GitHubu použijte tlačítko **Download raw file**, které stáhne obsah souboru.
 
 - [HUB kurzu](https://cuni-natur-biostatistics.github.io/) je hlavní vstup ke všem veřejným studijním materiálům.
 - [Moodle kurzu](https://dl2.cuni.cz/course/view.php?id=106) slouží zapsaným studentům pro oznámení, testy, zadání, odevzdávání a individuální výsledky.
@@ -47,14 +47,14 @@ Cvičení čeká na výslovné schválení hotového skriptu a samostatné vydá
 
 - `Learning_materials/skripta.qmd` je zdroj skript; výsledky jsou `Learning_materials/skripta.html` a `Learning_materials/skripta.pdf`.
 - `Presentation/presentation.qmd` je zdroj slidů; výsledky jsou `Presentation/presentation.html` a `Presentation/presentation.pdf`.
-- `Exercises/cviceni.R` je úplný pracovní list s hlavní trasou U01–U08 a bankou N01–N20; řešení se nepublikují. Manifest připravuje jeho zahrnutí do následujícího vydání, schválení hotového cvičení je dosud otevřené.
+- `Exercises/cviceni.R` je úplný pracovní list s hlavní trasou U01–U08 a bankou N01–N20; řešení se nepublikují. Manifest distribuuje skript společně s výukovým CSV.
 - `data/` obsahuje datové soubory specifické pro tuto lekci.
 - `R/` obsahuje podporované renderovací a tematické nástroje.
 - `theme/` obsahuje synchronizovanou lokální kopii společné vizuální identity kurzu.
-- `pollslive/` obsahuje neaktivní šablonu pro pozdější zapojení schváleného opakovacího kvízu; bez souborů `pollslive/config.json` a `pollslive/quiz.json` nijak nemění render lekce.
+- `pollslive/` obsahuje konfiguraci a otázky opakovacího kvízu L08; slidy obsahují i náhradní otázky pro výuku bez živého hlasování.
 - `Workflow/` obsahuje záznamy rozhodnutí, kontrol a schválení během přípravy lekce; není součástí veřejného release balíčku.
 
-[Blueprint cvičení](Workflow/records/2026-10-08-exercise-blueprint.md) zaznamenává návaznosti, časový plán, ověření a stav nezávislé i lidské kontroly. Nové veřejné vydání vyžaduje schválené cvičení a schválený titulní obrázek vytvořený ze skutečných obrázků a grafů lekce; tento obrázek na titulním slidu L09 zatím chybí.
+[Blueprint cvičení](Workflow/records/2026-10-08-exercise-blueprint.md) zaznamenává návaznosti, časový plán a ověření praktika.
 
 ### Reprodukovatelné prostředí
 

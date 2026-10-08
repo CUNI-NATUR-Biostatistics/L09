@@ -9,7 +9,7 @@
 - Branch: `lesson/l09-exercises`, created without tracking `origin/main`
 - Base: updated `main`, `24b4a8a`
 - Presentation dependency: Stage 5 approval by Ondřej Mottl on 2026-10-06; presentation PR #3 and subsequent publication/quiz changes already merged.
-- Status: worksheet complete, validated and independently reviewed; ready for human review; exercise human approval pending.
+- Status: worksheet complete, validated, independently reviewed and explicitly approved by Ondřej Mottl on 2026-10-08; merged as PR #6.
 
 ## Intended use and timing
 
@@ -134,3 +134,10 @@ A separate read-only Claude subagent reviewed the complete script using `.ai/age
 It also reported four minor factual imprecisions, all fixed (U05 output, N10 overlap, N03 intercept scope, Q–Q timing note), and Czech polish, nearly all applied. Not re-verified in this round: visual plot inspection, a full 28-task reference rerun (numeric claims were checked directly instead) and a novice timing trial. Human exercise approval is still pending.
 
 Manifest and README prepare the script/data routes for a future release and explicitly retain pending approval. Human approver: Ondřej Mottl; decision: pending; approval date: not yet recorded; requested revisions: not yet received. Do not treat implementation-plan approval or the independent review as finished-exercise human approval. No commit, push, PR, tag, deployment or public release was performed in this workstream. The title-slide image remains a separate release blocker.
+
+
+### Finished-exercise human approval and release exception (2026-10-08)
+
+Ondřej Mottl explicitly approved the finished exercise on merged `main` (`7dec7e6`, PR #6) and explicitly waived the missing lesson-derived title-slide image for the requested new L09 release. The previous pending statements above describe the historical review state; this entry records the final decision. No exercise revision was requested. The title-image requirement is waived only for `L09-v1.1.0-20261008`; the presentation still lacks that image and the requirement remains open for future releases.
+
+The release-preparation pass repeated parsing, clean `--vanilla` sourcing, missing-file recovery, all 28 external reference solutions, numerical checks, stable-ID/task-anatomy validation and prohibited-command checks on the merged worksheet. All passed in R 4.5.1. Only the private validator needed CRLF normalization for text matching; the distributed R script was unchanged. Existing independent full-script reviews continue to apply. The new release publishes the approved worksheet and refreshed L08 PollsLive retrieval questions with unchanged lecture/data sources.
