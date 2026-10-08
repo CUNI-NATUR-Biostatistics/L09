@@ -13,7 +13,10 @@ resources:
     html: Presentation/presentation.html
     pdf: Presentation/presentation.pdf
     source: Presentation/presentation.qmd
-  exercises: []
+  # Prepared for the next release; finished-script human approval is pending.
+  exercises:
+    - label: "R skript ke cvičení"
+      path: Exercises/cviceni.R
   data:
     - label: "Allometrie stromů"
       path: data/allometrie_stromu.csv
