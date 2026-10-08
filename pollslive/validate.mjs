@@ -80,6 +80,11 @@ for (const question of definition.questions) {
   }
 }
 
+const correctPositions = definition.questions.map((question) =>
+  question.options.findIndex((option) => option.id === question.correctOptionId)
+);
+assert(new Set(correctPositions).size > 1, "Correct answers must not all occupy the same option position.");
+
 assertObject(config, "config.json");
 rejectUnknownKeys(config, configKeys, "config.json");
 assert(config.schemaVersion === 1, "config.json schemaVersion must be 1.");

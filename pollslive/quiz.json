@@ -41,12 +41,12 @@
       "text": "Co znamená koeficient pohlavisamec v modelu s interakcí?",
       "options": [
         {
-          "id": "difference-at-zero",
-          "label": "Odhadovaný rozdíl samec − samice při délce krunýře 0 mm."
-        },
-        {
           "id": "difference-everywhere",
           "label": "Rozdíl samec − samice při každé délce krunýře."
+        },
+        {
+          "id": "difference-at-zero",
+          "label": "Odhadovaný rozdíl samec − samice při délce krunýře 0 mm."
         },
         {
           "id": "difference-at-mean",
@@ -70,10 +70,6 @@
       "text": "Čím se liší dva kandidátní modely pro modré kraby?",
       "options": [
         {
-          "id": "slope-difference-term",
-          "label": "Interakční model navíc odhaduje rozdíl sklonů, takže rozdíl mezi pohlavími se může měnit s délkou."
-        },
-        {
           "id": "additive-ignores-sex",
           "label": "Aditivní model pohlaví vůbec nezohledňuje."
         },
@@ -84,6 +80,10 @@
         {
           "id": "different-response",
           "label": "Interakční model předpovídá jinou odezvu než aditivní model."
+        },
+        {
+          "id": "slope-difference-term",
+          "label": "Interakční model navíc odhaduje rozdíl sklonů, takže rozdíl mezi pohlavími se může měnit s délkou."
         }
       ],
       "correctOptionId": "slope-difference-term",
