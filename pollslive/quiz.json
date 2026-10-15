@@ -33,7 +33,7 @@
       "media": {
         "path": "assets/l08-nerovnobezne-primky.png",
         "alt": "Bodový graf zadní šířky krunýře proti délce krunýře modrých krabů se dvěma nerovnoběžnými přímkami pro samice a samce.",
-        "provenance": "Deterministically rendered by R/render_pollslive_assets.R from approved L08 teaching data (L08 data/krabi.csv at revision 48a02706b17ef01d16ef84ec5d962e81710d2c4a; line-ending-normalised source SHA-256 b88686865d6ef17e852495ee368a5d35919be6cefe20f0f6e308104ff68701de); asset SHA-256 BC781EBBA6889736C8E90F1BB6CE125D6BECE1A81F52099D6245D17E527B2126."
+        "provenance": "Deterministically rendered by R/render_pollslive_assets.R from approved L08 teaching data (L08 data/krabi.csv at revision 48a02706b17ef01d16ef84ec5d962e81710d2c4a; line-ending-normalised source SHA-256 b88686865d6ef17e852495ee368a5d35919be6cefe20f0f6e308104ff68701de); asset SHA-256 C5EE7001714A10C48D6F19C662BF69EF27133467DDAE6DC3AD686B63DBCC6E48."
       }
     },
     {
@@ -91,7 +91,7 @@
       "media": {
         "path": "assets/l08-dva-kandidati.png",
         "alt": "Dva grafy stejných krabů: vlevo rovnoběžné přímky aditivního modelu, vpravo nerovnoběžné přímky modelu s interakcí, nad nimi jejich vzorce.",
-        "provenance": "Deterministically rendered by R/render_pollslive_assets.R from approved L08 teaching data (L08 data/krabi.csv at revision 48a02706b17ef01d16ef84ec5d962e81710d2c4a; line-ending-normalised source SHA-256 b88686865d6ef17e852495ee368a5d35919be6cefe20f0f6e308104ff68701de); asset SHA-256 1E3771348CA639EBB7B0E77FBBC0BA5D9501A03CCA7F86E039C21BBDC0BEFF64."
+        "provenance": "Deterministically rendered by R/render_pollslive_assets.R from approved L08 teaching data (L08 data/krabi.csv at revision 48a02706b17ef01d16ef84ec5d962e81710d2c4a; line-ending-normalised source SHA-256 b88686865d6ef17e852495ee368a5d35919be6cefe20f0f6e308104ff68701de); asset SHA-256 E56490D44CE5D555EA8F6FA6CE21F953711EE9846990012AF32066D5D376D22A."
       }
     }
   ]

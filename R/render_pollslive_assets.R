@@ -97,8 +97,14 @@ stopifnot(
 # 3. Shared styling (L08 colours for the sexes) -----
 #----------------------------------------------------------#
 
+# L08 reserves blue and orange for the two crab colour forms, so the sexes
+#   use a colour-blind-safe green / reddish-purple pair, repeated by shape
+#   (L08 author decision 2026-10-15).
 vec_barvy <-
-  c(samice = "#9A3F87", samec = "#167B88")
+  c(samice = "#009E73", samec = "#CC79A7")
+
+vec_symboly <-
+  c(samice = 16, samec = 17)
 
 cols <-
   c(
@@ -168,15 +174,18 @@ graf_body <-
     mapping = ggplot2::aes(
       x = delka_krunyre_mm,
       y = zadni_sirka_mm,
-      colour = pohlavi
+      colour = pohlavi,
+      shape = pohlavi
     )
   ) +
-  ggplot2::geom_point(alpha = 0.5, size = 2.2) +
+  ggplot2::geom_point(alpha = 0.85, size = 2.4) +
   ggplot2::scale_colour_manual(values = vec_barvy) +
+  ggplot2::scale_shape_manual(values = vec_symboly) +
   ggplot2::labs(
     x = "Délka krunýře (mm)",
     y = "Zadní šířka krunýře (mm)",
-    colour = "Pohlaví"
+    colour = "Pohlaví",
+    shape = "Pohlaví"
   ) +
   theme_quiz
 

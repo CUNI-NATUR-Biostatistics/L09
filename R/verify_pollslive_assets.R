@@ -13,11 +13,11 @@ here::i_am("R/verify_pollslive_assets.R")
 approved_assets <-
   c(
     "l08-nerovnobezne-primky.png" =
-      "bc781ebba6889736c8e90f1bb6ce125d6bece1a81f52099d6245d17e527b2126",
+      "c5ee7001714a10c48d6f19c662bf69ef27133467ddae6dc3ad686b63dbcc6e48",
     "l08-koeficient-pohlavi.png" =
       "099989aac50dbe9d9865c26938c3db6e01bc23e96f12925c535cab72b5cb3939",
     "l08-dva-kandidati.png" =
-      "1e3771348ca639ebb7b0e77fbbc0ba5d9501a03cca7f86e039c21bbdc0beff64"
+      "e56490d44ce5d555ea8f6fa6ce21f953711ee9846990012af32066d5d376d22a"
   )
 
 asset_paths <-
