@@ -17,11 +17,10 @@
 
 - `node pollslive/validate.mjs`: passed.
 - Offline canonical render (`POLLSLIVE_RENDER_MODE=offline`): 55 slides; quiz slides 4–6 inspected in the static PDF with the new colours.
-- The committed outputs were a synchronized render; the working tree now holds the offline variant until the synchronized render is rerun.
+- Synchronized canonical render (`POLLSLIVE_RENDER_MODE=sync`, 2026-10-15) from pushed commit `54358c8`: 55 slides, `presentation.html` identical to `docs/index.html`, live QR block present. Receipt: client `17a62da`, input checksum `a48ac9de…29c3b`, definition checksum `770a6ac9…7c6d4`, remote content checksum `8cbe0695…8f5`.
 
 ## Remaining steps (each needs separate authorization)
 
-1. Commit and push the lesson-owned inputs (`quiz.json`, both assets, both R scripts) so the synchronized render can compare them with the upstream revision.
-2. Synchronized render (`POLLSLIVE_RENDER_MODE=sync`), which updates the registered poll content before the lecture on 2026-11-30.
-3. PR and merge. The `_internal` activation row for L09 is still disabled with no pinned checksums, so no activation change is needed now; activation follows the usual separate gate.
-4. Human acceptance of the recoloured evidence.
+1. Commit and push the synchronized outputs (`Presentation/presentation.html`, `Presentation/presentation.pdf`, `docs/index.html`) and this record to PR #11.
+2. Merge. The `_internal` activation row for L09 is still disabled with no pinned checksums, so no activation change is needed now; activation follows the usual separate gate.
+3. Human acceptance of the recoloured evidence.
