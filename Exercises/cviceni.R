@@ -203,11 +203,6 @@ colSums(x = is.na(x = data_stromy))
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Tabulka obsahuje 63 stromů: 19 Pinus monticola, 22 Pinus ponderosa
-# a 22 Pseudotsuga menziesii. Žádná hodnota nechybí. Výška s průměrem
-# kmene roste, ale body neleží úplně na přímce.
-#
 # Nápověda 1:
 # Počet stromů je počet řádků tabulky. Počet stromů každého druhu je
 # četnost jednotlivých úrovní faktoru druh_stromu.
@@ -216,6 +211,11 @@ colSums(x = is.na(x = data_stromy))
 # Použijte nrow() a table(). V plot() nastavte x, y, xlab a ylab. Barvy
 # zadejte jako col = vec_barvy_druhu[data_stromy$druh_stromu] a tvary
 # obdobně jako pch = vec_symboly_druhu[...].
+#
+# Očekávaný výsledek:
+# Tabulka obsahuje 63 stromů: 19 Pinus monticola, 22 Pinus ponderosa
+# a 22 Pseudotsuga menziesii. Žádná hodnota nechybí. Výška s průměrem
+# kmene roste, ale body neleží úplně na přímce.
 #
 # Interpretace:
 # Graf ukazuje rozdíly mezi druhy. Proč z něj ještě nemůžeme tvrdit, že
@@ -263,10 +263,6 @@ coef(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Všechny tři modely použily 63 stromů. Model se znaménkem + odpovídá
-# rovnoběžným přímkám, model se znaménkem * přímkám s různými sklony.
-#
 # Nápověda 1:
 # U každého vzorce si položte dvě otázky. Smí mít druhy při stejném průměru
 # různou výšku? Smí mít přímky druhů různý sklon?
@@ -275,6 +271,10 @@ coef(object = mod_spolecny)
 # Zkopírujte ukázku lm() a změňte jen název objektu a vzorec v argumentu
 # formula. Počet
 # pozorování zjistíte například jako nobs(object = mod_aditivni).
+#
+# Očekávaný výsledek:
+# Všechny tři modely použily 63 stromů. Model se znaménkem + odpovídá
+# rovnoběžným přímkám, model se znaménkem * přímkám s různými sklony.
 #
 # Interpretace:
 # Proč všechny kandidátní modely sestavujeme dříve, než uvidíme, který
@@ -375,11 +375,6 @@ data_predikce$odhad_spolecny_m <-
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Každý nový sloupec obsahuje 120 odhadů. U společné přímky se přímky
-# všech tří druhů překrývají. Aditivní přímky jsou rovnoběžné. Přímky
-# modelu s interakcí mají různé sklony.
-#
 # Nápověda 1:
 # Každý nový sloupec vznikne stejně jako odhad_spolecny_m v ukázce; liší
 # se jen model, ze kterého odhad pochází.
@@ -388,6 +383,11 @@ data_predikce$odhad_spolecny_m <-
 # V predict() změňte jen object, newdata = data_predikce ponechte. V kopiích
 # grafu měňte jen název sloupce za data_predikce$ v řádku y = ...; řádek
 # x = ... ani podmínky v hranatých závorkách neměňte.
+#
+# Očekávaný výsledek:
+# Každý nový sloupec obsahuje 120 odhadů. U společné přímky se přímky
+# všech tří druhů překrývají. Aditivní přímky jsou rovnoběžné. Přímky
+# modelu s interakcí mají různé sklony.
 #
 # Interpretace:
 # Je z grafů vidět, že model s interakcí popisuje data výrazně lépe?
@@ -436,12 +436,6 @@ all.equal(
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# SST je přibližně 8084,56. R² společné přímky je 0,768, aditivního modelu
-# asi 0,793 a modelu s interakcí asi 0,797. Od společné přímky
-# přes aditivní model k modelu s interakcí RSS klesá a R² roste. Kontroly
-# all.equal() vrátí TRUE.
-#
 # Nápověda 1:
 # Složitější model obsahuje jednodušší jako zvláštní případ. Na stejných
 # datech proto nemůže mít větší RSS.
@@ -450,6 +444,12 @@ all.equal(
 # Zkopírujte řádky s rss_spolecny a r2_spolecny a změňte v nich model
 # a názvy objektů. Dejte pozor na pořadí: nejdřív umocněte každé residuum,
 # potom sčítejte.
+#
+# Očekávaný výsledek:
+# SST je přibližně 8084,56. R² společné přímky je 0,768, aditivního modelu
+# asi 0,793 a modelu s interakcí asi 0,797. Od společné přímky
+# přes aditivní model k modelu s interakcí RSS klesá a R² roste. Kontroly
+# all.equal() vrátí TRUE.
 #
 # Interpretace:
 # R² po přidání interakce vzrostlo. Proč to samo o sobě neznamená, že je
@@ -495,11 +495,6 @@ all.equal(
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Modely mají 2, 4 a 6 koeficientů. Adjustované R² je nejvyšší
-# u aditivního modelu (0,782), i když obyčejné R² je nejvyšší u modelu
-# s interakcí.
-#
 # Nápověda 1:
 # Druh není jeden koeficient. Každý druh kromě referenčního má vlastní
 # koeficient posunu; v modelu s interakcí navíc vlastní koeficient sklonu.
@@ -507,6 +502,11 @@ all.equal(
 # Nápověda 2:
 # Použijte length(x = coef(object = ...)) a ze summary() vyberte
 # $adj.r.squared. Ve vzorci změňte R² a k; n zůstává stejné (n_stromy).
+#
+# Očekávaný výsledek:
+# Modely mají 2, 4 a 6 koeficientů. Adjustované R² je nejvyšší
+# u aditivního modelu (0,782), i když obyčejné R² je nejvyšší u modelu
+# s interakcí.
 #
 # Interpretace:
 # Adjustované R² po přidání interakce kleslo. Co to říká o přínosu dvou
@@ -559,11 +559,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Tabulka má 3 řádky a 7 sloupců bez chybějících hodnot. Model s interakcí
-# má nejvyšší R². Aditivní model má nejvyšší adjustované R² i nejnižší
-# AIC, jeho ΔAIC je tedy 0.
-#
 # Nápověda 1:
 # Všechny hodnoty jednoho modelu patří do stejného řádku. ΔAIC počítáte
 # jen z modelů, které jsou v této tabulce.
@@ -572,6 +567,11 @@ AIC(object = mod_spolecny)
 # Každý sloupec doplňte vektorem c() se třemi hodnotami. Použijte funkce
 # z U02, U04 a U05 a funkci AIC(). Nový sloupec vytvoříte zápisem
 # data_porovnani$delta_aic <- ...
+#
+# Očekávaný výsledek:
+# Tabulka má 3 řádky a 7 sloupců bez chybějících hodnot. Model s interakcí
+# má nejvyšší R². Aditivní model má nejvyšší adjustované R² i nejnižší
+# AIC, jeho ΔAIC je tedy 0.
 #
 # Interpretace:
 # Proč by porovnání AIC ztratilo smysl, kdyby jeden model měl jinou odezvu
@@ -645,12 +645,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Residua tvoří oblouk: uprostřed rozsahu odhadů jsou spíše kladná,
-# na okrajích spíše záporná. Body v Q–Q grafu se od přímky mírně
-# odchylují. Nad čarou 4/n leží 4 stromy; ty si zaslouží prohlédnout,
-# ne automaticky smazat.
-#
 # Nápověda 1:
 # Každý graf odpovídá na jinou otázku: zda model vystihuje tvar vztahu,
 # zda mají residua přibližně normální rozdělení a zda jeden strom výrazně
@@ -660,6 +654,12 @@ AIC(object = mod_spolecny)
 # vec_cook vytvořte pomocí cooks.distance(model = mod_aditivni). Počet
 # stromů nad čarou spočítáte funkcí sum() z podmínky
 # vec_cook > 4 / nobs(object = mod_aditivni); každé TRUE se počítá jako 1.
+#
+# Očekávaný výsledek:
+# Residua tvoří oblouk: uprostřed rozsahu odhadů jsou spíše kladná,
+# na okrajích spíše záporná. Body v Q–Q grafu se od přímky mírně
+# odchylují. Nad čarou 4/n leží 4 stromy; ty si zaslouží prohlédnout,
+# ne automaticky smazat.
 #
 # Interpretace:
 # Jak může mít model nejlepší AIC ze tří kandidátů, a přesto špatně
@@ -686,10 +686,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Závěr propojí čísla, biologickou otázku a diagnostiku. Vybraný model
-# neoznačí za obecně správný a pojmenuje konkrétní omezení.
-#
 # Nápověda 1:
 # Odlište dvě otázky: který model je nejlépe podporovaný z porovnávaných
 # a zda tento model dobře vystihuje data.
@@ -698,6 +694,10 @@ AIC(object = mod_spolecny)
 # Porovnejte, o kolik interakce zvýšila R², s tím, co se stalo
 # s adjustovaným R² a AIC. Jako omezení můžete uvést oblouk v residuích,
 # omezený vzorek nebo to, že jde o pozorovací data, nikoli o experiment.
+#
+# Očekávaný výsledek:
+# Závěr propojí čísla, biologickou otázku a diagnostiku. Vybraný model
+# neoznačí za obecně správný a pojmenuje konkrétní omezení.
 #
 # Interpretace:
 # Co byste potřebovali, abyste mohli tvrdit něco o modelech, které v této
@@ -735,16 +735,16 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Obě kontroly vrátí TRUE. mod_rozpis má stejných šest koeficientů jako
-# mod_interakce.
-#
 # Nápověda 1:
 # Hvězdička ve vzorci zahrnuje oba hlavní efekty i jejich interakci.
 #
 # Nápověda 2:
 # Členy vzorce spojte znaménkem +. Porovnejte coef(object = ...) obou
 # modelů a potom fitted(object = ...) obou modelů.
+#
+# Očekávaný výsledek:
+# Obě kontroly vrátí TRUE. mod_rozpis má stejných šest koeficientů jako
+# mod_interakce.
 #
 # Interpretace:
 # Přinesl rozepsaný vzorec novou biologickou představu, nebo jen jiný
@@ -778,16 +778,16 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Koeficienty se liší, protože popisují rozdíly vůči jinému druhu. Odhady,
-# R², adjustované R² i AIC jsou stejné.
-#
 # Nápověda 1:
 # Tutéž sadu rovnoběžných přímek lze popsat vůči kterémukoli druhu.
 #
 # Nápověda 2:
 # Porovnávejte predict() obou modelů se stejným newdata = data_predikce.
 # Koeficienty pomocí all.equal() neporovnávejte: mají jiné názvy i význam.
+#
+# Očekávaný výsledek:
+# Koeficienty se liší, protože popisují rozdíly vůči jinému druhu. Odhady,
+# R², adjustované R² i AIC jsou stejné.
 #
 # Interpretace:
 # Ke kterému druhu se teď vztahuje intercept? Vůči kterému druhu se měří
@@ -807,12 +807,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Modely mají 2, 4 a 6 koeficientů. Intercept je odhad výšky stromu
-# s průměrem kmene 0 cm; v modelech s druhem platí pro referenční druh
-# Pinus monticola. Takový strom v datech není, proto intercept nemá přímý
-# biologický význam.
-#
 # Nápověda 1:
 # Referenční druh už popisuje intercept a základní sklon. Ostatní
 # koeficienty druhu jsou rozdíly oproti němu.
@@ -821,6 +815,12 @@ AIC(object = mod_spolecny)
 # V mod_interakce získáte intercept dalšího druhu jako intercept + jeho
 # koeficient posunu a jeho sklon jako základní sklon + jeho interakční
 # koeficient.
+#
+# Očekávaný výsledek:
+# Modely mají 2, 4 a 6 koeficientů. Intercept je odhad výšky stromu
+# s průměrem kmene 0 cm; v modelech s druhem platí pro referenční druh
+# Pinus monticola. Takový strom v datech není, proto intercept nemá přímý
+# biologický význam.
 #
 # Interpretace:
 # Při jakém průměru kmene platí rozdíl výšek, který udává koeficient druhu
@@ -853,17 +853,17 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Tabulka má šest řádků. V aditivním modelu je rozdíl při 30 i 60 cm
-# stejný, asi −4,17 m. V modelu s interakcí se mění: asi −3,73 m při 30 cm
-# a −5,96 m při 60 cm.
-#
 # Nápověda 1:
 # Rovnoběžné přímky jsou od sebe všude stejně daleko.
 #
 # Nápověda 2:
 # Vypište tabulku: řádky 1–2 patří Pinus monticola, řádky 5–6 Pseudotsuga
 # menziesii. Odečítejte odhady z tabulky, ne naměřené výšky stromů.
+#
+# Očekávaný výsledek:
+# Tabulka má šest řádků. V aditivním modelu je rozdíl při 30 i 60 cm
+# stejný, asi −4,17 m. V modelu s interakcí se mění: asi −3,73 m při 30 cm
+# a −5,96 m při 60 cm.
 #
 # Interpretace:
 # Jakou biologickou odlišnost mezi druhy připouští model s interakcí, ale
@@ -888,12 +888,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Adjustované R² obou modelů s druhem se po zaokrouhlení shoduje (0,78).
-# AIC společné přímky a modelu s interakcí se naopak liší o 1, ačkoli
-# skutečný rozdíl je asi 0,37. Zaokrouhlení tedy rozdíly skrývá i zvětšuje.
-# Pro výpočty i rozhodování proto používejte nezaokrouhlené hodnoty.
-#
 # Nápověda 1:
 # Zaokrouhlené číslo nese méně informace než původní výpočet.
 #
@@ -902,6 +896,12 @@ AIC(object = mod_spolecny)
 # data_zaokrouhlena$r2 <- round(...). Pro AIC použijte digits = 0.
 # Zaměřte se na adjustované R² obou modelů s druhem a na AIC společné
 # přímky a modelu s interakcí.
+#
+# Očekávaný výsledek:
+# Adjustované R² obou modelů s druhem se po zaokrouhlení shoduje (0,78).
+# AIC společné přímky a modelu s interakcí se naopak liší o 1, ačkoli
+# skutečný rozdíl je asi 0,37. Zaokrouhlení tedy rozdíly skrývá i zvětšuje.
+# Pro výpočty i rozhodování proto používejte nezaokrouhlené hodnoty.
 #
 # Interpretace:
 # Co smíte a co nesmíte vyvozovat ze zaokrouhlených hodnot v tabulce?
@@ -920,10 +920,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Váš výpočet se shoduje se summary(). Adjustované R² modelu s interakcí
-# je nižší než u aditivního modelu, přestože jeho obyčejné R² je vyšší.
-#
 # Nápověda 1:
 # Adjustované R² porovnává zlepšení shody s daty s cenou za další
 # koeficienty.
@@ -931,6 +927,10 @@ AIC(object = mod_spolecny)
 # Nápověda 2:
 # k je length(x = coef(object = mod_interakce)), tedy včetně interceptu.
 # Ve vzorci použijte n - k, nikoli n - k - 1.
+#
+# Očekávaný výsledek:
+# Váš výpočet se shoduje se summary(). Adjustované R² modelu s interakcí
+# je nižší než u aditivního modelu, přestože jeho obyčejné R² je vyšší.
 #
 # Interpretace:
 # Proč samotný růst R² nestačí k obhajobě složitějšího modelu?
@@ -949,15 +949,15 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Obě hodnoty RSS se shodují. R² je stejné jako v U04 (přibližně 0,793).
-#
 # Nápověda 1:
 # R² říká, jaká část celkové variability výšek nezůstala v residuích.
 #
 # Nápověda 2:
 # Zkopírujte řádky rss_spolecny a r2_spolecny z ukázky před U04 a změňte
 # v nich model. deviance() zavolejte se stejným modelem.
+#
+# Očekávaný výsledek:
+# Obě hodnoty RSS se shodují. R² je stejné jako v U04 (přibližně 0,793).
 #
 # Interpretace:
 # Proč musí mít všechny tři modely stejné SST, abyste mohli jejich R²
@@ -976,10 +976,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Model s interakcí má nyní ΔAIC = 0 a společná přímka ΔAIC přibližně
-# 0,374. Samotné hodnoty AIC obou modelů se nezměnily.
-#
 # Nápověda 1:
 # ΔAIC = 0 má vždy nejlépe podporovaný model z těch, které jsou právě
 # v tabulce.
@@ -987,6 +983,10 @@ AIC(object = mod_spolecny)
 # Nápověda 2:
 # Řádky vyberte jako data_porovnani[c(1, 3), ]. Od sloupce aic nové tabulky
 # odečtěte jeho nové minimum, ne minimum původní tabulky se třemi modely.
+#
+# Očekávaný výsledek:
+# Model s interakcí má nyní ΔAIC = 0 a společná přímka ΔAIC přibližně
+# 0,374. Samotné hodnoty AIC obou modelů se nezměnily.
 #
 # Interpretace:
 # Proč musí věta „model má nejnižší AIC“ vždy říct, ze kterých modelů?
@@ -1027,11 +1027,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Na data_chybejici použije společný model 63 řádků, oba modely s druhem 62.
-# Všechny tři opravené modely použijí stejných 62 řádků. Původní data_stromy
-# zůstanou beze změny.
-#
 # Nápověda 1:
 # Chybějící hodnota vyřadí řádek jen z modelu, který tuto proměnnou
 # používá.
@@ -1039,6 +1034,11 @@ AIC(object = mod_spolecny)
 # Nápověda 2:
 # Čísla řádků opravených modelů porovnejte po dvojicích pomocí
 # identical(x = ..., y = ...). Nestačí porovnat jejich počet.
+#
+# Očekávaný výsledek:
+# Na data_chybejici použije společný model 63 řádků, oba modely s druhem 62.
+# Všechny tři opravené modely použijí stejných 62 řádků. Původní data_stromy
+# zůstanou beze změny.
 #
 # Interpretace:
 # Co byste museli zjistit o skutečně chybějících datech, než byste je
@@ -1062,16 +1062,16 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Oba modely použily 62 stromů, ale ne tytéž: prvnímu chybí strom z řádku 1,
-# druhému strom z řádku 63.
-#
 # Nápověda 1:
 # Počet pozorování neříká, které konkrétní stromy model použil.
 #
 # Nápověda 2:
 # identical(x = ..., y = ...) vrátí pro počty TRUE, ale pro čísla řádků
 # FALSE. Podívejte se na první a poslední čísla řádků obou modelů.
+#
+# Očekávaný výsledek:
+# Oba modely použily 62 stromů, ale ne tytéž: prvnímu chybí strom z řádku 1,
+# druhému strom z řádku 63.
 #
 # Interpretace:
 # Jak byste data připravili, aby oba modely používaly přesně stejné stromy?
@@ -1091,11 +1091,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Oba modely používají stejných 63 stromů, ale mají jinou odezvu v jiných
-# jednotkách. Tvrzení odmítnete a pro výšku a hmotnost nepočítáte společné
-# ΔAIC.
-#
 # Nápověda 1:
 # Porovnání kandidátních modelů odpovídá na jednu otázku o stejné odezvě
 # na stejných datech.
@@ -1103,6 +1098,11 @@ AIC(object = mod_spolecny)
 # Nápověda 2:
 # Porovnejte levou stranu vzorců obou modelů a jednotky proměnných, nejen
 # nobs().
+#
+# Očekávaný výsledek:
+# Oba modely používají stejných 63 stromů, ale mají jinou odezvu v jiných
+# jednotkách. Tvrzení odmítnete a pro výšku a hmotnost nepočítáte společné
+# ΔAIC.
 #
 # Interpretace:
 # Jak by vypadala správná sada kandidátních modelů pro otázku o hmotnosti
@@ -1122,14 +1122,14 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Chybná verze dá téměř nulu, správné RSS je přibližně 1674,55 m².
-#
 # Nápověda 1:
 # Kladná a záporná residua se při sčítání navzájem vyruší.
 #
 # Nápověda 2:
 # Umocnění přesuňte dovnitř sum(), aby se umocnilo každé residuum zvlášť.
+#
+# Očekávaný výsledek:
+# Chybná verze dá téměř nulu, správné RSS je přibližně 1674,55 m².
 #
 # Interpretace:
 # Proč téměř nulový součet residuí neznamená, že model odhaduje výšky
@@ -1165,10 +1165,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Najdete strom z řádku 12 a popíšete, kde v obou grafech leží.
-# Velký vliv sám o sobě nedokazuje, že jde o chybu měření.
-#
 # Nápověda 1:
 # Vliv stromu závisí na tom, jak daleko leží jeho průměr kmene od ostatních,
 # i na velikosti jeho residua.
@@ -1177,6 +1173,10 @@ AIC(object = mod_spolecny)
 # Řádek vypíšete jako data_stromy[index_max, ]. Ve druhém grafu použijte
 # v points() hodnoty fitted(object = mod_aditivni)[index_max] a obdobně
 # residuals().
+#
+# Očekávaný výsledek:
+# Najdete strom z řádku 12 a popíšete, kde v obou grafech leží.
+# Velký vliv sám o sobě nedokazuje, že jde o chybu měření.
 #
 # Interpretace:
 # Jaké údaje o měření byste si vyžádali, než byste navrhli záznam opravit?
@@ -1200,10 +1200,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Tři nové modely použijí stejných 62 stromů. Závěr výslovně uvede, že
-# se data změnila, a řekne, zda nejlépe podporovaný model zůstal stejný.
-#
 # Nápověda 1:
 # Jde o dvě různé otázky: zda je závěr stabilní a zda je správné strom
 # vyřadit.
@@ -1212,6 +1208,10 @@ AIC(object = mod_spolecny)
 # Řádek vynecháte záporným indexem
 # z which.max(x = cooks.distance(model = mod_aditivni)). ΔAIC počítejte
 # jen z nové trojice modelů, jako v U06.
+#
+# Očekávaný výsledek:
+# Tři nové modely použijí stejných 62 stromů. Závěr výslovně uvede, že
+# se data změnila, a řekne, zda nejlépe podporovaný model zůstal stejný.
 #
 # Interpretace:
 # Co byste uvedli v závěru, kdyby se po vynechání stromu pořadí modelů
@@ -1239,11 +1239,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Všechny tři průměry jsou prakticky nulové, ale v grafech může být přesto
-# vidět systematický vzorec. Průměr residuí nenahradí kontrolu, jak
-# residua závisí na průměru kmene.
-#
 # Nápověda 1:
 # V průměru se mohou vyrušit kladná a záporná residua z různých částí
 # grafu.
@@ -1251,6 +1246,11 @@ AIC(object = mod_spolecny)
 # Nápověda 2:
 # Pro osu x i y použijte stejnou podmínku pro výběr druhu. Do každého
 # grafu přidejte nulovou čáru pomocí abline(h = 0).
+#
+# Očekávaný výsledek:
+# Všechny tři průměry jsou prakticky nulové, ale v grafech může být přesto
+# vidět systematický vzorec. Průměr residuí nenahradí kontrolu, jak
+# residua závisí na průměru kmene.
 #
 # Interpretace:
 # Proč nulové průměrné residuum ve skupinách nedokazuje, že přímka vztah
@@ -1276,11 +1276,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Výstup má šest řádků a tři sloupce. Průměr 100 cm leží mimo naměřený
-# rozsah všech druhů a intervaly jsou tam širší než při 30 cm. Interval
-# popisuje nejistotu střední výšky jen za předpokladu, že model platí.
-#
 # Nápověda 1:
 # Interval spolehlivosti počítá s tím, že přímka platí i mimo data; to
 # ale z dat ověřit nelze.
@@ -1288,6 +1283,11 @@ AIC(object = mod_spolecny)
 # Nápověda 2:
 # Porovnejte oba průměry s maximem každého druhu. Interval pro střední
 # výšku neříká, jak vysoké budou jednotlivé nové stromy.
+#
+# Očekávaný výsledek:
+# Výstup má šest řádků a tři sloupce. Průměr 100 cm leží mimo naměřený
+# rozsah všech druhů a intervaly jsou tam širší než při 30 cm. Interval
+# popisuje nejistotu střední výšky jen za předpokladu, že model platí.
 #
 # Interpretace:
 # Proč ani úzký interval mimo naměřená data nepotvrzuje, že přímka tam
@@ -1314,10 +1314,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Tři různé biologické představy odpovídají třem vzorcům. Všechny modely
-# použijí stejných 63 stromů a nepřepíšou modely výšky.
-#
 # Nápověda 1:
 # Jiná odezva mění biologickou otázku, ne postup sestavení kandidátních
 # modelů.
@@ -1325,6 +1321,10 @@ AIC(object = mod_spolecny)
 # Nápověda 2:
 # Ve vzorcích z U02 změňte jen levou stranu. V grafu z U01 změňte hodnoty
 # osy y a její popisek včetně jednotek.
+#
+# Očekávaný výsledek:
+# Tři různé biologické představy odpovídají třem vzorcům. Všechny modely
+# použijí stejných 63 stromů a nepřepíšou modely výšky.
 #
 # Interpretace:
 # Co biologicky znamená stejný sklon pro hmotnost větví různých druhů?
@@ -1344,12 +1344,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Modely mají k = 2, 4 a 6. Pořadí modelů zjistíte z nové tabulky;
-# nepřebírejte závěr pro výšku. Závěr odliší pořadí modelů v této sadě
-# od toho, jak dobře vybraný model vystihuje data a jak ho ovlivňují
-# jednotlivé stromy.
-#
 # Nápověda 1:
 # Stejný postup u jiné odezvy nemusí vést ke stejnému pořadí modelů ani
 # ke stejně dobré shodě s daty.
@@ -1357,6 +1351,12 @@ AIC(object = mod_spolecny)
 # Nápověda 2:
 # Použijte tabulku z U06 a diagnostické grafy z U07 s novými modely.
 # ΔAIC počítejte jen z AIC modelů hmotnosti větví.
+#
+# Očekávaný výsledek:
+# Modely mají k = 2, 4 a 6. Pořadí modelů zjistíte z nové tabulky;
+# nepřebírejte závěr pro výšku. Závěr odliší pořadí modelů v této sadě
+# od toho, jak dobře vybraný model vystihuje data a jak ho ovlivňují
+# jednotlivé stromy.
 #
 # Interpretace:
 # Jak diagnostika mění sílu biologického závěru, i když má model nejnižší
@@ -1380,10 +1380,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Tři biologicky zdůvodněné modely, srovnávací tabulka a tři diagnostické
-# grafy. Závěr respektuje odezvu, její jednotky a omezení dat.
-#
 # Nápověda 1:
 # Rozdělte práci na čtyři kroky: otázka, kandidátní modely, kontrola
 # srovnatelnosti a obhajoba.
@@ -1391,6 +1387,10 @@ AIC(object = mod_spolecny)
 # Nápověda 2:
 # V každém kroku zkontrolujte, zda jste všude změnili odezvu, popisky os
 # a názvy objektů. ΔAIC počítejte jen z modelů plochy listů.
+#
+# Očekávaný výsledek:
+# Tři biologicky zdůvodněné modely, srovnávací tabulka a tři diagnostické
+# grafy. Závěr respektuje odezvu, její jednotky a omezení dat.
 #
 # Interpretace:
 # Která část obhajoby potřebuje grafy, i když už máte hotovou srovnávací
@@ -1414,11 +1414,6 @@ AIC(object = mod_spolecny)
 # Vaše řešení:
 
 
-# Očekávaný výsledek:
-# Opravy se týkají volby metriky a složitosti modelu, pozorovací povahy
-# dat, diagnostiky a rozdílu mezi vlivným a chybným stromem. Žádný řádek
-# původních dat se nemaže.
-#
 # Nápověda 1:
 # Každá věta tvrdí něco jiného: o pořadí modelů, o příčině, o tom, zda
 # model sedí na data, a o kvalitě záznamů.
@@ -1427,6 +1422,11 @@ AIC(object = mod_spolecny)
 # Použijte adjustované R² a AIC z U06, oblouk v residuích z U07 a význam
 # čáry 4/n jako podnětu k prohlédnutí stromu. Data nepocházejí z řízeného
 # experimentu.
+#
+# Očekávaný výsledek:
+# Opravy se týkají volby metriky a složitosti modelu, pozorovací povahy
+# dat, diagnostiky a rozdílu mezi vlivným a chybným stromem. Žádný řádek
+# původních dat se nemaže.
 #
 # Interpretace:
 # Které opravy mění výběr modelu a které jen sílu závěru?
