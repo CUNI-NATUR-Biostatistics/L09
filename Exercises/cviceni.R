@@ -16,14 +16,7 @@
 ## Jak získat a otevřít soubory -----
 #--------------------------------------------------#
 # Ke cvičení potřebujete dva soubory: tento skript cviceni.R a datový
-# soubor allometrie_stromu.csv.
-#
-# Kde soubory najdete:
-# V README lekce (soubor README.md vedle složky Exercises) najděte část
-# Materiály pro studenty a otevřete odkazy Skript ke cvičení a CSV dat.
-# Pokud se soubor otevře na GitHubu, stáhněte ho tlačítkem Download raw
-# file nad obsahem souboru. Neukládejte stránku prohlížeče jako HTML.
-# Po vydání cvičení budou oba soubory také na webu kurzu:
+# soubor allometrie_stromu.csv. Oba najdete na webu kurzu:
 # https://cuni-natur-biostatistics.github.io/L09/current/code/cviceni.R
 # https://cuni-natur-biostatistics.github.io/L09/current/data/allometrie_stromu.csv
 #
@@ -32,6 +25,8 @@
 # 2. Soubor cviceni.R uložte do složky L09_praktikum.
 # 3. Soubor allometrie_stromu.csv uložte do podsložky data. Jeho jméno
 #    neměňte.
+# Pokud prohlížeč uloží soubory rovnou do složky Stažené soubory,
+# přesuňte je odtud na uvedená místa.
 #
 # Jak otevřít projekt v RStudiu:
 # RStudio Project je obyčejná složka, ve které pracujete. RStudio do ní
@@ -42,11 +37,23 @@
 # 3. V panelu Files otevřete cviceni.R.
 # 4. Přes File > Save As si uložte vlastní kopii, například
 #    cviceni_L09_prijmeni.R.
+#
+# Výsledná složka vypadá takto:
+# L09_praktikum/
+# ├── L09_praktikum.Rproj
+# ├── cviceni.R
+# └── data/
+#     └── allometrie_stromu.csv
 
 #--------------------------------------------------#
 ## Jak se skriptem pracovat -----
 #--------------------------------------------------#
 # Hlavní úlohy U01–U08 řešte v uvedeném pořadí, protože na sebe navazují.
+# Pozdější úlohy používají tabulku data_stromy z přípravy, modely
+# mod_spolecny, mod_aditivni a mod_interakce z ukázky a úlohy U02,
+# tabulku data_predikce z ukázky před U03, sst_vyska a další objekty
+# z ukázek a úloh U04 a U05 a tabulku data_porovnani z úlohy U06.
+# Kód v ukázkách, který není zakomentovaný, spusťte; úlohy na něm staví.
 # Úlohy navíc N01–N20 jsou dobrovolné. Slouží k dalšímu procvičování,
 # klidně i po praktiku, a nemusíte je stihnout.
 #
@@ -69,17 +76,21 @@
 # Když se něco pokazí:
 # Pokud objekty v Environmentu neodpovídají skriptu, zvolte Session >
 # Restart R. Restart smaže objekty z paměti, ale uložené soubory zůstanou.
-# Potom znovu spusťte přípravu a své hotové hlavní úlohy shora dolů.
+# Potom spusťte skript znovu shora dolů, včetně ukázek a svých řešení.
 
 #--------------------------------------------------#
 ## Výsledky učení a předpoklady -----
 #--------------------------------------------------#
-# Po cvičení byste měli umět:
-# - sestavit několik biologicky zdůvodněných kandidátních modelů,
-# - vysvětlit, proč samotné R² nestačí k výběru modelu,
-# - porovnat modely pomocí R², adjustovaného R² a AIC,
-# - pomocí diagnostických grafů posoudit, zda vybraný model dobře
-#   vystihuje data.
+# Po dokončení cvičení budete schopni:
+# - vypočítat R² z celkového součtu čtverců a součtu čtverců residuí
+#   a vysvětlit, co popisuje;
+# - vysvětlit, proč nejvyšší R² automaticky neznamená nejlepší model;
+# - rozlišit, jak R², adjustované R² a AIC zacházejí se shodou
+#   a složitostí, a používat AIC jen k relativnímu porovnání;
+# - sestavit malou sadu biologicky zdůvodněných kandidátních modelů
+#   se stejnou odezvou a stejnými pozorováními;
+# - obhájit volbu modelu pomocí biologické otázky, složitosti,
+#   diagnostiky a interpretovatelnosti a pojmenovat její omezení.
 #
 # Navazujeme na předchozí lekce: datové rámce, faktory, lm(), vzorce
 # s + a *, predict(), residua, Q–Q grafy a vliv jednotlivých pozorování.
@@ -88,7 +99,8 @@
 #--------------------------------------------------#
 ## Technická kontrola a data -----
 #--------------------------------------------------#
-# Následující kód načte data. Označte ho celý a spusťte Ctrl + Enter.
+# Následující kód načte data a připraví barvy a tvary druhů. Označte vše
+# až po vec_symboly_druhu a spusťte Ctrl + Enter.
 # Cesta k souboru začíná ve složce otevřeného projektu. Pokud soubor
 # chybí, R se zastaví a vypíše, co máte zkontrolovat.
 soubor_stromy <- "data/allometrie_stromu.csv"
@@ -103,15 +115,11 @@ if (
     call. = FALSE
   )
 }
-# Textové sloupce ponecháme jako text a sloupec s druhem převedeme
-# na faktor.
+# Načteme tabulku a sloupec s druhem převedeme na faktor.
 data_stromy <-
-  read.csv(
-    file = soubor_stromy,
-    stringsAsFactors = FALSE,
-    check.names = FALSE
-  )
-data_stromy$druh_stromu <- factor(x = data_stromy$druh_stromu)
+  read.csv(file = soubor_stromy)
+data_stromy$druh_stromu <-
+  factor(x = data_stromy$druh_stromu)
 # Jeden řádek tabulky představuje jeden strom. Číslo řádku je jen pořadí
 # v tabulce, nikoli označení stromu v terénu. Proměnné a jednotky:
 # druh_stromu       ... vědecký název druhu;
@@ -120,7 +128,9 @@ data_stromy$druh_stromu <- factor(x = data_stromy$druh_stromu)
 # plocha_listu_m2   ... celková plocha listů v m²;
 # hmotnost_vetvi_kg ... suchá hmotnost větví v kg.
 # Zdroj: allometry, lgrdata 0.1.1, John Marshall, University of Idaho, CC0.
-# Podrobnosti najdete v datovém README lekce.
+# Podrobnosti najdete na webu kurzu v odkazu „Původ dat o allometrii stromů“.
+# Pozor: jde o jiné stromy než v minulé lekci. Tam výška pomáhala odhadnout
+# objem dřeva, byla tedy prediktorem; tady je výška odezvou.
 #
 # Druhy budeme v grafech rozlišovat barvou i tvarem bodu, proto si
 # připravíme dva vektory. Zápis vec_barvy_druhu[data_stromy$druh_stromu]
@@ -129,9 +139,9 @@ data_stromy$druh_stromu <- factor(x = data_stromy$druh_stromu)
 # levels(x = data_stromy$druh_stromu).
 vec_barvy_druhu <-
   c(
-    "Pinus monticola" = "#3B7A57",
-    "Pinus ponderosa" = "#9A6B35",
-    "Pseudotsuga menziesii" = "#566D8C"
+    "Pinus monticola" = "#4E9A8A",
+    "Pinus ponderosa" = "#C2613A",
+    "Pseudotsuga menziesii" = "#2E6CA4"
   )
 vec_symboly_druhu <-
   c(
@@ -269,8 +279,8 @@ coef(object = mod_spolecny)
 #
 # Nápověda 2:
 # Zkopírujte ukázku lm() a změňte jen název objektu a vzorec v argumentu
-# formula. Počet
-# pozorování zjistíte například jako nobs(object = mod_aditivni).
+# formula. Počet pozorování zjistíte například jako
+# nobs(object = mod_aditivni).
 #
 # Očekávaný výsledek:
 # Všechny tři modely použily 63 stromů. Model se znaménkem + odpovídá
@@ -289,7 +299,8 @@ coef(object = mod_spolecny)
 # - seq() vytvoří 40 rovnoměrně rozložených průměrů od 7 do 69 cm.
 #   Tento rozsah leží uvnitř naměřených průměrů každého druhu.
 # - expand.grid() z nich vytvoří všechny kombinace průměru a druhu,
-#   tedy 40 × 3 = 120 řádků.
+#   tedy 40 × 3 = 120 řádků. Sloupec druh_stromu bude faktor se stejnými
+#   úrovněmi jako v data_stromy, což predict() potřebuje.
 data_predikce <-
   expand.grid(
     prumer_kmene_cm = seq(
@@ -297,14 +308,7 @@ data_predikce <-
       to = 69,
       length.out = 40
     ),
-    druh_stromu = levels(x = data_stromy$druh_stromu),
-    KEEP.OUT.ATTRS = FALSE,
-    stringsAsFactors = FALSE
-  )
-data_predikce$druh_stromu <-
-  factor(
-    x = data_predikce$druh_stromu,
-    levels = levels(x = data_stromy$druh_stromu)
+    druh_stromu = levels(x = data_stromy$druh_stromu)
   )
 # Ukázka: odhady výšky podle společné přímky uložíme do nového sloupce.
 # predict() spočítá odhad pro každý řádek tabulky data_predikce.
@@ -313,10 +317,15 @@ data_predikce$odhad_spolecny_m <-
     object = mod_spolecny,
     newdata = data_predikce
   )
+# Pro každý druh si připravíme výběr řádků tabulky data_predikce.
+# Porovnání == vrátí TRUE u řádků daného druhu; v hranatých závorkách
+# pak vybere právě tyto řádky. Spusťte tyto tři řádky beze změn.
+vec_radky_monticola <- data_predikce$druh_stromu == "Pinus monticola"
+vec_radky_ponderosa <- data_predikce$druh_stromu == "Pinus ponderosa"
+vec_radky_menziesii <- data_predikce$druh_stromu == "Pseudotsuga menziesii"
 # Níže je kostra grafu pro aditivní model. Použijete ji v U03, až vytvoříte
 # sloupec odhad_aditivni_m. plot() nakreslí naměřené stromy a každé lines()
-# pak přímku jednoho druhu. Podmínka v hranatých závorkách vybere řádky
-# daného druhu.
+# pak přímku jednoho druhu.
 # plot(
 #   x = data_stromy$prumer_kmene_cm,
 #   y = data_stromy$vyska_stromu_m,
@@ -327,20 +336,20 @@ data_predikce$odhad_spolecny_m <-
 #   main = "Posun mezi druhy"
 # )
 # lines(
-#   x = data_predikce$prumer_kmene_cm[data_predikce$druh_stromu == "Pinus monticola"],
-#   y = data_predikce$odhad_aditivni_m[data_predikce$druh_stromu == "Pinus monticola"],
+#   x = data_predikce$prumer_kmene_cm[vec_radky_monticola],
+#   y = data_predikce$odhad_aditivni_m[vec_radky_monticola],
 #   col = vec_barvy_druhu["Pinus monticola"],
 #   lwd = 2
 # )
 # lines(
-#   x = data_predikce$prumer_kmene_cm[data_predikce$druh_stromu == "Pinus ponderosa"],
-#   y = data_predikce$odhad_aditivni_m[data_predikce$druh_stromu == "Pinus ponderosa"],
+#   x = data_predikce$prumer_kmene_cm[vec_radky_ponderosa],
+#   y = data_predikce$odhad_aditivni_m[vec_radky_ponderosa],
 #   col = vec_barvy_druhu["Pinus ponderosa"],
 #   lwd = 2
 # )
 # lines(
-#   x = data_predikce$prumer_kmene_cm[data_predikce$druh_stromu == "Pseudotsuga menziesii"],
-#   y = data_predikce$odhad_aditivni_m[data_predikce$druh_stromu == "Pseudotsuga menziesii"],
+#   x = data_predikce$prumer_kmene_cm[vec_radky_menziesii],
+#   y = data_predikce$odhad_aditivni_m[vec_radky_menziesii],
 #   col = vec_barvy_druhu["Pseudotsuga menziesii"],
 #   lwd = 2
 # )
@@ -376,13 +385,13 @@ data_predikce$odhad_spolecny_m <-
 
 
 # Nápověda 1:
-# Každý nový sloupec vznikne stejně jako odhad_spolecny_m v ukázce; liší
-# se jen model, ze kterého odhad pochází.
+# Stejný postup, jiný model: graf se liší jen tím, kterou předpověď
+# zakreslíte. Co se ve výpočtu odhadů změní, když změníte model?
 #
 # Nápověda 2:
 # V predict() změňte jen object, newdata = data_predikce ponechte. V kopiích
 # grafu měňte jen název sloupce za data_predikce$ v řádku y = ...; řádek
-# x = ... ani podmínky v hranatých závorkách neměňte.
+# x = ... ani výběr řádků v hranatých závorkách neměňte.
 #
 # Očekávaný výsledek:
 # Každý nový sloupec obsahuje 120 odhadů. U společné přímky se přímky
@@ -398,19 +407,22 @@ data_predikce$odhad_spolecny_m <-
 #--------------------------------------------------#
 # R² (koeficient determinace) říká, jakou část variability výšek model
 # zachytil. Počítá se ze dvou součtů čtverců:
-# - SST: jak moc se výšky liší od své průměrné hodnoty. Pro každý strom
+# - celkový součet čtverců (anglicky total sum of squares, zkratka SST):
+#   jak moc se výšky liší od své průměrné hodnoty. Pro každý strom
 #   spočítáme rozdíl jeho výšky od průměru, umocníme ho na druhou a vše
 #   sečteme.
-# - RSS: jak moc se výšky liší od odhadů modelu. Sečteme druhé mocniny
-#   residuí.
+# - součet čtverců residuí (anglicky residual sum of squares, RSS): jak
+#   moc se výšky liší od odhadů modelu. Sečteme druhé mocniny residuí.
 # R² = 1 − RSS/SST. Tento vzorec platí pro modely s interceptem, tedy pro
 # všechny naše modely.
 #
 # Ukázka pro společnou přímku:
 vec_rozdily_od_prumeru <-
   data_stromy$vyska_stromu_m - mean(x = data_stromy$vyska_stromu_m)
-sst_vyska <- sum(vec_rozdily_od_prumeru^2)
-rss_spolecny <- sum(residuals(object = mod_spolecny)^2)
+sst_vyska <-
+  sum(vec_rozdily_od_prumeru^2)
+rss_spolecny <-
+  sum(residuals(object = mod_spolecny)^2)
 r2_spolecny <- 1 - rss_spolecny / sst_vyska
 # summary() vrací souhrn modelu; $r.squared z něj vybere R².
 # all.equal() porovná dvě čísla a přehlédne nepatrné rozdíly vzniklé
@@ -469,8 +481,10 @@ all.equal(
 # je spočítáme.
 #
 # Ukázka pro společnou přímku:
-n_stromy <- nobs(object = mod_spolecny)
-k_spolecny <- length(x = coef(object = mod_spolecny))
+n_stromy <-
+  nobs(object = mod_spolecny)
+k_spolecny <-
+  length(x = coef(object = mod_spolecny))
 r2_adj_spolecny <-
   1 - (1 - r2_spolecny) * (n_stromy - 1) / (n_stromy - k_spolecny)
 # $adj.r.squared vybírá ze summary() adjustované R², nikoli obyčejné R².
@@ -527,14 +541,15 @@ AIC(object = mod_spolecny)
 # rep(NA_real_, times = 3) doplníte tři skutečné hodnoty ve stejném pořadí
 # modelů jako ve sloupci model. (rep() opakuje hodnotu a NA_real_ znamená
 # chybějící číslo, takže kostra je zatím prázdná.)
-# data_porovnani <- data.frame(
-#   model = c("Společná přímka", "Posun mezi druhy", "Různé sklony"),
-#   n = rep(NA_real_, times = 3),
-#   k = rep(NA_real_, times = 3),
-#   r2 = rep(NA_real_, times = 3),
-#   r2_adj = rep(NA_real_, times = 3),
-#   aic = rep(NA_real_, times = 3)
-# )
+# data_porovnani <-
+#   data.frame(
+#     model = c("Společná přímka", "Posun mezi druhy", "Různé sklony"),
+#     n = rep(NA_real_, times = 3),
+#     k = rep(NA_real_, times = 3),
+#     r2 = rep(NA_real_, times = 3),
+#     r2_adj = rep(NA_real_, times = 3),
+#     aic = rep(NA_real_, times = 3)
+#   )
 # ΔAIC (delta AIC) je rozdíl mezi AIC modelu a nejmenším AIC v tabulce.
 # Nejlépe podporovaný model v tabulce má tedy ΔAIC = 0. min() vrátí
 # nejmenší hodnotu. Když od vektoru odečtete jedno číslo, odečte se od
@@ -552,9 +567,8 @@ AIC(object = mod_spolecny)
 # 3. Zkontrolujte, že všechny modely použily 63 stromů a že v tabulce
 #    nechybí žádná hodnota.
 # 4. Pro každou metriku zapište do komentáře, který model vychází nejlépe.
-#    Vysvětlete,
-#    proč tři metriky nejsou tři nezávislé „hlasy“ o tom, který model je
-#    pravdivý.
+#    Vysvětlete, proč tři metriky nejsou tři nezávislé „hlasy“ o tom,
+#    který model je pravdivý.
 
 # Vaše řešení:
 
@@ -762,10 +776,11 @@ AIC(object = mod_spolecny)
 #    Vytvoří kopii dat, ve které je referenčním druhem Pseudotsuga
 #    menziesii; relevel() změní pořadí úrovní faktoru.
 # data_reference <- data_stromy
-# data_reference$druh_stromu <- relevel(
-#   x = data_reference$druh_stromu,
-#   ref = "Pseudotsuga menziesii"
-# )
+# data_reference$druh_stromu <-
+#   relevel(
+#     x = data_reference$druh_stromu,
+#     ref = "Pseudotsuga menziesii"
+#   )
 # 2. Na data_reference vytvořte aditivní model mod_reference se stejným
 #    vzorcem jako mod_aditivni.
 # 3. Porovnejte coef() obou modelů.
@@ -835,16 +850,11 @@ AIC(object = mod_spolecny)
 # stromů.
 # 1. Spusťte následující kód (z každého řádku odstraňte jeden úvodní #).
 #    Vytvoří tabulku se šesti řádky: tři druhy při průměrech 30 a 60 cm.
-# data_dva_prumery <- expand.grid(
-#   prumer_kmene_cm = c(30, 60),
-#   druh_stromu = levels(x = data_stromy$druh_stromu),
-#   KEEP.OUT.ATTRS = FALSE,
-#   stringsAsFactors = FALSE
-# )
-# data_dva_prumery$druh_stromu <- factor(
-#   x = data_dva_prumery$druh_stromu,
-#   levels = levels(x = data_stromy$druh_stromu)
-# )
+# data_dva_prumery <-
+#   expand.grid(
+#     prumer_kmene_cm = c(30, 60),
+#     druh_stromu = levels(x = data_stromy$druh_stromu)
+#   )
 # 2. Pomocí predict() přidejte do tabulky dva sloupce s odhady výšky:
 #    odhad_aditivni_m z mod_aditivni a odhad_interakce_m z mod_interakce.
 # 3. Pro každý model a oba průměry spočítejte rozdíl odhadované výšky
@@ -1263,8 +1273,7 @@ AIC(object = mod_spolecny)
 # Zadání:
 # Prozkoumejte, jak spolehlivé jsou odhady mimo rozsah naměřených dat.
 # 1. Podle vzoru před U03 vytvořte pomocí expand.grid() tabulku všech tří
-#    druhů při průměrech 30 a 100 cm. Druh převeďte na faktor se stejnými
-#    úrovněmi jako v data_stromy.
+#    druhů při průměrech 30 a 100 cm.
 # 2. Z mod_aditivni získejte odhady střední výšky s 95% intervaly
 #    spolehlivosti:
 #    predict(object = ..., newdata = ..., interval = "confidence",

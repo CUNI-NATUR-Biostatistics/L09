@@ -1,0 +1,122 @@
+{
+  "date": "2026-10-19",
+  "tool": "OpenAI built-in image_gen",
+  "model": "Not exposed by the built-in tool",
+  "specification": "Presentation/Materials/GENERATED_IMAGES.md: Watercolour redraw and title image (2026-10-19)",
+  "transparent_background": true,
+  "postprocessing": "Selected tool PNGs copied unchanged; no raster edits, resizing or alpha removal outside image_gen.",
+  "images": [
+    {
+      "file": "stromy_mereni.png",
+      "slide": 2,
+      "prompt": "Use case: scientific-educational lecture illustration. Asset: stromy_mereni.png, landscape 16:9, about 1672 x 941 px, transparent RGBA vignette.\nInput images: L08 and L10 title illustrations = painterly style and transparency reference only. The current paper-cut stromy_mereni.png = scene-function and composition reference only; do not copy its medium or its human figures.\nPrimary request: a light, humorous but scientifically grounded scene showing how foresters measure conifers. At a small forest measuring station, the red fox wraps a plain unmarked diameter tape around a trunk at chest height; a short plain wooden marker post beside the trunk shows that height. The red squirrel sits on a stump and sights the top of a tree through a plain handheld clinometer, as if measuring tree height. The three conifers of the cast stand side by side with similar trunk thickness; their tops are partly framed so no species looks deliberately taller. A small field table with a plain notebook (blank pages) and a pencil sits at one side.\nComposition: wide, compact, trees and characters centred, readable when projected at about 900 px wide; the tape, marker post and clinometer action must be readable at first glance.\nStyle/medium: rich warm storybook natural-history WATERCOLOUR AND GOUACHE, organic brushwork, dimensional bark, needles, rocks and moss, gentle academic humour, natural animal and tree anatomy; match the painterly quality of the supplied L08 and L10 title references but NOT their subjects.\nRecurring cast (draw exactly like this in every image): three North American conifers — (1) western white pine (Pinus monticola): slender trunk, soft long drooping needles, narrow open crown; (2) ponderosa pine (Pinus ponderosa): thick orange-brown plated bark, long needle tufts, open rounded crown; (3) Douglas fir (Pseudotsuga menziesii): dense conical crown, drooping branch tips, dark grey-brown bark. Trees have no faces. Animal characters: a red fox, a red squirrel and a tawny owl, natural anatomy, expressive eyes, no clothing unless stated.\nSetting: mountain conifer forest and a simple field station; compact scene, no broad empty sky.\nColour: natural forest greens, bark browns, warm parchment, graphite; any plain stick or pole that stands for a straight model line is painted muted indigo purple #5D2890; no other saturated purple or orange.\nTransparency and framing: genuinely transparent RGBA background outside an irregular painted vignette; no rectangular border, sky fill, white wash, glow or checkerboard; complete silhouettes, nothing clipped.\nAbsolute constraints: no text, letters, numbers, tick marks or scales on any tool, formulas, graph axes, charts, arrows, logos or watermarks; never imply a statistical result, a winner, or that one tree species is taller than another; no photorealism, no flat paper-cut or cartoon style, no human figures.",
+      "reference_images": [
+        "L08/Presentation/Materials/krabi_titulni_ilustrace.png",
+        "L10/Presentation/Materials/ostrovy_titulni.png",
+        {
+          "file": "L09/Presentation/Materials/stromy_mereni.png",
+          "version": "2026-10-05 paper-cut; composition/teaching role only",
+          "sha256": "f8116ce0bb94c930bb6b8fdaa62001c9d8d77a15ce298e14d87658dfcffe7ebc"
+        }
+      ],
+      "initial_output": "exec-043799ee-d092-41ef-82c5-baab6370c4d1.png",
+      "targeted_edits": [
+        {
+          "prompt": "Edit this L09 watercolour measurement vignette only to meet its two existing acceptance constraints: (1) make the entire cream diameter tape wrapped around the central trunk completely blank and unmarked: remove all dots, ticks, graduations, numerals, letters and ink marks, and remove any marks from the marker post and measuring tools. Preserve the tape shape and measuring action. (2) Fit all three complete treetops inside the landscape 16:9 canvas with a little genuine transparent margin above their needles; no silhouette touches or is clipped by the top edge. Keep the visual heights comparable without implying a species result. Preserve the fox wrapping tape at chest height, squirrel sighting upward through the clinometer, owl, notebook, table, tree identities, painterly style, composition and natural colours. Preserve genuine transparency outside the irregular painted vignette. No text, no human figures, no graph.",
+          "selected_output": "exec-d0829a92-430f-4b1f-bee5-9d9dd1567049.png"
+        },
+        {
+          "prompt": "Precise local edit only: replace the cream measuring band around the central tree trunk with a completely smooth, solid, uniform pale cream ribbon. It must be a single uninterrupted blank band with absolutely ZERO small lines, dashes, dots, ticks, printed marks, or symbols anywhere on its visible surface. Do not depict a graduated ruler or standard measuring tape. Let the cream ribbon be held in the fox's paws around the tree at exactly the existing height and position. Remove the dark dot on the small cream marker-post crossbar too so it is a blank piece of wood. Preserve every other pixel-level visual property as closely as possible: all tree shapes and complete treetops, animals, setting, watercolour/gouache, landscape 16:9, transparent RGBA background. No other changes.",
+          "selected_output": "exec-36840f5b-c93b-4f24-8614-68bb3370682c.png"
+        }
+      ],
+      "selected_output": "exec-36840f5b-c93b-4f24-8614-68bb3370682c.png",
+      "superseded_paper_cut_sha256": "f8116ce0bb94c930bb6b8fdaa62001c9d8d77a15ce298e14d87658dfcffe7ebc"
+    },
+    {
+      "file": "stromy_krejci.png",
+      "slide": 42,
+      "prompt": "Use case: scientific-educational lecture illustration. Asset: stromy_krejci.png, landscape 16:9, about 1672 x 941 px, transparent RGBA vignette.\nInput images: L08 and L10 title illustrations = painterly style reference only; the current paper-cut stromy_krejci.png = composition and teaching-role reference only.\nPrimary request: an open-air forest tailor's corner. The red fox, as a tailor with a plain unmarked tape draped over its shoulders, fits one young ponderosa pine into an absurdly over-tailored garment with dozens of seams, patches and pins that trace every bump and knot of the trunk. Beside it, on a simple wooden stand, hangs a plain, well-cut coat with only a few seams that would fit the same tree shape well. Behind them a second, slightly differently shaped Douglas fir waits in line, leaning a little as if doubtful that the over-tailored garment would fit it. Both garments are made of muted indigo-purple wool (#5D2890), because both stand for models; the many pins may carry one tiny orange accent.\nComposition: tailor, tree and suit left-centre, coat on its stand right-centre, waiting tree slightly behind; compact, readable at about 900 px wide.\nStyle/medium: rich warm storybook natural-history WATERCOLOUR AND GOUACHE, organic brushwork, dimensional bark, needles, rocks and moss, gentle academic humour, natural animal and tree anatomy; match the painterly quality of the supplied L08 and L10 title references but NOT their subjects.\nRecurring cast (draw exactly like this in every image): three North American conifers — (1) western white pine (Pinus monticola): slender trunk, soft long drooping needles, narrow open crown; (2) ponderosa pine (Pinus ponderosa): thick orange-brown plated bark, long needle tufts, open rounded crown; (3) Douglas fir (Pseudotsuga menziesii): dense conical crown, drooping branch tips, dark grey-brown bark. Trees have no faces. Animal characters: a red fox, a red squirrel and a tawny owl, natural anatomy, expressive eyes, no clothing unless stated.\nSetting: mountain conifer forest and a simple field station; compact scene, no broad empty sky.\nColour: natural forest greens, bark browns, warm parchment, graphite; any plain stick or pole that stands for a straight model line is painted muted indigo purple #5D2890; no other saturated purple or orange.\nTransparency and framing: genuinely transparent RGBA background outside an irregular painted vignette; no rectangular border, sky fill, white wash, glow or checkerboard; complete silhouettes, nothing clipped.\nAbsolute constraints: no text, letters, numbers, tick marks or scales on any tool, formulas, graph axes, charts, arrows, logos or watermarks; never imply a statistical result, a winner, or that one tree species is taller than another; no photorealism, no flat paper-cut or cartoon style, no human figures.",
+      "reference_images": [
+        "L08/Presentation/Materials/krabi_titulni_ilustrace.png",
+        "L10/Presentation/Materials/ostrovy_titulni.png",
+        {
+          "file": "L09/Presentation/Materials/stromy_krejci.png",
+          "version": "2026-10-05 paper-cut; composition/teaching role only",
+          "sha256": "52d4cd542768907b983f206da803123ee33d6202c71d69aa253ec5e707c87589"
+        }
+      ],
+      "initial_output": "exec-3ddfa668-062e-4537-9c43-82834d9f197a.png",
+      "targeted_edits": [
+        {
+          "prompt": "Adjust only the framing of this forest-tailor illustration so the entire central young ponderosa pine crown and every other silhouette are complete and surrounded by a small transparent margin on all edges. Keep LANDSCAPE 16:9. Reduce the central tree's crown height or gently zoom out as needed, keeping the fox, the many-seamed purple suit around the trunk, the simple purple coat and waiting conifer clearly readable. Preserve the scene, unmarked cream tape, natural anatomy, warm painterly watercolour/gouache, colours, objects, garment seams and genuine transparency outside the irregular vignette. No text, numbers, rulers, charts or new objects.",
+          "selected_output": "exec-f6357baa-d6aa-4f2f-b60e-572518254989.png"
+        }
+      ],
+      "selected_output": "exec-f6357baa-d6aa-4f2f-b60e-572518254989.png",
+      "superseded_paper_cut_sha256": "52d4cd542768907b983f206da803123ee33d6202c71d69aa253ec5e707c87589"
+    },
+    {
+      "file": "stromy_porota.png",
+      "slide": 47,
+      "prompt": "Use case: scientific-educational lecture illustration. Asset: stromy_porota.png, landscape 16:9, about 1672 x 941 px, transparent RGBA vignette.\nInput images: L08 and L10 title illustrations = painterly style reference only; the current paper-cut stromy_porota.png = composition and teaching-role reference only.\nPrimary request: a small forest theatre stage made of logs. In the foreground a jury of the tawny owl, the red fox and the red squirrel sits on a log bench, each holding a plain blank score card. On the stage stand three small potted young conifers of equal size, each with a plain stick accessory painted muted indigo purple #5D2890: the first has one straight stick; the second has three parallel straight sticks; the third has three straight sticks that fan out from a common base. Through a half-open side door at the edge of the stage, a fourth potted conifer peeks in, unnoticed by the jury; its single purple stick is gently curved. No crown, medal, podium steps or spotlight on any candidate.\nComposition: jury seen from behind or three-quarter view in the lower foreground, three candidates evenly spaced on the stage, the door at the right edge; readable at about 800 px wide.\nStyle/medium: rich warm storybook natural-history WATERCOLOUR AND GOUACHE, organic brushwork, dimensional bark, needles, rocks and moss, gentle academic humour, natural animal and tree anatomy; match the painterly quality of the supplied L08 and L10 title references but NOT their subjects.\nRecurring cast (draw exactly like this in every image): three North American conifers — (1) western white pine (Pinus monticola): slender trunk, soft long drooping needles, narrow open crown; (2) ponderosa pine (Pinus ponderosa): thick orange-brown plated bark, long needle tufts, open rounded crown; (3) Douglas fir (Pseudotsuga menziesii): dense conical crown, drooping branch tips, dark grey-brown bark. Trees have no faces. Animal characters: a red fox, a red squirrel and a tawny owl, natural anatomy, expressive eyes, no clothing unless stated.\nSetting: mountain conifer forest and a simple field station; compact scene, no broad empty sky.\nColour: natural forest greens, bark browns, warm parchment, graphite; any plain stick or pole that stands for a straight model line is painted muted indigo purple #5D2890; no other saturated purple or orange.\nTransparency and framing: genuinely transparent RGBA background outside an irregular painted vignette; no rectangular border, sky fill, white wash, glow or checkerboard; complete silhouettes, nothing clipped.\nAbsolute constraints: no text, letters, numbers, tick marks or scales on any tool, formulas, graph axes, charts, arrows, logos or watermarks; never imply a statistical result, a winner, or that one tree species is taller than another; no photorealism, no flat paper-cut or cartoon style, no human figures.",
+      "reference_images": [
+        "L08/Presentation/Materials/krabi_titulni_ilustrace.png",
+        "L10/Presentation/Materials/ostrovy_titulni.png",
+        {
+          "file": "L09/Presentation/Materials/stromy_porota.png",
+          "version": "2026-10-05 paper-cut; composition/teaching role only",
+          "sha256": "f8e22cde5136dad0f9d8455742877e8d44c74e1774ebdcfd6d2ced189611299f"
+        }
+      ],
+      "initial_output": "exec-01a0589a-88ba-49f1-8678-854b43658e57.png",
+      "targeted_edits": [],
+      "selected_output": "exec-01a0589a-88ba-49f1-8678-854b43658e57.png",
+      "superseded_paper_cut_sha256": "f8e22cde5136dad0f9d8455742877e8d44c74e1774ebdcfd6d2ced189611299f"
+    },
+    {
+      "file": "stromy_strop.png",
+      "slide": 55,
+      "prompt": "Use case: scientific-educational lecture illustration. Asset: stromy_strop.png, landscape 16:9, about 1672 x 941 px, transparent RGBA vignette.\nInput images: L08 and L10 title illustrations = painterly style reference only; the current paper-cut stromy_strop.png = composition and teaching-role reference only.\nPrimary request: a row of conifers on a gentle mountain slope, arranged from young and slim on the left to old and very thick on the right. Their heights rise at first and then clearly level off among the oldest, thickest trees. Mix the three species of the cast along the row so it reads as an age sequence, not a species ranking. A giant straight plain pole painted muted indigo purple #5D2890 leans along the row from the base of the youngest tree and keeps rising past the tallest crowns into soft clouds. At the foot of the pole the red fox and the red squirrel look up at it, puzzled.\nComposition: wide, the row of trees and the pole dominate, characters small in the lower left; a few soft clouds only where the pole ends; readable at about 1000 px wide. Keep tree bases roughly on the same level, increase trunk thickness toward the right while the last three trees have approximately equal height. Complete tree tips and pole with transparent breathing room inside frame.\nStyle/medium: rich warm storybook natural-history WATERCOLOUR AND GOUACHE, organic brushwork, dimensional bark, needles, rocks and moss, gentle academic humour, natural animal and tree anatomy; match the painterly quality of the supplied L08 and L10 title references but NOT their subjects.\nRecurring cast (draw exactly like this in every image): three North American conifers — (1) western white pine (Pinus monticola): slender trunk, soft long drooping needles, narrow open crown; (2) ponderosa pine (Pinus ponderosa): thick orange-brown plated bark, long needle tufts, open rounded crown; (3) Douglas fir (Pseudotsuga menziesii): dense conical crown, drooping branch tips, dark grey-brown bark. Trees have no faces. Animal characters: a red fox, a red squirrel and a tawny owl, natural anatomy, expressive eyes, no clothing unless stated.\nSetting: mountain conifer forest and a simple field station; compact scene, no broad empty sky.\nColour: natural forest greens, bark browns, warm parchment, graphite; any plain stick or pole that stands for a straight model line is painted muted indigo purple #5D2890; no other saturated purple or orange.\nTransparency and framing: genuinely transparent RGBA background outside an irregular painted vignette; no rectangular border, sky fill, white wash, glow or checkerboard; complete silhouettes, nothing clipped.\nAbsolute constraints: no text, letters, numbers, tick marks or scales on any tool, formulas, graph axes, charts, arrows, logos or watermarks; never imply a statistical result, a winner, or that one tree species is taller than another; no photorealism, no flat paper-cut or cartoon style, no human figures.",
+      "reference_images": [
+        "L08/Presentation/Materials/krabi_titulni_ilustrace.png",
+        "L10/Presentation/Materials/ostrovy_titulni.png",
+        {
+          "file": "L09/Presentation/Materials/stromy_strop.png",
+          "version": "2026-10-05 paper-cut; composition/teaching role only",
+          "sha256": "5294cf14c872d2970f3a3e77fedfc6ffe8947770bbcb8127ea0a6784ee0dcf1a"
+        }
+      ],
+      "initial_output": "exec-af42a91e-5293-4e6a-a2d8-1b990c3f120a.png",
+      "targeted_edits": [
+        {
+          "prompt": "Framing-only edit: preserve this complete watercolour forest growth vignette, but scale the whole painted scene down just enough to leave a genuinely empty transparent margin of about 3 percent along ALL FOUR edges of the same landscape 16:9 canvas. Reconstruct the tiny clipped top of the cloud and outermost right foliage naturally; no cloud, tree, rock, animal, or pole may intersect the canvas border. Preserve exactly the tree age sequence, thick last trunks with similar heights, purple straight pole, fox and squirrel, natural colours, painterly details, and irregular alpha silhouette. No new objects, no text, no chart, no white or coloured background.",
+          "selected_output": "exec-927da647-2145-45a2-839d-1f4c0e662c8d.png"
+        }
+      ],
+      "selected_output": "exec-927da647-2145-45a2-839d-1f4c0e662c8d.png",
+      "superseded_paper_cut_sha256": "5294cf14c872d2970f3a3e77fedfc6ffe8947770bbcb8127ea0a6784ee0dcf1a"
+    },
+    {
+      "file": "stromy_titulni_ilustrace.png",
+      "slide": 1,
+      "prompt": "Use case: scientific-educational title illustration. Asset: stromy_titulni_ilustrace.png, PORTRAIT 3:4, about 1086 x 1448 px, genuinely transparent RGBA background with an irregular natural silhouette; it must look rich and readable at only 360-380 px wide on a deep purple #5D2890 slide.\nInput roles: Image 1, the L08 crab title, and Image 2, the L10 island title = painterly style, portrait composition, depth and transparent-vignette reference ONLY (do not include their animals, islands or objects). Image 3, the redrawn L09 measurement illustration, and Image 4, the redrawn L09 jury illustration = character and style references for the fox, squirrel, owl and the three conifers. Image 5, the L09 three-panel candidate-model figure = ONLY the idea of three line arrangements (one line; three parallel lines; three fanning lines); no part of the chart may appear.\nPrimary scene: a compact mountain-forest vignette. The three conifers of the cast rise tall behind a small field table in the lower foreground. At the table the red fox holds a plain unmarked diameter tape and the red squirrel holds a plain clinometer. Leaning against the table stand three small plain wooden boards of equal size; on each board short sticks painted muted indigo purple are fixed: one straight stick on the first, three parallel straight sticks on the second, three straight sticks fanning from a common base on the third. On a low branch above, the tawny owl looks down at the three boards thoughtfully. No board is highlighted, crowned or chosen.\nComposition: tall tapered vignette; the fox, squirrel and three boards readable first, the trees framing them; modest breathing room around complete silhouettes; dark/light separation so it reads on purple. Include about 3 percent genuinely transparent margin on all canvas edges, all treetops complete and inside canvas.\nStyle/medium: rich warm storybook natural-history WATERCOLOUR AND GOUACHE, organic brushwork, dimensional bark, needles, rocks and moss, gentle academic humour, natural animal and tree anatomy; match the painterly quality of the supplied L08 and L10 title references but NOT their subjects.\nRecurring cast (draw exactly like this in every image): three North American conifers — (1) western white pine (Pinus monticola): slender trunk, soft long drooping needles, narrow open crown; (2) ponderosa pine (Pinus ponderosa): thick orange-brown plated bark, long needle tufts, open rounded crown; (3) Douglas fir (Pseudotsuga menziesii): dense conical crown, drooping branch tips, dark grey-brown bark. Trees have no faces. Animal characters: a red fox, a red squirrel and a tawny owl, natural anatomy, expressive eyes, no clothing unless stated.\nSetting: mountain conifer forest and a simple field station; compact scene, no broad empty sky.\nColour: natural forest greens, bark browns, warm parchment, graphite; any plain stick or pole that stands for a straight model line is painted muted indigo purple #5D2890; no other saturated purple or orange.\nTransparency and framing: genuinely transparent RGBA background outside an irregular painted vignette; no rectangular border, sky fill, white wash, glow or checkerboard; complete silhouettes, nothing clipped.\nAbsolute constraints: no text, letters, numbers, tick marks or scales on any tool, formulas, graph axes, charts, arrows, logos or watermarks; never imply a statistical result, a winner, or that one tree species is taller than another; no photorealism, no flat paper-cut or cartoon style, no human figures.",
+      "reference_images": [
+        "L08/Presentation/Materials/krabi_titulni_ilustrace.png",
+        "L10/Presentation/Materials/ostrovy_titulni.png",
+        "L09/Presentation/Materials/stromy_mereni.png",
+        "L09/Presentation/Materials/stromy_porota.png",
+        "L09/Presentation/Materials/title_references/kandidatni_modely.png"
+      ],
+      "initial_output": "exec-362a8bd6-2d60-4439-9411-6428b98041e0.png",
+      "targeted_edits": [
+        {
+          "prompt": "Precision edit of the supplied portrait L09 title vignette. Make all measurement props completely blank and unmarked: the entire long cream tape in the fox's paws must be a smooth solid uninterrupted cream ribbon with ZERO ticks, dashes, dots, numerals or printing; the squirrel's handheld clinometer must have a plain smooth dark face with ZERO tick marks, graduations, numbers or letters. It can retain its simple outer shape and eyepiece. Also gently reduce the whole scene within the same portrait 3:4 frame to provide genuine transparent breathing room above the entire central pine crown, keeping that treetop complete; no animal or tree silhouette clipped. Preserve all characters, watercolour/gouache quality, three conifers, owl on branch, table and three equal wooden boards with EXACTLY one straight purple stick, three parallel purple sticks, and three purple sticks fanning from one base. Preserve genuinely transparent background, original natural palette and no winner. No other changes.",
+          "selected_output": "exec-197d43c5-77b5-4f89-8a9f-256583f5c4ec.png"
+        }
+      ],
+      "selected_output": "exec-197d43c5-77b5-4f89-8a9f-256583f5c4ec.png",
+      "superseded_paper_cut_sha256": null
+    }
+  ]
+}
