@@ -83,7 +83,7 @@
         },
         {
           "id": "nelze-spocitat",
-          "label": "Nelze ho spočítat; u dvou číselných prediktorů sklon nemá smysl."
+          "label": "Nelze ho spočítat; u dvou numerických prediktorů sklon nemá smysl."
         }
       ],
       "correctOptionId": "mimo-data",
