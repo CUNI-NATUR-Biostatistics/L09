@@ -322,7 +322,7 @@ coef(object = mod_spolecny)
 #| echo: false
 #| fig-width: 7
 #| fig-height: 5.4
-#| fig-alt: "Body stromů tří druhů a jedna společná fialová přímka modelu."
+#| fig-alt: "Body stromů tří druhů a jedna společná fialová odhadnutá přímka."
 graf_stromy +
   ggplot2::geom_abline(
     intercept = coef(mod_spolecny)[[1]],
@@ -808,7 +808,7 @@ Kratší residua → menší čtverce → [menší RSS]{.text-hgl-orange} = těs
 
 ::::
 
-## Je přímka lepší než předpověď průměrem?
+## Je přímka lepší než predikce průměrem?
 
 ```{r}
 #| label: pripravit-sest-stromu
@@ -881,7 +881,7 @@ graf_sest_zaklad
 
 Šest skutečných stromů z tabulky.
 
-Předpověď bez prediktoru: každému stromu [průměrnou výšku]{.text-hgl-graphite}.
+Predikce bez prediktoru: každému stromu [průměrnou výšku]{.text-hgl-graphite}.
 
 <br>
 
@@ -1218,7 +1218,7 @@ Sledujte oranžové úsečky a sloupec RSS: kdy je R² nulové a kdy největší
 :::
 
 ::: {.notes}
-Všechny přímky procházejí středem dat (průměrný průměr kmene, průměrná výška). Vodorovná přímka je předpověď průměrem, krajní poloha je odhadnutá přímka. Hodnota 1 − RSS / celkový součet čtverců se počítá pro každou polohu; R² modelu je ta pro odhadnutou přímku.
+Všechny přímky procházejí středem dat (průměrný průměr kmene, průměrná výška). Vodorovná přímka je predikce průměrem, krajní poloha je odhadnutá přímka. Hodnota 1 − RSS / celkový součet čtverců se počítá pro každou polohu; R² modelu je ta pro odhadnutou přímku.
 :::
 
 ## Stejných šest stromů, čtyři natočení přímky
@@ -1289,7 +1289,7 @@ cowplot::plot_grid(plotlist = list_natoceni_panely, nrow = 1)
 ```
 
 ::: {.fragment}
-Vodorovná přímka = předpověď [průměrem]{.text-hgl-graphite}: R² = 0. Odhadnutá přímka: [nejmenší RSS]{.text-hgl-orange}, a proto [největší R²]{.text-hgl-indigo_velvet}.
+Vodorovná přímka = predikce [průměrem]{.text-hgl-graphite}: R² = 0. Odhadnutá přímka: [nejmenší RSS]{.text-hgl-orange}, a proto [největší R²]{.text-hgl-indigo_velvet}.
 :::
 
 ## Dává `summary()` stejné R² pro všech `r nrow(data_stromy)` stromů?
@@ -1341,7 +1341,7 @@ summary(object = mod_spolecny)$r.squared
 ::: {.card-question}
 **A**
 
-Model správně předpověděl `r format_value_cz(100 * r2_spolecny, digits = 1)` % stromů.
+Model správně predikoval `r format_value_cz(100 * r2_spolecny, digits = 1)` % stromů.
 :::
 :::
 ::: {.column width="32%"}
@@ -1903,7 +1903,7 @@ Porota hodnotí jen kandidáty, které jsme pozvali na pódium. Čtvrtý kandid�
 
 # Obstojí vybraný model?
 
-## Zůstává v residuích modelu s posunem mezi druhy nějaký vzorec?
+## Zůstává v residuích modelu Posun mezi druhy nějaký vzorec?
 
 ```{r}
 #| label: pripravit-diagnostiku-aditivniho-modelu
@@ -1943,7 +1943,7 @@ graf_qq_aditivni <-
 #| label: zobrazit-diagnostiku-aditivniho-modelu
 #| echo: false
 #| fig-height: 3.6
-#| fig-alt: "Vlevo residua modelu s posunem mezi druhy proti odhadnuté výšce, vpravo Q–Q graf residuí."
+#| fig-alt: "Vlevo residua modelu Posun mezi druhy proti odhadnuté výšce, vpravo Q–Q graf residuí."
 cowplot::plot_grid(graf_residua_aditivni, graf_qq_aditivni, nrow = 1)
 ```
 
